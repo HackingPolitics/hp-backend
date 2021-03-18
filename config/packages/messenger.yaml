@@ -1,0 +1,25 @@
+framework:
+    messenger:
+        failure_transport: failed
+
+        transports:
+            failed: 'doctrine://default?queue_name=failed'
+
+            amqp:
+                dsn: '%env(MESSENGER_AMQP_DSN)%'
+                options:
+                    exchange:
+                        name: hpo
+                        type: direct
+                        default_publish_routing_key: hpo
+                    queues:
+                        hpo:
+                            binding_keys: [hpo]
+                retry_strategy:
+                    max_retries: 3
+                    delay: 1000
+                    multiplier: 2
+                    max_delay: 0
+
+        routing:
+            '*': amqp

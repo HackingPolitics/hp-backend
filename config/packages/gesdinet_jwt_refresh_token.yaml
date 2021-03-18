@@ -1,0 +1,9 @@
+gesdinet_jwt_refresh_token:
+  user_identity_field: username
+  user_provider: security.user.provider.concrete.app_user_provider
+  user_checker: App\Security\UserChecker
+  single_use: true
+  firewall: main
+  ttl: '%env(REFRESH_TOKEN_TTL)%'
+  return_expiration: true
+  token_expiration_parameter_name: refresh_token_expires

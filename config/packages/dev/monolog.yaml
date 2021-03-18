@@ -1,0 +1,51 @@
+monolog:
+    handlers:
+        # log everything that _not_ in the mentioned channels
+        # (debug is the lowest level)
+        main:
+            type: buffer
+            handler: grouped
+            channels: ["!doctrine", "!event", "!security"]
+            level: debug
+            bubble: false
+
+        # log everything (even from the channels excluded above)
+        # with minimum "info" level
+        default:
+            type: buffer
+            handler: grouped
+            level: info
+            bubble: false
+
+        # whatfailuregroup ignores errors from the log handlers themselves,
+        # not called on its own, only by the handlers above
+        grouped:
+            type: whatfailuregroup
+            members: [streamed, logstash]
+
+        # write everything (from main + default) to local file, in case
+        # the logstash server is not reachable, log rotation must be
+        # configured externally.
+        # Not called on its own, only by the handlers above
+        streamed:
+            type: stream
+            path: "%kernel.logs_dir%/%kernel.environment%.log"
+            level: debug
+            include_stacktraces: true
+
+        # write everything (from main + default) to  the logstash server
+        # for easy monitoring.
+        # Not called on its own, only by the handlers above
+        logstash:
+            type: gelf
+            level: debug
+            publisher:
+                hostname: '%env(GELF_SERVER)%'
+                port: '%env(GELF_PORT)%'
+                chunk_size: 8154
+            include_stacktraces: true
+
+        console:
+            type: console
+            process_psr_3_messages: false
+            channels: ["!event", "!doctrine", "!console"]

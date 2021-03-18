@@ -1,0 +1,8 @@
+services:
+    _defaults:
+        public: false
+        autowire: true
+        autoconfigure: true
+
+    # add Twig extensions here to enable them
+    Twig\Extra\Intl\IntlExtension: null

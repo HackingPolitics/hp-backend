@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="de" datatype="plaintext" original="file.ext">
+        <body>
+            <trans-unit id="This value is not a valid email address.">
+                <source>This value is not a valid email address.</source>
+                <target>validate.general.invalidEmail</target>
+            </trans-unit>
+            <trans-unit id="The value you selected is not a valid choice.">
+                <source>The value you selected is not a valid choice.</source>
+                <target>validate.general.invalidChoice</target>
+            </trans-unit>
+            <trans-unit id="This value should not be blank.">
+                <source>This value should not be blank.</source>
+                <target>validate.general.notBlank</target>
+            </trans-unit>
+            <trans-unit id="This value should not be null.">
+                <source>This value should not be null.</source>
+                <target>validate.general.notBlank</target>
+            </trans-unit>
+            <trans-unit id="This value is too short. It should have {{ limit }} character or more.|This value is too short. It should have {{ limit }} characters or more.">
+                <source>This value is too short. It should have {{ limit }} character or more.|This value is too short. It should have {{ limit }} characters or more.</source>
+                <target>validate.general.tooShort</target>
+            </trans-unit>
+            <trans-unit id="This value is too long. It should have {{ limit }} character or less.|This value is too long. It should have {{ limit }} characters or less.">
+                <source>This value is too long. It should have {{ limit }} character or less.|This value is too long. It should have {{ limit }} characters or less.</source>
+                <target>validate.general.tooLong</target>
+            </trans-unit>
+            <trans-unit id="This value contains line breaks.">
+                <source>This value contains line breaks.</source>
+                <target>validate.general.containsLineBreaks</target>
+            </trans-unit>
+            <trans-unit id="This value should be between {{ min }} and {{ max }}.">
+                <source>This value should be between {{ min }} and {{ max }}.</source>
+                <target>validate.general.outOfRange</target>
+            </trans-unit>
+            <trans-unit id="This value should be a valid number.">
+                <source>This value should be a valid number.</source>
+                <target>validate.general.noValidNumber</target>
+            </trans-unit>
+            <trans-unit id="This value should be of type {{ type }}.">
+                <source>This value should be of type {{ type }}.</source>
+                <target>validate.general.invalidType</target>
+            </trans-unit>
+            <trans-unit id="This password has been leaked in a data breach, it must not be used. Please use another password.">
+                <source>This password has been leaked in a data breach, it must not be used. Please use another password.</source>
+                <target>validate.user.password.compromised</target>
+            </trans-unit>
+            <trans-unit id="This password is not secure enough.">
+                <source>This password is not secure enough.</source>
+                <target>validate.user.password.tooWeak</target>
+            </trans-unit>
+
+            <!-- Translations for Exceptions -->
+            <trans-unit id="Forbidden for authenticated users.">
+                <source>Forbidden for authenticated users.</source>
+                <target>failure.unauthenticatedAccessOnly</target>
+            </trans-unit>
+            <trans-unit id="Access blocked, to many requests.">
+                <source>Access blocked, to many requests.</source>
+                <target>failure.accessBlocked</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

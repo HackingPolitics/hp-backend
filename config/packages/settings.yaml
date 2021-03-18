@@ -1,0 +1,11 @@
+settings:
+  access_block:
+    login:
+      limit: "%env(int:BLOCK_LOGIN_LIMIT)%"
+      interval: "%env(BLOCK_LOGIN_INTERVAL)%"
+    password_reset:
+      limit: "%env(int:BLOCK_PW_RESET_LIMIT)%"
+      interval: "%env(BLOCK_PW_RESET_INTERVAL)%"
+    validation_confirm:
+      limit: "%env(int:BLOCK_VALIDATION_CONFIRM_LIMIT)%"
+      interval: "%env(BLOCK_VALIDATION_CONFIRM_INTERVAL)%"

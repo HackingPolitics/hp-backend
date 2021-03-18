@@ -1,0 +1,112 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+    env(MERCURE_PUBLISH_URL): ''
+    env(MERCURE_JWT_SECRET): ''
+    env(USER_VALIDATION_REQUIRED): 'true'
+    env(DEFAULT_LOCALE): 'de'
+    env(DEFAULT_TZ): 'Europe/Berlin'
+    default_locale: "%env(DEFAULT_LOCALE)%"
+    default_timezone: "%env(DEFAULT_TZ)%"
+    # @todo move to configuration
+    user.validation_required: "%env(bool:USER_VALIDATION_REQUIRED)%"
+    project.inactive_threshold: "%env(int:PROJECT_INACTIVE_THRESHOLD)%"
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        public: false       # Allows optimizing the container by removing unused services; this also means
+                            # fetching services directly from the container via $container->get() won't work.
+                            # The best practice is to be explicit about your dependencies anyway.
+        bind:
+            $projectDir: '%kernel.project_dir%'
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/*'
+        exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
+
+    # controllers are imported separately to make sure services can be injected
+    # as action arguments even if you don't extend any base controller class
+    App\Controller\:
+        resource: '../src/Controller'
+        tags: ['controller.service_arguments']
+
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+
+    App\Security\Authentication\AuthenticationProviderManager:
+        decorates: 'security.authentication.manager'
+        arguments: [ '@App\Security\Authentication\AuthenticationProviderManager.inner' ]
+
+    App\Serializer\RoleContextBuilder:
+        decorates: 'api_platform.serializer.context_builder'
+        arguments: [ '@App\Serializer\RoleContextBuilder.inner' ]
+
+    App\Serializer\ErrorNormalizer:
+        decorates: 'api_platform.hydra.normalizer.error'
+        arguments: [ '@App\Serializer\ErrorNormalizer.inner' ]
+
+    App\Swagger\SwaggerDecorator:
+        decorates: 'api_platform.swagger.normalizer.api_gateway'
+        arguments: [ '@App\Swagger\SwaggerDecorator.inner' ]
+
+    # Entity Listeners are auto-wired
+    # DataPersisters are auto-wired
+    # DataTransformers are auto-wired
+    # Doctrine/Extensions are auto-wired
+    # Serializer/Normalizers are auto-wired
+
+    # add additional information to the logs
+    # hostname is automatically added (by logstash?)
+    Monolog\Processor\UidProcessor:
+        tags:
+            - { name: monolog.processor, handler: logstash }
+    Monolog\Processor\WebProcessor:
+        tags:
+            - { name: monolog.processor, handler: logstash }
+    Symfony\Bridge\Monolog\Processor\RouteProcessor:
+        tags:
+            - { name: monolog.processor, handler: logstash }
+    Symfony\Bridge\Monolog\Processor\TokenProcessor:
+        tags:
+            - { name: monolog.processor, handler: logstash }
+
+    # flush the buffer after each handled message to immediately see logs
+    # reset the UID processor when a new message is received to all logs for
+    # one message have a distinct identifier
+    app.event.reset_app_logger:
+        class: Vrok\SymfonyAddons\EventSubscriber\ResetLoggerSubscriber
+        tags:
+            - { name: monolog.logger, channel: app }
+    app.event.reset_messenger_logger:
+        class: Vrok\SymfonyAddons\EventSubscriber\ResetLoggerSubscriber
+        tags:
+            - { name: monolog.logger, channel: messenger }
+
+    Vrok\SymfonyAddons\EventSubscriber\AutoSenderSubscriber:
+        arguments:
+            $sender: "%env(MAILER_SENDER)%"
+
+    App\Security\AccessBlockService:
+        arguments:
+            $settings: "%app.settings%"
+
+    # for file downloads we pass the token in the POST body to not show it in the
+    # download URL and not supply it via cookie as other browser tabs could use it
+    # because we cannot set the auth header for downloads...
+    App\Security\JWT\PostParameterTokenExtractor:
+        arguments:
+            $parameterName: "bearer"
+    # @todo is there a better way to add a custom extractor? e.g. via decorator?
+    lexik_jwt_authentication.extractor.chain_extractor:
+        class:   Lexik\Bundle\JWTAuthenticationBundle\TokenExtractor\ChainTokenExtractor
+        factory: '@App\Security\JWT\TokenExtractorFactory'
+        arguments:
+            $authorizationHeaderTokenExtractor: '@lexik_jwt_authentication.extractor.authorization_header_extractor'

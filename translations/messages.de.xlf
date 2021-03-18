@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="de" datatype="plaintext" original="file.ext">
+        <body>
+            <trans-unit id="mail.app.title">
+                <source>mail.app.title</source>
+                <target>HackingPoliticsOnline</target>
+            </trans-unit>
+            <trans-unit id="mail.imprint">
+                <source>mail.imprint</source>
+                <target><![CDATA[
+                HPO<br />
+                @todo
+               ]]></target>
+            </trans-unit>
+            <trans-unit id="mail.poweredBy">
+                <source>mail.poweredBy</source>
+                <target><![CDATA[
+                Gesendet von <a href="https://@todo client url" style="color: #999999; font-size: 12px; text-align: center; text-decoration: none;">HackinPoliticsOnline</a>.
+               ]]></target>
+            </trans-unit>
+            <trans-unit id="mail.user.salutation">
+                <source>mail.user.salutation</source>
+                <target>Hallo %username%!</target>
+            </trans-unit>
+            <trans-unit id="mail.validation.registration.subject">
+                <source>mail.validation.registration.subject</source>
+                <target>Email-Validierung</target>
+            </trans-unit>
+            <trans-unit id="mail.validation.registration.intro">
+                <source>mail.validation.registration.intro</source>
+                <target>Vielen Dank für Deine Registrierung, bitte bestätige Deine Email-Adresse bis zum %expirationDate% durch Klick auf folgenden Link:</target>
+            </trans-unit>
+            <trans-unit id="mail.validation.registration.description">
+                <source>mail.validation.registration.description</source>
+                <target><![CDATA[
+                Erst nach Bestätigung Deiner Email-Adresse kannst du dich einloggen.<br>
+                Nach Ablauf der Frist wird das Benutzerkonto gelöscht, Du kannst dich danach
+                erneut registrieren.
+               ]]></target>
+            </trans-unit>
+            <trans-unit id="mail.validation.emailChange.subject">
+                <source>mail.validation.emailChange.subject</source>
+                <target>Email-Adresse ändern</target>
+            </trans-unit>
+            <trans-unit id="mail.validation.emailChange.intro">
+                <source>mail.validation.emailChange.intro</source>
+                <target>Du hast die Änderung Deiner Email-Adresse angefordert, bitte bestätige die Anfrage bis zum %expirationDate% durch Klick auf folgenden Link, die Email-Adresse Deines Zugangs wird dann umgestellt:</target>
+            </trans-unit>
+            <trans-unit id="mail.validation.passwordReset.subject">
+                <source>mail.validation.passwordReset.subject</source>
+                <target>Passwort zurücksetzen</target>
+            </trans-unit>
+            <trans-unit id="mail.validation.passwordReset.intro">
+                <source>mail.validation.passwordReset.intro</source>
+                <target>Du hast das Zurücksetzen Deines Passworts angefordert, bitte bestätige die Anfrage bis zum %expirationDate% durch Klick auf folgenden Link, dort kannst Du ein neues Passwort vergeben:</target>
+            </trans-unit>
+            <trans-unit id="mail.validation.newPassword.subject">
+                <source>mail.validation.newPassword.subject</source>
+                <target>Bitte neues Passwort setzen</target>
+            </trans-unit>
+            <trans-unit id="mail.validation.newPassword.intro">
+                <source>mail.validation.newPassword.intro</source>
+                <target><![CDATA[
+                <p>
+                    Ein Administrator hat aus Sicherheitsgründen Dein Passwort zurückgesetzt,
+                    ein Login mit Deinem alten Passwort ab sofort nicht mehr möglich.
+                    <br />
+                    Bitte vergib durch Klick auf den folgenden Link bis zum %expirationDate%
+                    ein neues Passwort:
+                </p>
+                ]]></target>
+            </trans-unit>
+            <trans-unit id="mail.validation.manualLink">
+                <source>mail.validation.manualLink</source>
+                <target>Sollte der Link nicht funktionieren so kopiere bitte die vollständige URL in die Browser-Adresszeile.</target>
+            </trans-unit>
+            <trans-unit id="mail.validation.manualConfirmation">
+                <source>mail.validation.manualConfirmation</source>
+                <target><![CDATA[
+                <p>
+                    Angaben zur manuellen Bestätigung:
+                </p>
+                <ul>
+                    <li>
+                        Identifikator: %id%
+                    </li>
+                    <li>
+                        Sicherheitscode: %token%
+                    </li>
+                </ul>
+               ]]></target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

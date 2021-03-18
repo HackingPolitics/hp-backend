@@ -1,0 +1,22 @@
+monolog:
+    handlers:
+        main:
+            type: buffer
+            handler: streamed
+            level: debug
+            channels: ["!event"]
+            bubble: false
+        streamed:
+            type: stream
+            path: "%kernel.logs_dir%/%kernel.environment%.log"
+            level: debug
+            channels: ["!event"]
+        # unused, required as argument for further services
+        logstash:
+            type: gelf
+            level: debug
+            publisher:
+                hostname: '%env(GELF_SERVER)%'
+                port: '%env(GELF_PORT)%'
+                chunk_size: 8154
+            include_stacktraces: true

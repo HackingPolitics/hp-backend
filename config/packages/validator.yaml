@@ -1,0 +1,16 @@
+framework:
+    validation:
+        enable_annotations: true
+        email_validation_mode: html5
+
+        # Enables validator auto-mapping support.
+        # For instance, basic validation constraints will be inferred from Doctrine's metadata.
+        auto_mapping:
+            # we disable this for our entities for more control over which error messages appearas,
+            # auto-mapping is not smart enough to detect our NotBlank/Length constraints nested
+            # inside a Sequentially constraint. We use Sequentially to suppress multiple messages
+            # for one property: e.g. notBlank & minLength when empty string is given
+            #App\Entity\: []
+
+        not_compromised_password:
+            enabled: false

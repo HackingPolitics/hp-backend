@@ -1,0 +1,60 @@
+monolog:
+    handlers:
+        # log everything from our code (app channel) with minimum "info" level,
+        # regardless of action level
+        app_default:
+            type: buffer
+            handler: grouped
+            channels: ["app"]
+            level: info
+            bubble: false
+
+        # log everything else with minimum "warning" level,
+        # regardless of action level
+        default:
+            type: buffer
+            handler: grouped
+            level: warning
+            bubble: false
+
+        # log all messages (even debug) when the action level is at least
+        # warning for a request
+        main:
+            type: fingers_crossed
+            handler: grouped
+            action_level: warning
+            bubble: false
+
+        # whatfailuregroup ignores errors from the log handlers themselves,
+        # not called on its own, only by the handlers above
+        grouped:
+            type: whatfailuregroup
+            members: [streamed, logstash]
+
+        # write everything (from main + default) to local file, in case
+        # the logstash server is not reachable, log rotation must be
+        # configured externally.
+        # Not called on its own, only by the handlers above
+        streamed:
+            type: stream
+            path: "%kernel.logs_dir%/%kernel.environment%.log"
+            level: debug
+            channels: ["!event"]
+            include_stacktraces: true
+
+        # write everything (from main + default) to the logstash server
+        # for easy monitoring.
+        # Not called on its own, only by the handlers above
+        logstash:
+            type: gelf
+            level: debug
+            publisher:
+                hostname: '%env(GELF_SERVER)%'
+                port: '%env(GELF_PORT)%'
+                chunk_size: 8154
+            include_stacktraces: true
+
+        console:
+            type: console
+            process_psr_3_messages: false
+            channels: ["!event", "!doctrine", "!console"]

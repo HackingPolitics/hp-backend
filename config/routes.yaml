@@ -1,0 +1,12 @@
+# Route to generate the JWT
+# provided by the lexik/jwt-authentication-bundle
+# no controller required, handled by the SF security via matching 'check_path'
+authentication_token:
+  path: /authentication_token
+  methods: ['POST']
+
+# Route to request a new JWT, authenticating with a refresh token
+gesdinet_jwt_refresh_token:
+  path: /refresh_token
+  controller: gesdinet.jwtrefreshtoken::refresh
+  methods: ['POST']
