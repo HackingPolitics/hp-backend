@@ -38,11 +38,13 @@ class EmailChangeTest extends KernelTestCase
             'https://hpo.vrok.de/confirm-validation/?id={{id}}&token={{token}}&type={{type}}'
         );
 
-        $po = $this->entityManager->getRepository(User::class)
+        /** @var User $user */
+        $user = $this->entityManager->getRepository(User::class)
             ->find(TestFixtures::USER['id']);
-        $notFound = $this->entityManager->getRepository(Validation::class)
-            ->findOneBy(['user' => $po]);
-        self::assertNull($notFound);
+        foreach ($user->getValidations() as $validation) {
+            $this->entityManager->remove($validation);
+        }
+        $this->entityManager->flush();
 
         /** @var UserEmailChangeMessageHandler $handler */
         $handler = self::$container->get(UserEmailChangeMessageHandler::class);
@@ -58,7 +60,7 @@ class EmailChangeTest extends KernelTestCase
         self::assertCount(1, $sent);
 
         $validation = $this->entityManager->getRepository(Validation::class)
-            ->findOneBy(['user' => $po]);
+            ->findOneBy(['user' => $user]);
         self::assertInstanceOf(Validation::class, $validation);
         self::assertSame(Validation::TYPE_CHANGE_EMAIL, $validation->getType());
         self::assertSame(['email' => 'new@zukunftsstadt.de'], $validation->getContent());

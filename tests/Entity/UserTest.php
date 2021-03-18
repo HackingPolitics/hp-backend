@@ -106,7 +106,7 @@ class UserTest extends KernelTestCase
         // finds only the undeleted users
         $nonDeleted = $this->getUserRepository()
             ->findNonDeletedBy(['active' => true]);
-        self::assertCount(6, $nonDeleted);
+        self::assertCount(2, $nonDeleted);
         self::assertSame(1, $nonDeleted[0]->getId());
     }
 
