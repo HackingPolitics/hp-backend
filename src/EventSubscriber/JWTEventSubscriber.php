@@ -37,6 +37,7 @@ class JWTEventSubscriber implements EventSubscriberInterface, ServiceSubscriberI
     {
         $payload       = $event->getData();
         $payload['id'] = $event->getUser()->getId();
+        $payload['groupID'] = 13; // @todo remove, debug only
         $event->setData($payload);
     }
 

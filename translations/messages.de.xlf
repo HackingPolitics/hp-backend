@@ -2,6 +2,10 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
     <file source-language="de" datatype="plaintext" original="file.ext">
         <body>
+            <trans-unit id="project.unnamed">
+                <source>project.unnamed</source>
+                <target>[unbenanntes Projekt, ID %projectid%]</target>
+            </trans-unit>
             <trans-unit id="mail.app.title">
                 <source>mail.app.title</source>
                 <target>HackingPoliticsOnline</target>
@@ -22,6 +26,14 @@
             <trans-unit id="mail.user.salutation">
                 <source>mail.user.salutation</source>
                 <target>Hallo %username%!</target>
+            </trans-unit>
+            <trans-unit id="mail.coordinator.salutation">
+                <source>mail.coordinator.salutation</source>
+                <target>Hallo Projekt-Koordinator!</target>
+            </trans-unit>
+            <trans-unit id="mail.processManager.salutation">
+                <source>mail.processManager.salutation</source>
+                <target>Hallo Prozess-Manager!</target>
             </trans-unit>
             <trans-unit id="mail.validation.registration.subject">
                 <source>mail.validation.registration.subject</source>
@@ -89,6 +101,95 @@
                         Sicherheitscode: %token%
                     </li>
                 </ul>
+               ]]></target>
+            </trans-unit>
+            <trans-unit id="mail.accountValidated.pmNotification.subject">
+                <source>mail.accountValidated.pmNotification.subject</source>
+                <target>Neues Benutzerkonto bestätigt</target>
+            </trans-unit>
+            <trans-unit id="mail.accountValidated.pmNotification.content">
+                <source>mail.accountValidated.pmNotification.content</source>
+                <target><![CDATA[
+                <p>
+                    Soeben hat ein neuer Benutzer seine Email-Adresse bestätigt:
+                </p>
+                <ul>
+                    <li>
+                        Benutzername: %username%
+                    </li>
+                    <li>
+                        Email: %useremail%
+                    </li>
+                </ul>
+               ]]></target>
+            </trans-unit>
+            <trans-unit id="mail.noMembers.pmNotification.subject">
+                <source>mail.noMembers.pmNotification.subject</source>
+                <target>Projekt wurde gesperrt</target>
+            </trans-unit>
+            <trans-unit id="mail.noMembers.pmNotification.content">
+                <source>mail.noMembers.pmNotification.content</source>
+                <target><![CDATA[
+                <p>
+                    Soeben hat das letzte Mitglied ein Projekt verlassen, es wurde gesperrt:
+                </p>
+                <ul>
+                    <li>
+                        Projekt: %projectTitle%
+                    </li>
+                </ul>
+               ]]></target>
+            </trans-unit>
+            <trans-unit id="mail.project.newMemberApplication.subject">
+                <source>mail.project.newMemberApplication.subject</source>
+                <target>Neue Mitgliedsbewerbung</target>
+            </trans-unit>
+            <trans-unit id="mail.project.newMemberApplication.content">
+                <source>mail.project.newMemberApplication.content</source>
+                <target><![CDATA[
+                <p>
+                    Soeben hat ein neuer Benutzer die Mitgliedschaft in deinem Projekt beantragt:
+                </p>
+                <ul>
+                    <li>
+                        Benutzername: %username%
+                    </li>
+                    <li>
+                        Projekt: %projectTitle%
+                    </li>
+                </ul>
+               ]]></target>
+            </trans-unit>
+            <trans-unit id="mail.reportNotification.subject">
+                <source>mail.reportNotification.subject</source>
+                <target>Projekt gemeldet!</target>
+            </trans-unit>
+            <trans-unit id="mail.reportNotification.project.content">
+                <source>mail.reportNotification.project.content</source>
+                <target><![CDATA[
+                <p>
+                    Soeben hat ein Benutzer das folgende Projekt als Verstoß gemeldet:
+                </p>
+                <p>
+                    %projectTitle%
+                </p>
+                <p>
+                    Angegebener Grund:
+                </p>
+                <p>
+                    %message%
+                </p>
+               ]]></target>
+            </trans-unit>
+            <trans-unit id="mail.reportNotification.from">
+                <source>mail.reportNotification.from</source>
+                <target><![CDATA[
+                <p>
+                    Angegebener Name: %reporterName%
+                </p>
+                <p>
+                    Angegebene Email: %reporterEmail%
+                </p>
                ]]></target>
             </trans-unit>
         </body>

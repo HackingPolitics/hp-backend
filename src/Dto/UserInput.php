@@ -80,6 +80,30 @@ class UserInput
     public ?string $lastName = null;
 
     /**
+     * no need for @Assert\Valid, the ProjectInputs are validated anyways by
+     * the ProjectInputDataTransformer called by the UserInputDataTransformer.
+     *
+     * @var ProjectInput[]
+     * @Assert\All({
+     *     @Assert\NotBlank,
+     *     @Assert\Type(type=ProjectInput::class)
+     * })
+     * @Groups({"user:register"})
+     */
+    public array $createdProjects = [];
+
+    /**
+     * @var ProjectMembership[]
+     *
+     * @Assert\All({
+     *     @Assert\NotBlank,
+     *     @Assert\Type(type=ProjectMembership::class)
+     * })
+     * @Groups({"user:register"})
+     */
+    public array $projectMemberships = [];
+
+    /**
      * @var ?string
      * @Assert\NotBlank(allowNull=false, groups={
      *     "user:changeEmail",

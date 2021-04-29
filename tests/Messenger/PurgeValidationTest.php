@@ -5,9 +5,6 @@ declare(strict_types=1);
 namespace App\Tests\Messenger;
 
 use App\DataFixtures\TestFixtures;
-use App\Entity\JuryRating;
-use App\Entity\Process;
-use App\Entity\Project;
 use App\Entity\User;
 use App\Entity\Validation;
 use App\Message\PurgeValidationsMessage;
@@ -36,8 +33,7 @@ class PurgeValidationTest extends KernelTestCase
     {
         /** @var User $before */
         $before = $this->entityManager->getRepository(User::class)
-            ->find(TestFixtures::USER['id']);
-        $before->setValidated(false);
+            ->find(TestFixtures::GUEST['id']);
 
         $validation = $before->getValidations()[0];
         $validation->setExpiresAt(new DateTimeImmutable('yesterday'));
@@ -53,7 +49,7 @@ class PurgeValidationTest extends KernelTestCase
         $handler($msg);
 
         $after = $this->entityManager->getRepository(User::class)
-            ->find(TestFixtures::USER['id']);
+            ->find(TestFixtures::GUEST['id']);
         self::assertNull($after);
 
         $noValidation = $this->entityManager->getRepository(Validation::class)

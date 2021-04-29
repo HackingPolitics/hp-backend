@@ -26,6 +26,8 @@ class ActionLog
     public const FAILED_VALIDATION = "failed_validation";
     public const FAILED_PW_RESET_REQUEST = "failed_pw_reset_request";
     public const SUCCESSFUL_PW_RESET_REQUEST = "successful_pw_reset_request";
+    public const CREATED_PROJECT = "created_project";
+    public const REPORTED_PROJECT = "reported_project";
 
     /*
      * Because DateTime columns can't be used in composite identifiers we have

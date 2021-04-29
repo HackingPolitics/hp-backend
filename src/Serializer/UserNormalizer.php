@@ -34,9 +34,15 @@ class UserNormalizer implements ContextAwareNormalizerInterface, NormalizerAware
      */
     public function normalize($object, $format = null, array $context = [])
     {
+        $isPM = false;
+
         $token = $this->tokenStorage->getToken();
         if ($token && $token->getUser() instanceof UserInterface) {
             $currentUser = $token->getUser();
+
+            if ($currentUser->hasRole(User::ROLE_PROCESS_MANAGER)) {
+                $isPM = true;
+            }
 
             // only when a user item or the user collection is accessed, we
             // don't want to add user:self on requests for other entities but
@@ -51,6 +57,22 @@ class UserNormalizer implements ContextAwareNormalizerInterface, NormalizerAware
         $context[self::ALREADY_CALLED] = true;
 
         $result = $this->normalizer->normalize($object, $format, $context);
+
+        // @todo we now remove the properties that may be soft-deleted
+        // how can we prevent APIPlatform/Doctrine from fetching them in the first place?
+
+        if (!$isPM && isset($result['createdProjects'])) {
+            foreach ($object->getCreatedProjects() as $createdProject) {
+                if ($createdProject->isDeleted() || $createdProject->isLocked()) {
+                    $result['createdProjects'] = array_filter(
+                        $result['createdProjects'],
+                        static function ($ele) use ($createdProject) {
+                            return $ele['id'] != $createdProject->getId();
+                        }
+                    );
+                }
+            }
+        }
 
         return $result;
     }

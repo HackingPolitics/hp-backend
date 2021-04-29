@@ -12,6 +12,7 @@ use Symfony\Component\Security\Core\Security;
 class AccessBlockedVoter extends Voter
 {
     public const PW_RESET = 'PW_RESET';
+    public const REPORT_PROJECT = 'REPORT_PROJECT';
     public const VALIDATION_CONFIRM = 'VALIDATION_CONFIRM';
 
     private AccessBlockService $accessBlock;
@@ -30,6 +31,7 @@ class AccessBlockedVoter extends Voter
     {
         return in_array($attribute, [
                 self::PW_RESET,
+                self::REPORT_PROJECT,
                 self::VALIDATION_CONFIRM
             ]) && (is_string($subject) || null === $subject);
     }
@@ -50,6 +52,12 @@ class AccessBlockedVoter extends Voter
 
         if ($attribute === self::VALIDATION_CONFIRM) {
             return $this->accessBlock->validationConfirmAllowed(
+                $user ? $user->getUsername() : null
+            );
+        }
+
+        if ($attribute === self::REPORT_PROJECT) {
+            return $this->accessBlock->reportProjectAllowed(
                 $user ? $user->getUsername() : null
             );
         }

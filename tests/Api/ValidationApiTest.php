@@ -61,7 +61,7 @@ class ValidationApiTest extends ApiTestCase
     public function testGetFailsWithoutPrivilege(): void
     {
         $client = static::createAuthenticatedClient([
-            'email' => TestFixtures::USER['email'],
+            'email' => TestFixtures::PROJECT_OBSERVER['email'],
         ]);
 
         $iri = $this->findIriBy(Validation::class, ['id' => 1]);
@@ -127,7 +127,7 @@ class ValidationApiTest extends ApiTestCase
     public function testConfirmEmailChange(): void
     {
         $client = static::createAuthenticatedClient([
-            'email' => TestFixtures::USER['email'],
+            'email' => TestFixtures::PROJECT_COORDINATOR['email'],
         ]);
 
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();
@@ -138,8 +138,8 @@ class ValidationApiTest extends ApiTestCase
             ->getToken();
 
         $before = $em->getRepository(User::class)
-            ->find(TestFixtures::USER['id']);
-        self::assertSame(TestFixtures::USER['email'], $before->getEmail());
+            ->find(TestFixtures::PROJECT_COORDINATOR['id']);
+        self::assertSame(TestFixtures::PROJECT_COORDINATOR['email'], $before->getEmail());
         $em->clear();
 
         $client->request('POST', '/validations/2/confirm', ['json' => [
@@ -153,9 +153,9 @@ class ValidationApiTest extends ApiTestCase
         ]);
 
         $after = $em->getRepository(User::class)
-            ->find(TestFixtures::USER['id']);
+            ->find(TestFixtures::PROJECT_COORDINATOR['id']);
         self::assertSame('new@zukunftsstadt.de', $after->getEmail());
-        self::assertCount(2, $after->getValidations());
+        self::assertCount(0, $after->getValidations());
     }
 
     public function testConfirmAccountValidation(): void
@@ -165,12 +165,8 @@ class ValidationApiTest extends ApiTestCase
 
         /** @var User $before */
         $before = $em->getRepository(User::class)
-            ->find(TestFixtures::USER['id']);
-        $before->setValidated(false);
-
+            ->find(TestFixtures::GUEST['id']);
         $token = $before->getValidations()[0]->getToken();
-
-        $em->flush();
         $em->clear();
 
         $client->request('POST', '/validations/1/confirm', ['json' => [
@@ -186,9 +182,9 @@ class ValidationApiTest extends ApiTestCase
 
         /** @var User $after */
         $after = $em->getRepository(User::class)
-            ->find(TestFixtures::USER['id']);
+            ->find(TestFixtures::GUEST['id']);
         self::assertTrue($after->isValidated());
-        self::assertCount(2, $after->getValidations());
+        self::assertCount(0, $after->getValidations());
 
         $messenger = self::$container->get('messenger.default_bus');
         $messages = $messenger->getDispatchedMessages();
@@ -210,7 +206,7 @@ class ValidationApiTest extends ApiTestCase
             ->getToken();
 
         $oldPW = $em->getRepository(User::class)
-            ->find(TestFixtures::USER['id'])
+            ->find(TestFixtures::PROJECT_OBSERVER['id'])
             ->getPassword();
         $em->clear();
 
@@ -226,9 +222,9 @@ class ValidationApiTest extends ApiTestCase
         ]);
 
         $after  = $em->getRepository(User::class)
-            ->find(TestFixtures::USER['id']);
+            ->find(TestFixtures::PROJECT_OBSERVER['id']);
         self::assertNotSame($oldPW, $after->getPassword());
-        self::assertCount(2, $after->getValidations());
+        self::assertCount(0, $after->getValidations());
     }
 
     public function testConfirmPasswordResetFailsWithCompromisedPassword(): void
@@ -290,7 +286,7 @@ class ValidationApiTest extends ApiTestCase
 
         $client->request('POST', '/validations/3/confirm', ['json' => [
             'token'    => $token,
-            'password' => TestFixtures::USER['password'],
+            'password' => TestFixtures::PROJECT_OBSERVER['password'],
         ]]);
 
         self::assertJsonContains([
@@ -311,7 +307,7 @@ class ValidationApiTest extends ApiTestCase
     public function testConfirmAccountValidationFailsAuthenticated(): void
     {
         $client = static::createAuthenticatedClient([
-            'email' => TestFixtures::USER['email'],
+            'email' => TestFixtures::PROJECT_WRITER['email'],
         ]);
 
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();
@@ -369,7 +365,7 @@ class ValidationApiTest extends ApiTestCase
     public function testConfirmPasswordResetFailsAuthenticated(): void
     {
         $client = static::createAuthenticatedClient([
-            'email' => TestFixtures::USER['email'],
+            'email' => TestFixtures::PROJECT_OBSERVER['email'],
         ]);
 
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();
@@ -398,7 +394,7 @@ class ValidationApiTest extends ApiTestCase
     public function testConfirmPasswordResetFailsWhenBlocked(): void
     {
         $client = static::createAuthenticatedClient([
-            'email' => TestFixtures::USER['email'],
+            'email' => TestFixtures::PROJECT_OBSERVER['email'],
         ]);
 
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();

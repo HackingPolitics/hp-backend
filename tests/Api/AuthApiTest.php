@@ -468,14 +468,14 @@ class AuthApiTest extends ApiTestCase
     {
         $client = static::createClient();
         $r = $client->request('POST', '/authentication_token', ['json' => [
-            'username' => TestFixtures::USER['username'],
-            'password' => TestFixtures::USER['password'],
+            'username' => TestFixtures::PROJECT_COORDINATOR['username'],
+            'password' => TestFixtures::PROJECT_COORDINATOR['password'],
         ]]);
         static::assertResponseStatusCodeSame(200);
         $auth = $r->toArray();
 
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();
-        $user = $em->getRepository(User::class)->find(TestFixtures::USER['id']);
+        $user = $em->getRepository(User::class)->find(TestFixtures::PROJECT_COORDINATOR['id']);
         $user->markDeleted();
         $em->flush();
 

@@ -12,18 +12,15 @@ use Symfony\Component\HttpFoundation\RequestStack;
 class AccessBlockService
 {
     private ActionLogRepository $repository;
-    private ParameterBagInterface $parameterBag;
     private RequestStack $requestStack;
     private array $settings;
 
     public function __construct(
         ActionLogRepository $repository,
-        ParameterBagInterface $parameterBag,
         RequestStack $requestStack,
         array $settings
     ) {
         $this->repository = $repository;
-        $this->parameterBag = $parameterBag;
         $this->requestStack = $requestStack;
         $this->settings = $settings;
     }
@@ -61,6 +58,18 @@ class AccessBlockService
 
         return $this->checkAccess(
             [ActionLog::FAILED_VALIDATION],
+            $config['interval'],
+            $config['limit'],
+            $username
+        );
+    }
+
+    public function reportProjectAllowed(?string $username)
+    {
+        $config = $this->settings['access_block']['report_project'];
+
+        return $this->checkAccess(
+            [ActionLog::REPORTED_PROJECT],
             $config['interval'],
             $config['limit'],
             $username

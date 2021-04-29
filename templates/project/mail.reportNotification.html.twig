@@ -1,0 +1,19 @@
+{% extends 'layout/mail.html.twig' %}
+
+{% do email.setSubject("mail.reportNotification.subject"|trans) %}
+{% block mail_subject %}{{ email.subject }}{% endblock %}
+
+{% block mail_body %}
+    <h1>{{ "mail.processManager.salutation"|trans }}</h1>
+
+    {{ "mail.reportNotification.project.content"|trans({
+            '%projectTitle%': projectTitle ?: "project.unnamed"|trans({'%projectid%': projectId}),
+            '%message%': message,
+        })|raw
+    }}
+
+    {{ "mail.reportNotification.from"|trans({
+        '%reporterName%': reporterName,
+        '%reporterEmail%': reporterEmail,
+    })|raw }}
+{% endblock %}

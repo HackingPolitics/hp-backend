@@ -9,28 +9,30 @@ services:
       MYSQL_USER: hpo_test
       MYSQL_PASSWORD: hpo_test
 
-  rabbitmq-hpo:
-    image: rabbitmq:3-management
-    container_name: rabbitmq-hpo
-    hostname: rabbitmq
-    ports:
-      - 8090:15672
-    environment:
-      RABBITMQ_DEFAULT_USER: messenger
-      RABBITMQ_DEFAULT_PASS: messenger
+#  rabbitmq-hpo:
+#    image: rabbitmq:3-management
+#    container_name: rabbitmq-hpo
+#    hostname: rabbitmq
+#    ports:
+#      - 8090:15672
+#    environment:
+#      RABBITMQ_DEFAULT_USER: messenger
+#      RABBITMQ_DEFAULT_PASS: messenger
 
   php-hpo:
     build: php
     container_name: php-hpo
     links:
       - mysql-hpo
-      - rabbitmq-hpo
+#      - rabbitmq-hpo
     volumes:
-      - ../:/srv/api
+      - /phpstorm/hpo-backend/:/srv/api
+    extra_hosts:
+      - host.vbox.internal:192.168.178.47
     environment:
       APP_ENV: test
       XDEBUG_MODE: debug
-      XDEBUG_CONFIG: client_host=host.docker.internal
+      XDEBUG_CONFIG: client_host=host.vbox.internal
       START_CRON: "false"
       START_MESSENGER: "true"
       START_FPM: "false"

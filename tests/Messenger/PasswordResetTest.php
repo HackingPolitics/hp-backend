@@ -33,13 +33,13 @@ class PasswordResetTest extends KernelTestCase
     public function testHandlerSendsMessage(): void
     {
         $msg = new UserForgotPasswordMessage(
-            TestFixtures::USER['id'],
+            TestFixtures::PROJECT_OBSERVER['id'],
             'https://hpo.vrok.de/confirm-validation/?id={{id}}&token={{token}}&type={{type}}'
         );
 
         /** @var User $user */
         $user = $this->entityManager->getRepository(User::class)
-            ->find(TestFixtures::USER['id']);
+            ->find(TestFixtures::PROJECT_OBSERVER['id']);
         foreach ($user->getValidations() as $validation) {
             $this->entityManager->remove($validation);
         }
@@ -53,7 +53,7 @@ class PasswordResetTest extends KernelTestCase
         // & Symfony\Bundle\FrameworkBundle\Test\MailerAssertionsTrait, we don't
         // use the trait as it requires the usage of a WebTestCase
         $logger = self::$container->get('mailer.logger_message_listener');
-        $sent = array_filter($logger->getEvents()->getEvents(), function ($e) {
+        $sent = array_filter($logger->getEvents()->getEvents(), static function ($e) {
             return !$e->isQueued();
         });
         self::assertCount(1, $sent);

@@ -7,7 +7,11 @@ namespace App\Tests\Api;
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
 use App\DataFixtures\TestFixtures;
 use App\Entity\ActionLog;
+use App\Entity\Project;
+use App\Entity\ProjectMembership;
 use App\Entity\User;
+use App\Message\AllProjectMembersLeftMessage;
+use App\Message\NewMemberApplicationMessage;
 use App\Message\NewUserPasswordMessage;
 use App\Message\UserEmailChangeMessage;
 use App\Message\UserForgotPasswordMessage;
@@ -29,7 +33,7 @@ class UserApiTest extends ApiTestCase
     public function testGetCollection(): void
     {
         $response = static::createAuthenticatedClient([
-            'email' => TestFixtures::ADMIN['email'],
+            'email' => TestFixtures::PROCESS_MANAGER['email'],
         ])->request('GET', '/users');
 
         self::assertResponseIsSuccessful();
@@ -43,18 +47,23 @@ class UserApiTest extends ApiTestCase
             '@context'         => '/contexts/User',
             '@id'              => '/users',
             '@type'            => 'hydra:Collection',
-            'hydra:totalItems' => 2,
+            'hydra:totalItems' => 6,
         ]);
 
         $collection = $response->toArray();
-        self::assertCount(2, $collection['hydra:member']);
+
+        self::assertCount(6, $collection['hydra:member']);
 
         $ids = [];
         foreach ($collection['hydra:member'] as $user) {
             $ids[] = $user['id'];
         }
         self::assertContains(TestFixtures::ADMIN['id'], $ids);
-        self::assertContains(TestFixtures::USER['id'], $ids);
+        self::assertContains(TestFixtures::PROCESS_MANAGER['id'], $ids);
+        self::assertContains(TestFixtures::PROJECT_WRITER['id'], $ids);
+        self::assertContains(TestFixtures::PROJECT_COORDINATOR['id'], $ids);
+        self::assertContains(TestFixtures::PROJECT_OBSERVER['id'], $ids);
+        self::assertContains(TestFixtures::GUEST['id'], $ids);
         self::assertNotContains(TestFixtures::DELETED_USER['id'], $ids);
     }
 
@@ -75,7 +84,7 @@ class UserApiTest extends ApiTestCase
     public function testGetCollectionFailsWithoutPrivilege(): void
     {
         static::createAuthenticatedClient([
-            'email' => TestFixtures::USER['email'],
+            'email' => TestFixtures::PROJECT_WRITER['email'],
         ])->request('GET', '/users');
 
         self::assertResponseStatusCodeSame(403);
@@ -98,7 +107,7 @@ class UserApiTest extends ApiTestCase
         $response = static::createAuthenticatedClient([
             'email' => TestFixtures::ADMIN['email'],
         ])->request('GET', '/users', ['query' => [
-            'username' => TestFixtures::USER['username'],
+            'username' => TestFixtures::PROJECT_COORDINATOR['username'],
         ]]);
 
         self::assertResponseIsSuccessful();
@@ -111,7 +120,7 @@ class UserApiTest extends ApiTestCase
 
         $result = $response->toArray();
         self::assertCount(1, $result['hydra:member']);
-        self::assertSame(TestFixtures::USER['email'],
+        self::assertSame(TestFixtures::PROJECT_COORDINATOR['email'],
             $result['hydra:member'][0]['email']);
     }
 
@@ -125,7 +134,7 @@ class UserApiTest extends ApiTestCase
         ]);
 
         $response = $client->request('GET', '/users', ['query' => [
-            'pattern' => 'er@zu',
+            'pattern' => 'st@zu',
         ]]);
 
         self::assertResponseIsSuccessful();
@@ -138,7 +147,7 @@ class UserApiTest extends ApiTestCase
 
         $result = $response->toArray();
         self::assertCount(1, $result['hydra:member']);
-        self::assertSame(TestFixtures::USER['email'],
+        self::assertSame(TestFixtures::GUEST['email'],
             $result['hydra:member'][0]['email']);
     }
 
@@ -165,7 +174,7 @@ class UserApiTest extends ApiTestCase
 
         $result = $response->toArray();
         self::assertCount(1, $result['hydra:member']);
-        self::assertSame(TestFixtures::USER['email'],
+        self::assertSame(TestFixtures::PROJECT_WRITER['email'],
             $result['hydra:member'][0]['email']);
     }
 
@@ -175,7 +184,7 @@ class UserApiTest extends ApiTestCase
     public function testGetUsersByRole(): void
     {
         $client = static::createAuthenticatedClient([
-            'email' => TestFixtures::ADMIN['email'],
+            'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
 
         $response = $client->request('GET', '/users', ['query' => [
@@ -206,7 +215,7 @@ class UserApiTest extends ApiTestCase
         ]);
 
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();
-        $admin = $em->getRepository(User::class)->find(TestFixtures::USER['id']);
+        $admin = $em->getRepository(User::class)->find(TestFixtures::PROCESS_MANAGER['id']);
         $admin->setActive(false);
         $em->flush();
 
@@ -224,7 +233,7 @@ class UserApiTest extends ApiTestCase
 
         $result = $response->toArray();
         self::assertCount(1, $result['hydra:member']);
-        self::assertSame(TestFixtures::USER['email'],
+        self::assertSame(TestFixtures::PROCESS_MANAGER['email'],
             $result['hydra:member'][0]['email']);
     }
 
@@ -236,11 +245,6 @@ class UserApiTest extends ApiTestCase
         $client = static::createAuthenticatedClient([
             'email' => TestFixtures::ADMIN['email'],
         ]);
-
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
-        $admin = $em->getRepository(User::class)->find(TestFixtures::USER['id']);
-        $admin->setValidated(false);
-        $em->flush();
 
         $response = $client->request('GET', '/users', ['query' => [
             'validated' => false,
@@ -256,7 +260,7 @@ class UserApiTest extends ApiTestCase
 
         $result = $response->toArray();
         self::assertCount(1, $result['hydra:member']);
-        self::assertSame(TestFixtures::USER['email'],
+        self::assertSame(TestFixtures::GUEST['email'],
             $result['hydra:member'][0]['email']);
     }
 
@@ -266,7 +270,7 @@ class UserApiTest extends ApiTestCase
     public function testGetUndeletedUsers(): void
     {
         $response = static::createAuthenticatedClient([
-            'email' => TestFixtures::ADMIN['email'],
+            'email' => TestFixtures::PROCESS_MANAGER['email'],
         ])->request('GET', '/users', ['query' => [
             'exists[deletedAt]' => 0
         ]]);
@@ -276,10 +280,10 @@ class UserApiTest extends ApiTestCase
             '@context'         => '/contexts/User',
             '@id'              => '/users',
             '@type'            => 'hydra:Collection',
-            'hydra:totalItems' => 2,
+            'hydra:totalItems' => 6,
         ]);
 
-        self::assertCount(2, $response->toArray()['hydra:member']);
+        self::assertCount(6, $response->toArray()['hydra:member']);
     }
 
     /**
@@ -312,14 +316,36 @@ class UserApiTest extends ApiTestCase
             $collection['hydra:member'][0]['id']);
     }
 
+    /**
+     * Process owners cannot get deleted users, the collection must be empty.
+     */
+    public function testGetDeletedUsersAsProcessOwner(): void
+    {
+        static::createAuthenticatedClient([
+            'email' => TestFixtures::PROCESS_MANAGER['email'],
+        ])->request('GET', '/users', ['query' => ['exists[deletedAt]' => 1]]);
+
+        self::assertResponseIsSuccessful();
+        self::assertResponseHeaderSame('content-type',
+            'application/ld+json; charset=utf-8');
+        self::assertMatchesResourceCollectionJsonSchema(User::class);
+
+        self::assertJsonContains([
+            '@context'         => '/contexts/User',
+            '@id'              => '/users',
+            '@type'            => 'hydra:Collection',
+            'hydra:totalItems' => 0,
+        ]);
+    }
+
     public function testGet(): void
     {
         $client = static::createAuthenticatedClient([
-            'email' => TestFixtures::ADMIN['email'],
+            'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
         $client->request('GET', $iri);
 
         self::assertResponseIsSuccessful();
@@ -331,25 +357,63 @@ class UserApiTest extends ApiTestCase
 
         self::assertJsonContains([
             '@id'                => $iri,
-            'createdAt'          => '2019-02-01T00:00:00+00:00',
-            'username'           => TestFixtures::USER['username'],
-            'email'              => TestFixtures::USER['email'],
-            'id'                 => TestFixtures::USER['id'],
+            'createdAt'          => '2019-02-02T00:00:00+00:00',
+            'username'           => TestFixtures::PROJECT_WRITER['username'],
+            'email'              => TestFixtures::PROJECT_WRITER['email'],
+            'id'                 => TestFixtures::PROJECT_WRITER['id'],
             'active'             => true,
             'validated'          => true,
             'objectRoles'        => [],
             'roles'              => [User::ROLE_USER],
+            'createdProjects'    => [
+                0 => [
+                    // PM can see deleted projects
+                    'id' => TestFixtures::DELETED_PROJECT['id'],
+                ],
+            ],
+            'projectMemberships' => [
+                0 => [
+                    '@id'        => '/project_memberships/project='
+                        .TestFixtures::PROJECT['id']
+                        .';user='.TestFixtures::PROJECT_WRITER['id'],
+                    '@type'      => 'ProjectMembership',
+                    'motivation' => 'writer motivation',
+                    'role'       => 'writer',
+                    'skills'     => 'writer skills',
+                    'project'    => [
+                        '@id'   => '/projects/'.TestFixtures::PROJECT['id'],
+                        '@type' => 'Project',
+                        'id'    => TestFixtures::PROJECT['id'],
+                        'title' => 'Car-free Dresden',
+                    ],
+                ],
+                1 => [
+                    '@id'        => '/project_memberships/project='
+                        .TestFixtures::LOCKED_PROJECT['id']
+                        .';user='.TestFixtures::PROJECT_WRITER['id'],
+                    '@type'      => 'ProjectMembership',
+                    'motivation' => 'writer motivation',
+                    'role'       => 'writer',
+                    'skills'     => 'writer skills',
+                    'project'    => [
+                        '@id'   => '/projects/'.TestFixtures::LOCKED_PROJECT['id'],
+                        '@type' => 'Project',
+                        'id'    => TestFixtures::LOCKED_PROJECT['id'],
+                        'title' => 'Locked Project',
+                    ],
+                ],
+            ],
         ]);
     }
 
     public function testGetSelf(): void
     {
         $client = static::createAuthenticatedClient([
-            'email' => TestFixtures::USER['email'],
+            'email' => TestFixtures::PROJECT_WRITER['email'],
         ]);
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
         $client->request('GET', $iri);
 
         self::assertResponseIsSuccessful();
@@ -361,21 +425,125 @@ class UserApiTest extends ApiTestCase
 
         self::assertJsonContains([
             '@id'                => $iri,
-            'createdAt'          => '2019-02-01T00:00:00+00:00',
-            'username'           => TestFixtures::USER['username'],
-            'email'              => TestFixtures::USER['email'],
-            'id'                 => TestFixtures::USER['id'],
+            'createdAt'          => '2019-02-02T00:00:00+00:00',
+            'username'           => TestFixtures::PROJECT_WRITER['username'],
+            'email'              => TestFixtures::PROJECT_WRITER['email'],
+            'id'                 => TestFixtures::PROJECT_WRITER['id'],
             'active'             => true,
             'validated'          => true,
             'roles'              => [User::ROLE_USER],
+            'projectMemberships' => [],
         ]);
+    }
+
+    public function testGetSelfWithMemberships(): void
+    {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROJECT_WRITER['email'],
+        ]);
+
+        $iri = $this->findIriBy(User::class,
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
+        $client->request('GET', $iri);
+
+        self::assertResponseIsSuccessful();
+        self::assertResponseHeaderSame('content-type',
+            'application/ld+json; charset=utf-8');
+
+        // @todo the schema is broken, "The property deletedAt is not defined and the definition does not allow additional properties" etc
+        //self::assertMatchesResourceItemJsonSchema(User::class);
+
+        self::assertJsonContains([
+            '@id'                => $iri,
+            'username'           => TestFixtures::PROJECT_WRITER['username'],
+            'email'              => TestFixtures::PROJECT_WRITER['email'],
+            'id'                 => TestFixtures::PROJECT_WRITER['id'],
+            'roles'              => [User::ROLE_USER],
+            'projectMemberships' => [
+                0 => [
+                    '@type'      => 'ProjectMembership',
+                    'motivation' => 'writer motivation',
+                    'project'    => [
+                        'id' => TestFixtures::PROJECT['id'],
+                    ],
+                    'role'       => ProjectMembership::ROLE_WRITER,
+                    'skills'     => 'writer skills',
+                ],
+                1 => [
+                    '@type'      => 'ProjectMembership',
+                    'motivation' => 'writer motivation',
+                    'project'    => [
+                        'id' => TestFixtures::LOCKED_PROJECT['id'],
+                    ],
+                    'role'       => ProjectMembership::ROLE_WRITER,
+                    'skills'     => 'writer skills',
+                ],
+            ],
+        ]);
+    }
+
+    public function testGetReturnsNoLockedCreatedProjects(): void
+    {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROJECT_COORDINATOR['email'],
+        ]);
+
+        $iri = $this->findIriBy(User::class,
+            ['email' => TestFixtures::PROJECT_COORDINATOR['email']]);
+        $response = $client->request('GET', $iri);
+
+        self::assertResponseIsSuccessful();
+        self::assertResponseHeaderSame('content-type',
+            'application/ld+json; charset=utf-8');
+
+        // @todo the schema is broken, "The property deletedAt is not defined and the definition does not allow additional properties" etc
+        //self::assertMatchesResourceItemJsonSchema(User::class);
+
+        self::assertJsonContains([
+            '@id'             => $iri,
+            'createdProjects' => [
+                0 => [
+                    'id' => TestFixtures::PROJECT['id'],
+                ],
+            ],
+        ]);
+
+        $data = $response->toArray();
+        self::assertCount(1, $data['createdProjects']);
+    }
+
+    public function testGetReturnsNoDeletedCreatedProjects(): void
+    {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROJECT_WRITER['email'],
+        ]);
+
+        $iri = $this->findIriBy(User::class,
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
+        $response = $client->request('GET', $iri);
+
+        self::assertResponseIsSuccessful();
+        self::assertResponseHeaderSame('content-type',
+            'application/ld+json; charset=utf-8');
+
+        // @todo the schema is broken, "The property deletedAt is not defined and the definition does not allow additional properties" etc
+        //self::assertMatchesResourceItemJsonSchema(User::class);
+
+        self::assertJsonContains([
+            '@id'             => $iri,
+            'createdProjects' => [
+            ],
+        ]);
+
+        $data = $response->toArray();
+        self::assertCount(0, $data['createdProjects']);
     }
 
     public function testGetFailsUnauthenticated(): void
     {
         $client = static::createClient();
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('GET', $iri);
 
@@ -392,11 +560,11 @@ class UserApiTest extends ApiTestCase
     public function testGetFailsWithoutPrivilege(): void
     {
         $client = static::createAuthenticatedClient([
-            'email' => TestFixtures::USER['email'],
+            'email' => TestFixtures::PROJECT_WRITER['email'],
         ]);
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::ADMIN['email']]);
+            ['email' => TestFixtures::PROJECT_COORDINATOR['email']]);
 
         $client->request('GET', $iri);
 
@@ -434,6 +602,32 @@ class UserApiTest extends ApiTestCase
         //self::assertMatchesResourceItemJsonSchema(User::class);
     }
 
+    /**
+     * Process owners cannot get a deleted user, returns 404.
+     */
+    public function testGetDeletedUserAsProcessOwner(): void
+    {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROCESS_MANAGER['email'],
+        ]);
+
+        $iri = $this->findIriBy(User::class,
+            ['email' => TestFixtures::DELETED_USER['email']]);
+
+        $client->request('GET', $iri);
+
+        self::assertResponseStatusCodeSame(404);
+        self::assertResponseHeaderSame('content-type',
+            'application/ld+json; charset=utf-8');
+
+        self::assertJsonContains([
+            '@context'          => '/contexts/Error',
+            '@type'             => 'hydra:Error',
+            'hydra:title'       => 'An error occurred',
+            'hydra:description' => 'Not Found',
+        ]);
+    }
+
     public function testCreate(): void
     {
         $response = static::createAuthenticatedClient([
@@ -463,6 +657,7 @@ class UserApiTest extends ApiTestCase
             'lastName'    => '',
             'roles'       => [User::ROLE_USER],
             'objectRoles' => [],
+            'projectMemberships' => [],
         ]);
 
         $userData = $response->toArray();
@@ -501,7 +696,7 @@ class UserApiTest extends ApiTestCase
     public function testCreateFailsWithoutPrivilege(): void
     {
         static::createAuthenticatedClient([
-            'email' => TestFixtures::USER['email'],
+            'email' => TestFixtures::PROJECT_WRITER['email'],
         ])->request('POST', '/users', ['json' => [
             'email'    => 'new@zukunftsstadt.de',
             'username' => 'Tester',
@@ -763,6 +958,7 @@ class UserApiTest extends ApiTestCase
             'lastName'    => '',
             'roles'       => [User::ROLE_USER],
             'objectRoles' => [],
+            'projectMemberships' => [],
         ]);
 
         $userData = $response->toArray();
@@ -782,13 +978,69 @@ class UserApiTest extends ApiTestCase
         self::assertGreaterThan($before, $logs[0]->timestamp);
     }
 
+    public function testRegistrationWithProject(): void
+    {
+        $before = new DateTimeImmutable();
+        sleep(1);
+
+        $client = static::createClient();
+
+        $client->request('POST', '/users/register', ['json' => [
+            'username'      => 'Tester',
+            'email'         => 'new@zukunftsstadt.de',
+            'firstName'     => 'Peter',
+            'password'      => '-*?*#+ with letters',
+            'validationUrl' => 'https://vrok.de/?token={{token}}&id={{id}}&type={{type}}',
+            'createdProjects' => [
+                [
+                    'motivation' => 'I wanna do something',
+                    'title'      => 'new project title',
+                    'skills'     => 'I can do it',
+                ],
+            ],
+        ]]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertResponseHeaderSame('content-type',
+            'application/ld+json; charset=utf-8');
+
+        // @todo the schema is broken, "The property deletedAt is not defined and the definition does not allow additional properties" etc
+        //self::assertMatchesResourceItemJsonSchema(User::class);
+
+        self::assertJsonContains([
+            '@context'           => '/contexts/User',
+            '@type'              => 'User',
+            'projectMemberships' => [
+                [
+                    '@type'      => 'ProjectMembership',
+                    'motivation' => 'I wanna do something',
+                    'role'       => ProjectMembership::ROLE_COORDINATOR,
+                    'skills'     => 'I can do it',
+                ],
+            ],
+            'createdProjects'    => [
+                [
+                    '@type' => 'Project',
+                    'title' => 'new project title',
+                ],
+            ],
+        ]);
+
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $ideaLogs = $em->getRepository(ActionLog::class)
+            ->findBy(['action' => ActionLog::CREATED_PROJECT]);
+        self::assertCount(1, $ideaLogs);
+        self::assertSame('Tester', $ideaLogs[0]->username);
+        self::assertGreaterThan($before, $ideaLogs[0]->timestamp);
+    }
+
     public function testRegistrationWithDuplicateEmailFails(): void
     {
         static::createClient()->request('POST', '/users/register', ['json' => [
             'email'         => TestFixtures::ADMIN['email'],
             'username'      => 'Tester',
             'password'      => '-*?*#+ with letters',
-            'validationUrl' => 'https://hpo.de/?token={{token}}&id={{id}}',
+            'validationUrl' => 'https://fcp.de/?token={{token}}&id={{id}}',
         ]]);
 
         self::assertResponseStatusCodeSame(422);
@@ -829,7 +1081,7 @@ class UserApiTest extends ApiTestCase
             'email'         => 'new@zukunftsstadt.de',
             'username'      => 'Tester',
             'password'      => '-*?*#+ with letters',
-            'validationUrl' => 'http://hpo.de/?token={{token}}',
+            'validationUrl' => 'http://fcp.de/?token={{token}}',
         ]]);
 
         self::assertResponseStatusCodeSame(422);
@@ -850,7 +1102,7 @@ class UserApiTest extends ApiTestCase
             'email'         => 'new@zukunftsstadt.de',
             'username'      => 'Tester',
             'password'      => '-*?*#+ with letters',
-            'validationUrl' => 'https://hpo.de/?token=token&id={{id}}',
+            'validationUrl' => 'https://fcp.de/?token=token&id={{id}}',
         ]]);
 
         self::assertResponseStatusCodeSame(422);
@@ -871,7 +1123,7 @@ class UserApiTest extends ApiTestCase
             'email'         => 'test@zukunftsstadt.de',
             'password'      => '-*?*#+ with letters',
             'username'      => '1@2',
-            'validationUrl' => 'https://hpo.de/?token={{token}}&id={{id}}',
+            'validationUrl' => 'https://fcp.de/?token={{token}}&id={{id}}',
         ]]);
 
         self::assertResponseStatusCodeSame(422);
@@ -892,7 +1144,7 @@ class UserApiTest extends ApiTestCase
             'email'         => 'test@zukunftsstadt.de',
             'password'      => '-*?*#',
             'username'      => '1@2',
-            'validationUrl' => 'https://hpo.de/?token={{token}}&id={{id}}',
+            'validationUrl' => 'https://fcp.de/?token={{token}}&id={{id}}',
         ]]);
 
         self::assertResponseStatusCodeSame(422);
@@ -913,7 +1165,7 @@ class UserApiTest extends ApiTestCase
             'email'         => 'test@zukunftsstadt.de',
             'password'      => '123456789',
             'username'      => 'myusername',
-            'validationUrl' => 'https://hpo.de/?token={{token}}&id={{id}}',
+            'validationUrl' => 'https://fcp.de/?token={{token}}&id={{id}}',
         ]]);
 
         self::assertResponseStatusCodeSame(422);
@@ -935,7 +1187,7 @@ class UserApiTest extends ApiTestCase
             // https://raw.githubusercontent.com/danielmiessler/SecLists/master/Passwords/Common-Credentials/10-million-password-list-top-1000000.txt
             'password'      => 'Soso123aljg',
             'username'      => '1@2',
-            'validationUrl' => 'https://hpo.de/?token={{token}}&id={{id}}',
+            'validationUrl' => 'https://fcp.de/?token={{token}}&id={{id}}',
         ]]);
 
         self::assertResponseStatusCodeSame(422);
@@ -950,6 +1202,166 @@ class UserApiTest extends ApiTestCase
         ]);
     }
 
+    /**
+     * requires zalas/phpunit-globals
+     *
+     * @env USER_VALIDATION_REQUIRED=false
+     */
+    public function testRegistrationWithApplication(): void
+    {
+        $client = static::createClient();
+        $projectIri = $this->findIriBy(Project::class,
+            ['id' => TestFixtures::PROJECT['id']]);
+
+        $client->request('POST', '/users/register', ['json' => [
+            'username'           => 'Tester',
+            'email'              => 'new@zukunftsstadt.de',
+            'firstName'          => 'Peter',
+            'password'           => '-*?*#+ with letters',
+            'validationUrl'      => 'https://vrok.de/?token={{token}}&id={{id}}&type={{type}}',
+            'projectMemberships' => [
+                [
+                    'motivation' => 'I wanna do something',
+                    'project'    => $projectIri,
+                    'role'       => ProjectMembership::ROLE_APPLICANT,
+                    'skills'     => 'I can do it',
+                ],
+            ],
+        ]]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertResponseHeaderSame('content-type',
+            'application/ld+json; charset=utf-8');
+
+        // @todo the schema is broken, "The property deletedAt is not defined and the definition does not allow additional properties" etc
+        //self::assertMatchesResourceItemJsonSchema(User::class);
+
+        self::assertJsonContains([
+            '@context'           => '/contexts/User',
+            '@type'              => 'User',
+            'username'           => 'Tester',
+            'email'              => 'new@zukunftsstadt.de',
+            'firstName'          => 'Peter',
+            'active'             => true,
+            'validated'          => true,
+            'projectMemberships' => [
+                [
+                    '@type'      => 'ProjectMembership',
+                    'motivation' => 'I wanna do something',
+                    'project'    => [
+                        '@id' => $projectIri,
+                    ],
+                    'role'       => ProjectMembership::ROLE_APPLICANT,
+                    'skills'     => 'I can do it',
+                ],
+            ],
+        ]);
+
+        // the user registered with a membership application and was
+        // marked validated -> notification for the project coordinators
+        // should be triggered
+        $messenger = self::$container->get('messenger.default_bus');
+        $messages = $messenger->getDispatchedMessages();
+        self::assertCount(1, $messages);
+        self::assertInstanceOf(NewMemberApplicationMessage::class,
+            $messages[0]['message']);
+    }
+
+    public function testRegistrationWithApplicationFailsWithForbiddenRole(): void
+    {
+        $client = static::createClient();
+        $projectIri = $this->findIriBy(Project::class,
+            ['id' => TestFixtures::PROJECT['id']]);
+
+        $client->request('POST', '/users/register', ['json' => [
+            'username'      => 'Tester',
+            'email'         => 'new@zukunftsstadt.de',
+            'firstName'     => 'Peter',
+            'password'      => '-*?*#+ with letters',
+            'validationUrl' => 'https://vrok.de/?token={{token}}&id={{id}}&type={{type}}',
+            'projectMemberships' => [
+                [
+                    'motivation' => 'I wanna do something',
+                    'project'    => $projectIri,
+                    'role'       => ProjectMembership::ROLE_COORDINATOR,
+                    'skills'     => 'I can do it',
+                ],
+            ],
+        ]]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertJsonContains([
+            '@context'          => '/contexts/ConstraintViolationList',
+            '@type'             => 'ConstraintViolationList',
+            'hydra:title'       => 'An error occurred',
+            'hydra:description' => 'validate.projectMembership.invalidRequest',
+        ]);
+    }
+
+    public function testRegistrationWithApplicationFailsForLockedProject(): void
+    {
+        $client = static::createClient();
+        $projectIri = $this->findIriBy(Project::class,
+            ['id' => TestFixtures::LOCKED_PROJECT['id']]);
+
+        $client->request('POST', '/users/register', ['json' => [
+            'username'      => 'Tester',
+            'email'         => 'new@zukunftsstadt.de',
+            'firstName'     => 'Peter',
+            'password'      => TestFixtures::PROJECT_OBSERVER['password'],
+            'validationUrl' => 'https://vrok.de/?token={{token}}&id={{id}}&type={{type}}',
+            'projectMemberships' => [
+                [
+                    'motivation' => 'I wanna do something',
+                    'project'    => $projectIri,
+                    'role'       => ProjectMembership::ROLE_APPLICANT,
+                    'skills'     => 'I can do it',
+                ],
+            ],
+        ]]);
+
+        self::assertResponseStatusCodeSame(400);
+        self::assertJsonContains([
+            '@context'          => '/contexts/Error',
+            '@type'             => 'hydra:Error',
+            'hydra:title'       => 'An error occurred',
+            'hydra:description' => 'Item not found for "/projects/'.
+                TestFixtures::LOCKED_PROJECT['id'].'".',
+        ]);
+    }
+
+    public function testRegistrationWithApplicationFailsForDeletedProject(): void
+    {
+        $client = static::createClient();
+        $projectIri = $this->findIriBy(Project::class,
+            ['id' => TestFixtures::DELETED_PROJECT['id']]);
+
+        $client->request('POST', '/users/register', ['json' => [
+            'username'      => 'Tester',
+            'email'         => 'new@zukunftsstadt.de',
+            'firstName'     => 'Peter',
+            'password'      => TestFixtures::PROJECT_COORDINATOR['password'],
+            'validationUrl' => 'https://vrok.de/?token={{token}}&id={{id}}&type={{type}}',
+            'projectMemberships' => [
+                [
+                    'motivation' => 'I wanna do something',
+                    'project'    => $projectIri,
+                    'role'       => ProjectMembership::ROLE_APPLICANT,
+                    'skills'     => 'I can do it',
+                ],
+            ],
+        ]]);
+
+        self::assertResponseStatusCodeSame(400);
+        self::assertJsonContains([
+            '@context'          => '/contexts/Error',
+            '@type'             => 'hydra:Error',
+            'hydra:title'       => 'An error occurred',
+            'hydra:description' => 'Item not found for "/projects/'
+                .TestFixtures::DELETED_PROJECT['id'].'".',
+        ]);
+    }
+
     public function testUpdate(): void
     {
         $client = static::createAuthenticatedClient([
@@ -958,12 +1370,12 @@ class UserApiTest extends ApiTestCase
 
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();
         $before = $em->getRepository(User::class)
-            ->find(TestFixtures::USER['id']);
+            ->find(TestFixtures::PROJECT_WRITER['id']);
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
         $client->request('PUT', $iri, ['json' => [
-            'email'     => TestFixtures::USER['email'],
+            'email'     => TestFixtures::PROJECT_WRITER['email'],
             'active'    => false,
             'validated' => false,
             'roles'     => [User::ROLE_ADMIN],
@@ -983,7 +1395,7 @@ class UserApiTest extends ApiTestCase
 
         $em->clear();
         $after = $em->getRepository(User::class)
-            ->find(TestFixtures::USER['id']);
+            ->find(TestFixtures::PROJECT_WRITER['id']);
 
         // password stays unchanged
         self::assertSame($before->getPassword(), $after->getPassword());
@@ -996,7 +1408,7 @@ class UserApiTest extends ApiTestCase
         ]);
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
         $client->request('PUT', $iri, ['json' => [
             'firstName'   => ' Erich ',
             'lastName'    => ' Müller ',
@@ -1012,11 +1424,11 @@ class UserApiTest extends ApiTestCase
     public function testUpdateSelf(): void
     {
         $client = static::createAuthenticatedClient([
-            'email' => TestFixtures::USER['email'],
+            'email' => TestFixtures::PROJECT_WRITER['email'],
         ]);
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
         $client->request('PUT', $iri, ['json' => [
             'firstName' => 'Erich',
             'lastName'  => 'Müller',
@@ -1034,11 +1446,11 @@ class UserApiTest extends ApiTestCase
     {
         $client = static::createClient();
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('PUT', $iri, ['json' => [
-            'email'    => TestFixtures::USER['email'],
-            'username' => TestFixtures::USER['username'],
+            'email'    => TestFixtures::PROJECT_WRITER['email'],
+            'username' => TestFixtures::PROJECT_WRITER['username'],
             'active'   => false,
         ]]);
 
@@ -1055,14 +1467,14 @@ class UserApiTest extends ApiTestCase
     public function testUpdateFailsWithoutPrivilege(): void
     {
         $client = static::createAuthenticatedClient([
-            'email' => TestFixtures::USER['email'],
+            'email' => TestFixtures::PROJECT_WRITER['email'],
         ]);
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::ADMIN['email']]);
+            ['email' => TestFixtures::PROJECT_COORDINATOR['email']]);
 
         $client->request('PUT', $iri, ['json' => [
-            'email'    => TestFixtures::ADMIN['email'],
-            'username' => TestFixtures::ADMIN['username'],
+            'email'    => TestFixtures::PROJECT_WRITER['email'],
+            'username' => TestFixtures::PROJECT_WRITER['username'],
             'active'   => false,
         ]]);
 
@@ -1086,14 +1498,14 @@ class UserApiTest extends ApiTestCase
 
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();
         $oldPW = $em->getRepository(User::class)
-            ->find(TestFixtures::USER['id'])
+            ->find(TestFixtures::PROJECT_WRITER['id'])
             ->getPassword();
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('PUT', $iri, ['json' => [
-            'email'       => TestFixtures::USER['email'],
+            'email'       => TestFixtures::PROJECT_WRITER['email'],
             'password'    => 'new-passw0rd',
         ]]);
 
@@ -1101,7 +1513,7 @@ class UserApiTest extends ApiTestCase
 
         $em->clear();
         $after = $em->getRepository(User::class)
-            ->find(TestFixtures::USER['id']);
+            ->find(TestFixtures::PROJECT_WRITER['id']);
 
         // password changed and is encoded
         self::assertNotSame($oldPW, $after->getPassword());
@@ -1115,10 +1527,10 @@ class UserApiTest extends ApiTestCase
         ]);
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('PUT', $iri, ['json' => [
-            'email'       => TestFixtures::USER['email'],
+            'email'       => TestFixtures::PROJECT_WRITER['email'],
             // https://raw.githubusercontent.com/danielmiessler/SecLists/master/Passwords/Common-Credentials/10-million-password-list-top-1000000.txt
             'password'    => 'Soso123aljg',
         ]]);
@@ -1142,10 +1554,10 @@ class UserApiTest extends ApiTestCase
         ]);
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('PUT', $iri, ['json' => [
-            'email'       => TestFixtures::USER['email'],
+            'email'       => TestFixtures::PROJECT_WRITER['email'],
             'password'    => '-*?*$',
         ]]);
 
@@ -1168,10 +1580,10 @@ class UserApiTest extends ApiTestCase
         ]);
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('PUT', $iri, ['json' => [
-            'email'       => TestFixtures::USER['email'],
+            'email'       => TestFixtures::PROJECT_WRITER['email'],
             'password'    => 'aaaaaaaa',
         ]]);
 
@@ -1194,7 +1606,7 @@ class UserApiTest extends ApiTestCase
         ]);
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('PUT', $iri, ['json' => [
             'email' => 'new@zukunftsstadt.de',
@@ -1214,7 +1626,7 @@ class UserApiTest extends ApiTestCase
         ]);
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('PUT', $iri, ['json' => [
             'email'       => TestFixtures::ADMIN['email'],
@@ -1239,7 +1651,7 @@ class UserApiTest extends ApiTestCase
         ]);
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('PUT', $iri, ['json' => [
             'email'       => 'no-email',
@@ -1264,7 +1676,7 @@ class UserApiTest extends ApiTestCase
         ]);
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('PUT', $iri, ['json' => [
             'username'       => TestFixtures::ADMIN['username'],
@@ -1289,7 +1701,7 @@ class UserApiTest extends ApiTestCase
         ]);
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('PUT', $iri, ['json' => [
             'username' => '',
@@ -1314,7 +1726,7 @@ class UserApiTest extends ApiTestCase
         ]);
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('PUT', $iri, ['json' => [
             'email' => 'test@example.com',
@@ -1336,11 +1748,11 @@ class UserApiTest extends ApiTestCase
     public function testUpdateOwnEmailFails(): void
     {
         $client = static::createAuthenticatedClient([
-            'email' => TestFixtures::USER['email'],
+            'email' => TestFixtures::PROJECT_WRITER['email'],
         ]);
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('PUT', $iri, ['json' => [
             'email' => 'new@zukunftsstadt.de',
@@ -1349,23 +1761,23 @@ class UserApiTest extends ApiTestCase
         self::assertResponseIsSuccessful();
         self::assertJsonContains([
             '@id'   => $iri,
-            'email' => TestFixtures::USER['email'],
+            'email' => TestFixtures::PROJECT_WRITER['email'],
         ]);
     }
 
     public function testUpdateOfOwnPasswordIsIgnored(): void
     {
         $client = static::createAuthenticatedClient([
-            'email' => TestFixtures::USER['email'],
+            'email' => TestFixtures::PROJECT_WRITER['email'],
         ]);
 
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();
         $oldPW = $em->getRepository(User::class)
-            ->find(TestFixtures::USER['id'])
+            ->find(TestFixtures::PROJECT_WRITER['id'])
             ->getPassword();
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('PUT', $iri, ['json' => [
             'password' => 'myNewPassw0rd',
@@ -1374,7 +1786,7 @@ class UserApiTest extends ApiTestCase
         self::assertResponseIsSuccessful();
         $em->clear();
         $after = $em->getRepository(User::class)
-            ->find(TestFixtures::USER['id']);
+            ->find(TestFixtures::PROJECT_WRITER['id']);
 
         // password unchanged
         self::assertSame($oldPW, $after->getPassword());
@@ -1383,11 +1795,11 @@ class UserApiTest extends ApiTestCase
     public function testUpdateOfOwnUsernameIsIgnored(): void
     {
         $client = static::createAuthenticatedClient([
-            'email' => TestFixtures::USER['email'],
+            'email' => TestFixtures::PROJECT_WRITER['email'],
         ]);
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('PUT', $iri, ['json' => [
             'username' => 'new-name',
@@ -1396,18 +1808,18 @@ class UserApiTest extends ApiTestCase
         self::assertResponseIsSuccessful();
         self::assertJsonContains([
             '@id'         => $iri,
-            'username'    => TestFixtures::USER['username'],
+            'username'    => TestFixtures::PROJECT_WRITER['username'],
         ]);
     }
 
     public function testUpdateOfOwnRolesIsIgnored(): void
     {
         $client = static::createAuthenticatedClient([
-            'email' => TestFixtures::USER['email'],
+            'email' => TestFixtures::PROJECT_WRITER['email'],
         ]);
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('PUT', $iri, ['json' => [
             'roles' => [User::ROLE_ADMIN],
@@ -1423,11 +1835,11 @@ class UserApiTest extends ApiTestCase
     public function testUpdateOfOwnActiveIsIgnored(): void
     {
         $client = static::createAuthenticatedClient([
-            'email' => TestFixtures::USER['email'],
+            'email' => TestFixtures::PROJECT_WRITER['email'],
         ]);
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('PUT', $iri, ['json' => [
             'active' => false,
@@ -1443,11 +1855,11 @@ class UserApiTest extends ApiTestCase
     public function testUpdateOfOwnValidatedIsIgnored(): void
     {
         $client = static::createAuthenticatedClient([
-            'email' => TestFixtures::USER['email'],
+            'email' => TestFixtures::PROJECT_WRITER['email'],
         ]);
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('PUT', $iri, ['json' => [
             'validated' => false,
@@ -1470,9 +1882,16 @@ class UserApiTest extends ApiTestCase
         ]);
 
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $allMemberships = $em->getRepository(ProjectMembership::class)
+            ->findAll();
+        self::assertCount(5, $allMemberships);
+        $old = $em->getRepository(User::class)
+            ->find(TestFixtures::PROJECT_WRITER['id']);
+        self::assertCount(2, $old->getProjectMemberships());
+        $em->clear();
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('DELETE', $iri);
 
@@ -1480,10 +1899,15 @@ class UserApiTest extends ApiTestCase
 
         /** @var User $user */
         $user = $em->getRepository(User::class)
-            ->find(TestFixtures::USER['id']);
+            ->find(TestFixtures::PROJECT_WRITER['id']);
         self::assertNotNull($user);
         self::assertTrue($user->isDeleted());
         self::assertGreaterThan($before, $user->getDeletedAt());
+        self::assertCount(0, $user->getProjectMemberships());
+
+        $remaining = $em->getRepository(ProjectMembership::class)
+            ->findAll();
+        self::assertCount(3, $remaining);
 
         // removal of other private data is tested in Enity\UserTest
     }
@@ -1494,13 +1918,20 @@ class UserApiTest extends ApiTestCase
         sleep(1);
 
         $client = static::createAuthenticatedClient([
-            'email' => TestFixtures::USER['email'],
+            'email' => TestFixtures::PROJECT_WRITER['email'],
         ]);
 
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $allMemberships = $em->getRepository(ProjectMembership::class)
+            ->findAll();
+        self::assertCount(5, $allMemberships);
+        $old = $em->getRepository(User::class)
+            ->find(TestFixtures::PROJECT_WRITER['id']);
+        self::assertCount(2, $old->getProjectMemberships());
+        $em->clear();
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('DELETE', $iri);
 
@@ -1508,18 +1939,23 @@ class UserApiTest extends ApiTestCase
 
         /** @var User $user */
         $user = $em->getRepository(User::class)
-            ->find(TestFixtures::USER['id']);
+            ->find(TestFixtures::PROJECT_WRITER['id']);
         self::assertNotNull($user);
         self::assertTrue($user->isDeleted());
         self::assertGreaterThan($before, $user->getDeletedAt());
+        self::assertCount(0, $user->getProjectMemberships());
         // removal of other private data is tested in Enity\UserTest
+
+        $remaining = $em->getRepository(ProjectMembership::class)
+            ->findAll();
+        self::assertCount(3, $remaining);
     }
 
     public function testDeleteFailsUnauthenticated(): void
     {
         $client = static::createClient();
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('DELETE', $iri);
 
@@ -1535,11 +1971,11 @@ class UserApiTest extends ApiTestCase
     public function testDeleteFailsWithoutPrivilege(): void
     {
         $client = static::createAuthenticatedClient([
-            'email' => TestFixtures::USER['email'],
+            'email' => TestFixtures::PROJECT_WRITER['email'],
         ]);
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::ADMIN['email']]);
+            ['email' => TestFixtures::GUEST['email']]);
 
         $client->request('DELETE', $iri);
 
@@ -1577,6 +2013,108 @@ class UserApiTest extends ApiTestCase
         ]);
     }
 
+    public function testDeleteOnlyCoordinatorFails(): void
+    {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::ADMIN['email'],
+        ]);
+
+        $iri = $this->findIriBy(User::class,
+            ['email' => TestFixtures::PROJECT_COORDINATOR['email']]);
+
+        $client->request('DELETE', $iri);
+
+        self::assertResponseStatusCodeSame(403);
+        self::assertResponseHeaderSame('content-type',
+            'application/ld+json; charset=utf-8');
+
+        self::assertJsonContains([
+            '@context'          => '/contexts/Error',
+            '@type'             => 'hydra:Error',
+            'hydra:title'       => 'An error occurred',
+            'hydra:description' => 'Access Denied.',
+        ]);
+    }
+
+    public function testDeleteCoordinatorWithOtherCoordinators(): void
+    {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::ADMIN['email'],
+        ]);
+
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $allMemberships = $em->getRepository(ProjectMembership::class)
+            ->findAll();
+        self::assertCount(5, $allMemberships);
+        $planner = $em->getRepository(User::class)
+            ->find(TestFixtures::PROJECT_WRITER['id']);
+        $planner->getProjectMemberships()[0]->setRole(ProjectMembership::ROLE_COORDINATOR);
+        $planner->getProjectMemberships()[1]->setRole(ProjectMembership::ROLE_COORDINATOR);
+        $em->flush();
+        $em->clear();
+
+        $iri = $this->findIriBy(User::class,
+            ['email' => TestFixtures::PROJECT_COORDINATOR['email']]);
+
+        $client->request('DELETE', $iri);
+
+        static::assertResponseStatusCodeSame(204);
+
+        /** @var User $user */
+        $user = $em->getRepository(User::class)
+            ->find(TestFixtures::PROJECT_COORDINATOR['id']);
+        self::assertNotNull($user);
+        self::assertTrue($user->isDeleted());
+    }
+
+    public function testDeleteCoordinatorWithoutWriters(): void
+    {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::ADMIN['email'],
+        ]);
+
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $allMemberships = $em->getRepository(ProjectMembership::class)
+            ->findAll();
+        self::assertCount(5, $allMemberships);
+        $planner = $em->getRepository(User::class)
+            ->find(TestFixtures::PROJECT_WRITER['id']);
+        $planner->getProjectMemberships()[0]->setRole(ProjectMembership::ROLE_OBSERVER);
+        $planner->getProjectMemberships()[1]->setRole(ProjectMembership::ROLE_OBSERVER);
+        $em->flush();
+        $em->clear();
+
+        $iri = $this->findIriBy(User::class,
+            ['email' => TestFixtures::PROJECT_COORDINATOR['email']]);
+
+        $client->request('DELETE', $iri);
+
+        static::assertResponseStatusCodeSame(204);
+
+        /** @var User $user */
+        $user = $em->getRepository(User::class)
+            ->find(TestFixtures::PROJECT_COORDINATOR['id']);
+        self::assertNotNull($user);
+        self::assertTrue($user->isDeleted());
+
+        /** @var Project $project */
+        $project = $em->getRepository(Project::class)
+            ->find(TestFixtures::PROJECT['id']);
+
+        // no more writers or coordinators -> project is locked
+        self::assertTrue($project->isLocked());
+
+        // notification for the process managers should be triggered
+        // (for the "normal" and for the locked project)
+        $messenger = self::$container->get('messenger.default_bus');
+        $messages = $messenger->getDispatchedMessages();
+        self::assertCount(2, $messages);
+        self::assertInstanceOf(AllProjectMembersLeftMessage::class,
+            $messages[0]['message']);
+        self::assertInstanceOf(AllProjectMembersLeftMessage::class,
+            $messages[1]['message']);
+    }
+
     /**
      * Test that the DELETE operation for the whole collection is not available.
      */
@@ -1602,7 +2140,7 @@ class UserApiTest extends ApiTestCase
     {
         static::createClient()
             ->request('POST', '/users/reset-password', ['json' => [
-                'username'      => TestFixtures::USER['username'],
+                'username'      => TestFixtures::PROJECT_COORDINATOR['username'],
                 'validationUrl' => 'https://vrok.de/?token={{token}}&id={{id}}&type={{type}}',
             ]]);
 
@@ -1617,7 +2155,7 @@ class UserApiTest extends ApiTestCase
         self::assertCount(1, $messages);
         self::assertInstanceOf(UserForgotPasswordMessage::class,
             $messages[0]['message']);
-        self::assertSame(TestFixtures::USER['id'],
+        self::assertSame(TestFixtures::PROJECT_COORDINATOR['id'],
             $messages[0]['message']->userId);
     }
 
@@ -1627,7 +2165,7 @@ class UserApiTest extends ApiTestCase
 
         static::createClient()
             ->request('POST', '/users/reset-password', ['json' => [
-                'username'      => TestFixtures::USER['email'],
+                'username'      => TestFixtures::PROJECT_COORDINATOR['email'],
                 'validationUrl' => 'https://vrok.de/?token={{token}}&id={{id}}&type={{type}}',
             ]]);
 
@@ -1642,14 +2180,14 @@ class UserApiTest extends ApiTestCase
         self::assertCount(1, $messages);
         self::assertInstanceOf(UserForgotPasswordMessage::class,
             $messages[0]['message']);
-        self::assertSame(TestFixtures::USER['id'],
+        self::assertSame(TestFixtures::PROJECT_COORDINATOR['id'],
             $messages[0]['message']->userId);
 
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();
         $logs = $em->getRepository(ActionLog::class)
             ->findBy(['action' => ActionLog::SUCCESSFUL_PW_RESET_REQUEST]);
         self::assertCount(1, $logs);
-        self::assertSame(TestFixtures::USER['username'],
+        self::assertSame(TestFixtures::PROJECT_COORDINATOR['username'],
             $logs[0]->username);
         self::assertGreaterThan($before, $logs[0]->timestamp);
     }
@@ -1752,7 +2290,7 @@ class UserApiTest extends ApiTestCase
         static::createClient()
             ->request('POST', '/users/reset-password', ['json' => [
                 'username'      => 'irrelevant',
-                'validationUrl' => 'http://hpo.de/?token={{token}}',
+                'validationUrl' => 'http://fcp.de/?token={{token}}',
             ]]);
 
         self::assertResponseStatusCodeSame(422);
@@ -1772,7 +2310,7 @@ class UserApiTest extends ApiTestCase
         static::createClient()
             ->request('POST', '/users/reset-password', ['json' => [
                 'username' => 'irrelevant',
-                'validationUrl' => 'http://hpo.de/?id={{id}}',
+                'validationUrl' => 'http://fcp.de/?id={{id}}',
             ]]);
 
         self::assertResponseStatusCodeSame(422);
@@ -1790,7 +2328,7 @@ class UserApiTest extends ApiTestCase
     public function testPasswordResetFailsAuthenticated(): void
     {
         $client = static::createAuthenticatedClient([
-            'email' => TestFixtures::USER['email'],
+            'email' => TestFixtures::PROJECT_COORDINATOR['email'],
         ]);
         $client->request('POST', '/users/reset-password', ['json' => [
             'username'     => 'irrelevant',
@@ -1817,7 +2355,7 @@ class UserApiTest extends ApiTestCase
         $l1 = new ActionLog();
         $l1->timestamp = DateHelper::nowSubInterval('PT10M');
         $l1->action = ActionLog::SUCCESSFUL_PW_RESET_REQUEST;
-        $l1->username = TestFixtures::USER['username'];
+        $l1->username = TestFixtures::PROJECT_COORDINATOR['username'];
         $l1->ipAddress = '127.0.0.1';
         $em->persist($l1);
 
@@ -1833,7 +2371,7 @@ class UserApiTest extends ApiTestCase
         $em->flush();
 
         $client->request('POST', '/users/reset-password', ['json' => [
-            'username'      => TestFixtures::USER['email'],
+            'username'      => TestFixtures::PROJECT_COORDINATOR['email'],
             'validationUrl' => 'https://vrok.de/?token={{token}}&id={{id}}&type={{type}}',
         ]]);
 
@@ -1887,13 +2425,13 @@ class UserApiTest extends ApiTestCase
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();
 
         $user = $em->getRepository(User::class)
-            ->find(TestFixtures::USER['id']);
+            ->find(TestFixtures::PROJECT_COORDINATOR['id']);
         $user->setActive(false);
         $em->flush();
         $em->clear();
 
         $client->request('POST', '/users/reset-password', ['json' => [
-            'username'      => TestFixtures::USER['email'],
+            'username'      => TestFixtures::PROJECT_COORDINATOR['email'],
             'validationUrl' => 'https://vrok.de/?token={{token}}&id={{id}}&type={{type}}',
         ]]);
 
@@ -1913,7 +2451,7 @@ class UserApiTest extends ApiTestCase
         $logs = $em->getRepository(ActionLog::class)
             ->findBy(['action' => ActionLog::FAILED_PW_RESET_REQUEST]);
         self::assertCount(1, $logs);
-        self::assertSame(TestFixtures::USER['username'],
+        self::assertSame(TestFixtures::PROJECT_COORDINATOR['username'],
             $logs[0]->username);
         self::assertGreaterThan($before, $logs[0]->timestamp);
     }
@@ -1921,14 +2459,14 @@ class UserApiTest extends ApiTestCase
     public function testEmailChange(): void
     {
         $client = self::createAuthenticatedClient(
-            ['id' => TestFixtures::USER['id']]);
+            ['id' => TestFixtures::PROCESS_MANAGER['id']]);
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROCESS_MANAGER['email']]);
 
         $client->request('POST', $iri.'/change-email', ['json' => [
             'email'                => 'new@zukunftsstadt.de',
-            'confirmationPassword' => TestFixtures::USER['password'],
+            'confirmationPassword' => TestFixtures::PROCESS_MANAGER['password'],
             'validationUrl'        => 'https://vrok.de/?token={{token}}&id={{id}}&type={{type}}',
         ]]);
 
@@ -1941,8 +2479,8 @@ class UserApiTest extends ApiTestCase
         // check that the email wasn't changed already
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();
         $user = $em->getRepository(User::class)
-            ->find(TestFixtures::USER['id']);
-        self::assertSame(TestFixtures::USER['email'], $user->getEmail());
+            ->find(TestFixtures::PROCESS_MANAGER['id']);
+        self::assertSame(TestFixtures::PROCESS_MANAGER['email'], $user->getEmail());
 
         // ... instead a queue message was dispatched
         $messenger = self::$container->get('messenger.default_bus');
@@ -1950,7 +2488,7 @@ class UserApiTest extends ApiTestCase
         self::assertCount(1, $messages);
         self::assertInstanceOf(UserEmailChangeMessage::class,
             $messages[0]['message']);
-        self::assertSame(TestFixtures::USER['id'],
+        self::assertSame(TestFixtures::PROCESS_MANAGER['id'],
             $messages[0]['message']->userId);
         self::assertSame('new@zukunftsstadt.de',
             $messages[0]['message']->newEmail);
@@ -1959,13 +2497,13 @@ class UserApiTest extends ApiTestCase
     public function testEmailChangeFailsWithInvalidEmail(): void
     {
         $client = self::createAuthenticatedClient(
-            ['id' => TestFixtures::USER['id']]);
+            ['id' => TestFixtures::PROCESS_MANAGER['id']]);
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROCESS_MANAGER['email']]);
 
         $client->request('POST', $iri.'/change-email', ['json' => [
             'email'                => 'invalid',
-            'confirmationPassword' => TestFixtures::USER['password'],
+            'confirmationPassword' => TestFixtures::PROCESS_MANAGER['password'],
             'validationUrl'        => 'https://vrok.de/?token={{token}}&id={{id}}&type={{type}}',
         ]]);
 
@@ -1984,13 +2522,13 @@ class UserApiTest extends ApiTestCase
     public function testEmailChangeFailsWithDuplicateEmail(): void
     {
         $client = self::createAuthenticatedClient(
-            ['id' => TestFixtures::USER['id']]);
+            ['id' => TestFixtures::PROCESS_MANAGER['id']]);
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROCESS_MANAGER['email']]);
 
         $client->request('POST', $iri.'/change-email', ['json' => [
             'email'                => TestFixtures::ADMIN['email'],
-            'confirmationPassword' => TestFixtures::USER['password'],
+            'confirmationPassword' => TestFixtures::PROCESS_MANAGER['password'],
             'validationUrl'        => 'https://vrok.de/?token={{token}}&id={{id}}&type={{type}}',
         ]]);
 
@@ -2009,12 +2547,12 @@ class UserApiTest extends ApiTestCase
     public function testEmailChangeFailsWithoutEmail(): void
     {
         $client = self::createAuthenticatedClient(
-            ['id' => TestFixtures::USER['id']]);
+            ['id' => TestFixtures::PROCESS_MANAGER['id']]);
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROCESS_MANAGER['email']]);
 
         $client->request('POST', $iri.'/change-email', ['json' => [
-            'confirmationPassword' => TestFixtures::USER['password'],
+            'confirmationPassword' => TestFixtures::PROCESS_MANAGER['password'],
             'validationUrl'        => 'https://vrok.de/?token={{token}}&id={{id}}&type={{type}}',
         ]]);
 
@@ -2033,12 +2571,12 @@ class UserApiTest extends ApiTestCase
     public function testEmailChangeFailsWithoutValidationUrl(): void
     {
         $client = self::createAuthenticatedClient(
-            ['id' => TestFixtures::USER['id']]);
+            ['id' => TestFixtures::PROCESS_MANAGER['id']]);
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROCESS_MANAGER['email']]);
 
         $client->request('POST', $iri.'/change-email', ['json' => [
-            'confirmationPassword' => TestFixtures::USER['password'],
+            'confirmationPassword' => TestFixtures::PROCESS_MANAGER['password'],
             'email'                => 'new@zukunftsstadt.de',
         ]]);
 
@@ -2057,9 +2595,9 @@ class UserApiTest extends ApiTestCase
     public function testEmailChangeFailsWithoutConfirmationPassword(): void
     {
         $client = self::createAuthenticatedClient(
-            ['id' => TestFixtures::USER['id']]);
+            ['id' => TestFixtures::PROCESS_MANAGER['id']]);
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROCESS_MANAGER['email']]);
 
         $client->request('POST', $iri.'/change-email', ['json' => [
             'email'         => 'new@zukunftsstadt.de',
@@ -2081,9 +2619,9 @@ class UserApiTest extends ApiTestCase
     public function testEmailChangeFailsWithWrongConfirmationPassword(): void
     {
         $client = self::createAuthenticatedClient(
-            ['id' => TestFixtures::USER['id']]);
+            ['id' => TestFixtures::PROCESS_MANAGER['id']]);
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROCESS_MANAGER['email']]);
 
         $client->request('POST', $iri.'/change-email', ['json' => [
             'email'                => 'new@zukunftsstadt.de',
@@ -2107,11 +2645,11 @@ class UserApiTest extends ApiTestCase
     {
         $client = self::createClient();
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROCESS_MANAGER['email']]);
 
         $client->request('POST', $iri.'/change-email', ['json' => [
             'email'                => 'new@zukunftsstadt.de',
-            'confirmationPassword' => TestFixtures::USER['password'],
+            'confirmationPassword' => TestFixtures::PROCESS_MANAGER['password'],
             'validationUrl'        => 'https://vrok.de/?token={{token}}&id={{id}}&type={{type}}',
         ]]);
 
@@ -2128,13 +2666,13 @@ class UserApiTest extends ApiTestCase
     public function testEmailChangeFailsWithoutPrivilege(): void
     {
         $client = self::createAuthenticatedClient(
-            ['id' => TestFixtures::USER['id']]);
+            ['id' => TestFixtures::PROJECT_WRITER['id']]);
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::ADMIN['email']]);
+            ['email' => TestFixtures::PROCESS_MANAGER['email']]);
 
         $client->request('POST', $iri.'/change-email', ['json' => [
             'email'                => 'new@zukunftsstadt.de',
-            'confirmationPassword' => TestFixtures::USER['password'],
+            'confirmationPassword' => TestFixtures::PROCESS_MANAGER['password'],
             'validationUrl'        => 'https://vrok.de/?token={{token}}&id={{id}}&type={{type}}',
         ]]);
 
@@ -2153,15 +2691,15 @@ class UserApiTest extends ApiTestCase
     public function testNewPassword(): void
     {
         $client = self::createAuthenticatedClient(
-            ['id' => TestFixtures::ADMIN['id']]);
+            ['id' => TestFixtures::PROCESS_MANAGER['id']]);
 
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();
         $oldUser = $em->getRepository(User::class)
-            ->find(TestFixtures::USER['id']);
+            ->find(TestFixtures::PROJECT_WRITER['id']);
         $oldPW = $oldUser->getPassword();
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('POST', $iri.'/new-password', ['json' => [
             'validationUrl'        => 'https://vrok.de/?token={{token}}&id={{id}}&type={{type}}',
@@ -2176,7 +2714,7 @@ class UserApiTest extends ApiTestCase
         // check that the password was changed already
         $em->clear();
         $user = $em->getRepository(User::class)
-            ->find(TestFixtures::USER['id']);
+            ->find(TestFixtures::PROJECT_WRITER['id']);
         self::assertNotSame($oldPW, $user->getPassword());
 
         // ... instead a queue message was dispatched
@@ -2185,16 +2723,16 @@ class UserApiTest extends ApiTestCase
         self::assertCount(1, $messages);
         self::assertInstanceOf(NewUserPasswordMessage::class,
             $messages[0]['message']);
-        self::assertSame(TestFixtures::USER['id'],
+        self::assertSame(TestFixtures::PROJECT_WRITER['id'],
             $messages[0]['message']->userId);
     }
 
     public function testNewPasswordFailsWithoutValidationUrl(): void
     {
         $client = self::createAuthenticatedClient(
-            ['id' => TestFixtures::ADMIN['id']]);
+            ['id' => TestFixtures::PROCESS_MANAGER['id']]);
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('POST', $iri.'/new-password', ['json' => [
             // empty
@@ -2216,7 +2754,7 @@ class UserApiTest extends ApiTestCase
     {
         $client = self::createClient();
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROCESS_MANAGER['email']]);
 
         $client->request('POST', $iri.'/new-password', ['json' => [
             'validationUrl'        => 'https://vrok.de/?token={{token}}&id={{id}}&type={{type}}',
@@ -2235,9 +2773,9 @@ class UserApiTest extends ApiTestCase
     public function testNewPasswordFailsWithoutPrivilege(): void
     {
         $client = self::createAuthenticatedClient(
-            ['id' => TestFixtures::USER['id']]);
+            ['id' => TestFixtures::PROJECT_COORDINATOR['id']]);
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('POST', $iri.'/new-password', ['json' => [
             'validationUrl'        => 'https://vrok.de/?token={{token}}&id={{id}}&type={{type}}',
@@ -2258,13 +2796,13 @@ class UserApiTest extends ApiTestCase
     public function testPasswordChange(): void
     {
         $client = self::createAuthenticatedClient(
-            ['id' => TestFixtures::USER['id']]);
+            ['id' => TestFixtures::PROJECT_WRITER['id']]);
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('POST', $iri.'/change-password', ['json' => [
-            'confirmationPassword' => TestFixtures::USER['password'],
+            'confirmationPassword' => TestFixtures::PROJECT_WRITER['password'],
             'password'             => 'myNewPassword',
         ]]);
 
@@ -2279,7 +2817,7 @@ class UserApiTest extends ApiTestCase
 
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();
         $user = $em->getRepository(User::class)
-            ->find(TestFixtures::USER['id']);
+            ->find(TestFixtures::PROJECT_WRITER['id']);
 
         self::assertTrue($pwe->isPasswordValid($user, 'myNewPassword'));
     }
@@ -2287,13 +2825,13 @@ class UserApiTest extends ApiTestCase
     public function testPasswordChangeFailsWithWeakPassword(): void
     {
         $client = self::createAuthenticatedClient(
-            ['id' => TestFixtures::USER['id']]);
+            ['id' => TestFixtures::PROJECT_WRITER['id']]);
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('POST', $iri.'/change-password', ['json' => [
-            'confirmationPassword' => TestFixtures::USER['password'],
+            'confirmationPassword' => TestFixtures::PROJECT_WRITER['password'],
             'password'             => 'aaaaaaaa',
         ]]);
 
@@ -2312,13 +2850,13 @@ class UserApiTest extends ApiTestCase
     public function testPasswordChangeFailsWithCompromisedPassword(): void
     {
         $client = self::createAuthenticatedClient(
-            ['id' => TestFixtures::USER['id']]);
+            ['id' => TestFixtures::PROJECT_WRITER['id']]);
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('POST', $iri.'/change-password', ['json' => [
-            'confirmationPassword' => TestFixtures::USER['password'],
+            'confirmationPassword' => TestFixtures::PROJECT_WRITER['password'],
             'password'             => 'my new password',
         ]]);
 
@@ -2337,13 +2875,13 @@ class UserApiTest extends ApiTestCase
     public function testPasswordChangeIgnoresEmail(): void
     {
         $client = self::createAuthenticatedClient(
-            ['id' => TestFixtures::USER['id']]);
+            ['id' => TestFixtures::PROJECT_WRITER['id']]);
 
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('POST', $iri.'/change-password', ['json' => [
-            'confirmationPassword' => TestFixtures::USER['password'],
+            'confirmationPassword' => TestFixtures::PROJECT_WRITER['password'],
             'password'             => 'myNewPassword',
             'email'                => 'new-email@test.com',
         ]]);
@@ -2352,20 +2890,20 @@ class UserApiTest extends ApiTestCase
 
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();
         $user = $em->getRepository(User::class)
-            ->find(TestFixtures::USER['id']);
+            ->find(TestFixtures::PROJECT_WRITER['id']);
 
-        self::assertSame(TestFixtures::USER['email'], $user->getEmail());
+        self::assertSame(TestFixtures::PROJECT_WRITER['email'], $user->getEmail());
     }
 
     public function testPasswordChangeFailsWithoutPassword(): void
     {
         $client = self::createAuthenticatedClient(
-            ['id' => TestFixtures::USER['id']]);
+            ['id' => TestFixtures::PROJECT_WRITER['id']]);
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('POST', $iri.'/change-password', ['json' => [
-            'confirmationPassword' => TestFixtures::USER['password'],
+            'confirmationPassword' => TestFixtures::PROJECT_WRITER['password'],
         ]]);
 
         self::assertResponseStatusCodeSame(422);
@@ -2383,12 +2921,12 @@ class UserApiTest extends ApiTestCase
     public function testPasswordChangeFailsWithShortPassword(): void
     {
         $client = self::createAuthenticatedClient(
-            ['id' => TestFixtures::USER['id']]);
+            ['id' => TestFixtures::PROJECT_WRITER['id']]);
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('POST', $iri.'/change-password', ['json' => [
-            'confirmationPassword' => TestFixtures::USER['password'],
+            'confirmationPassword' => TestFixtures::PROJECT_WRITER['password'],
             'password'             => '-*?*#',
         ]]);
 
@@ -2407,9 +2945,9 @@ class UserApiTest extends ApiTestCase
     public function testPasswordChangeFailsWithoutConfirmationPassword(): void
     {
         $client = self::createAuthenticatedClient(
-            ['id' => TestFixtures::USER['id']]);
+            ['id' => TestFixtures::PROJECT_WRITER['id']]);
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('POST', $iri.'/change-password', ['json' => [
             'password' => 'myNewPassword',
@@ -2430,9 +2968,9 @@ class UserApiTest extends ApiTestCase
     public function testPasswordChangeFailsWithWrongConfirmationPassword(): void
     {
         $client = self::createAuthenticatedClient(
-            ['id' => TestFixtures::USER['id']]);
+            ['id' => TestFixtures::PROJECT_WRITER['id']]);
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('POST', $iri.'/change-password', ['json' => [
             'confirmationPassword' => 'this is bad',
@@ -2454,13 +2992,13 @@ class UserApiTest extends ApiTestCase
     public function testPasswordChangeFailsWithSamePassword(): void
     {
         $client = self::createAuthenticatedClient(
-            ['id' => TestFixtures::USER['id']]);
+            ['id' => TestFixtures::PROJECT_WRITER['id']]);
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('POST', $iri.'/change-password', ['json' => [
-            'confirmationPassword' => TestFixtures::USER['password'],
-            'password'             => TestFixtures::USER['password'],
+            'confirmationPassword' => TestFixtures::PROJECT_WRITER['password'],
+            'password'             => TestFixtures::PROJECT_WRITER['password'],
         ]]);
 
         self::assertResponseStatusCodeSame(400);
@@ -2479,10 +3017,10 @@ class UserApiTest extends ApiTestCase
     {
         $client = self::createClient();
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::USER['email']]);
+            ['email' => TestFixtures::PROJECT_WRITER['email']]);
 
         $client->request('POST', $iri.'/change-password', ['json' => [
-            'confirmationPassword' => TestFixtures::USER['password'],
+            'confirmationPassword' => TestFixtures::PROJECT_WRITER['password'],
             'password'             => 'myNewPassword',
         ]]);
 
@@ -2499,13 +3037,13 @@ class UserApiTest extends ApiTestCase
     public function testPasswordChangeFailsWithoutPrivilege(): void
     {
         $client = self::createAuthenticatedClient(
-            ['id' => TestFixtures::USER['id']]);
+            ['id' => TestFixtures::PROJECT_WRITER['id']]);
         $iri = $this->findIriBy(User::class,
-            ['email' => TestFixtures::ADMIN['email']]);
+            ['email' => TestFixtures::GUEST['email']]);
 
         $client->request('POST', $iri.'/change-password', ['json' => [
-            'confirmationPassword' => TestFixtures::USER['password'],
-            'password'             => 'myNewPassword',
+            'oldPassword' => TestFixtures::GUEST['password'],
+            'password'    => 'myNewPassword',
         ]]);
 
         self::assertResponseStatusCodeSame(403);
@@ -2523,7 +3061,7 @@ class UserApiTest extends ApiTestCase
     public function testGetStatistics(): void
     {
         static::createAuthenticatedClient([
-            'email' => TestFixtures::ADMIN['email'],
+            'email' => TestFixtures::PROCESS_MANAGER['email'],
         ])->request('GET', '/users/statistics');
 
         self::assertResponseIsSuccessful();
@@ -2531,9 +3069,9 @@ class UserApiTest extends ApiTestCase
             'application/json');
 
         self::assertJsonContains([
-            'existing'        => 2,
+            'existing'        => 6,
             'newlyRegistered' => 0,
-            'notValidated'    => 0,
+            'notValidated'    => 1,
             'notActive'       => 0,
             'deleted'         => 1,
         ]);
@@ -2556,7 +3094,7 @@ class UserApiTest extends ApiTestCase
     public function testGetStatisticsFailsWithoutPrivilege(): void
     {
         static::createAuthenticatedClient([
-            'email' => TestFixtures::USER['email'],
+            'email' => TestFixtures::PROJECT_WRITER['email'],
         ])->request('GET', '/users/statistics');
 
         self::assertResponseStatusCodeSame(403);

@@ -72,7 +72,7 @@ class ValidationTest extends KernelTestCase
         self::assertInstanceOf(User::class, $found->getUser());
 
         // timestampable listener works
-        self::assertInstanceOf(\DateTimeImmutable::class,
+        self::assertInstanceOf(DateTimeImmutable::class,
             $found->getCreatedAt());
 
         $found->setExpiresAt(new DateTimeImmutable('2000-01-01'));

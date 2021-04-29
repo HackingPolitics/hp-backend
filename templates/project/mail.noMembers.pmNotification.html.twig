@@ -1,0 +1,12 @@
+{% extends 'layout/mail.html.twig' %}
+
+{% do email.setSubject("mail.noMembers.pmNotification.subject"|trans) %}
+{% block mail_subject %}{{ email.subject }}{% endblock %}
+
+{% block mail_body %}
+    <h1>{{ "mail.processManager.salutation"|trans }}</h1>
+
+    {{ "mail.noMembers.pmNotification.content"|trans({
+        '%projectTitle%': projectTitle ?: "project.unnamed"|trans({'%projectid%': projectId}),
+    })|raw }}
+{% endblock %}

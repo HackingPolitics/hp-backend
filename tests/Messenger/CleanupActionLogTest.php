@@ -32,7 +32,7 @@ class CleanupActionLogTest extends KernelTestCase
         return $this->entityManager->getRepository(ActionLog::class);
     }
 
-    protected function removeAllLogs()
+    protected function removeAllLogs(): void
     {
         $logs = $this->getRepository()->findAll();
         foreach ($logs as $entry) {

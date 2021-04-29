@@ -16,7 +16,7 @@ class UserVoter extends Voter
     protected function supports($attribute, $subject)
     {
         return in_array($attribute, ['READ', 'EDIT', 'DELETE'])
-                && $subject instanceof User;
+            && $subject instanceof User;
     }
 
     /**
@@ -34,7 +34,9 @@ class UserVoter extends Voter
 
         switch ($attribute) {
             case 'READ':
-                if ($user->hasRole(User::ROLE_ADMIN)) {
+                if ($user->hasRole(User::ROLE_ADMIN)
+                    || $user->hasRole(User::ROLE_PROCESS_MANAGER)
+                ) {
                     return true;
                 }
 
@@ -55,7 +57,9 @@ class UserVoter extends Voter
                     return false;
                 }
 
-                if ($user->hasRole(User::ROLE_ADMIN)) {
+                if ($user->hasRole(User::ROLE_ADMIN)
+                    || $user->hasRole(User::ROLE_PROCESS_MANAGER)
+                ) {
                     return true;
                 }
 
@@ -72,7 +76,29 @@ class UserVoter extends Voter
                     return false;
                 }
 
-                if ($user->hasRole(User::ROLE_ADMIN)) {
+                foreach ($subject->getProjectMemberships() as $membership) {
+                    if ($membership->getRole() !== ProjectMembership::ROLE_COORDINATOR) {
+                        continue;
+                    }
+
+                    $project = $membership->getProject();
+                    $coordinators = $project->getMembersByRole(ProjectMembership::ROLE_COORDINATOR);
+                    if (count($coordinators) > 1) {
+                        continue;
+                    }
+
+                    $writers = $project->getMembersByRole(ProjectMembership::ROLE_WRITER);
+                    if (count($writers) > 0) {
+                        // the user is a project coordinator, the projects has only
+                        // 1 coordinator but has writers -> cannot delete, transfer
+                        // coordinator role first
+                        return false;
+                    }
+                }
+
+                if ($user->hasRole(User::ROLE_ADMIN)
+                    || $user->hasRole(User::ROLE_PROCESS_MANAGER)
+                ) {
                     return true;
                 }
 

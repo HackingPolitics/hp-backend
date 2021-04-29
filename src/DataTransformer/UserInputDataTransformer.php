@@ -8,6 +8,7 @@ use ApiPlatform\Core\DataTransformer\DataTransformerInterface;
 use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
 use ApiPlatform\Core\Validator\ValidatorInterface;
 use App\Dto\UserInput;
+use App\Entity\Project;
 use App\Entity\User;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Contracts\Service\ServiceSubscriberInterface;
@@ -78,6 +79,33 @@ class UserInputDataTransformer implements DataTransformerInterface, ServiceSubsc
             );
         }
 
+        foreach ($data->createdProjects as $projectData) {
+            // the normalizer already created ProjectInputs from the JSON,
+            // now convert to real projects
+            $project = $this->projectTransformer()
+                ->transform($projectData, Project::class, $context);
+
+            // we don't have an @Assert\Valid on the users createdProjects
+            // property as we don't want to validate all projects when only the
+            // user data changes -> validate the project here, the
+            // projectTransformer above only validated the ProjectInput
+            $this->validator()->validate($project, $context);
+
+            foreach ($project->getMemberships() as $membership) {
+                $user->addProjectMembership($membership);
+            }
+
+            $user->addCreatedProject($project);
+        }
+
+        foreach ($data->projectMemberships as $membership) {
+            $user->addProjectMembership($membership);
+
+            // validate only after the user was set, to distinguish from
+            // a project creation with a coordinator membership
+            $this->validator()->validate($membership, $context);
+        }
+
         return $user;
     }
 
@@ -91,6 +119,11 @@ class UserInputDataTransformer implements DataTransformerInterface, ServiceSubsc
         }
 
         return User::class === $to && null !== ($context['input']['class'] ?? null);
+    }
+
+    private function projectTransformer(): ProjectInputDataTransformer
+    {
+        return $this->container->get(__METHOD__);
     }
 
     private function passwordEncoder(): UserPasswordEncoderInterface

@@ -3,19 +3,11 @@
 namespace App\Security;
 
 use App\Entity\User;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Core\User\UserCheckerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class UserChecker implements UserCheckerInterface
 {
-    private AccessBlockService $accessBlock;
-
-    public function __construct(AccessBlockService $accessBlock)
-    {
-        $this->accessBlock = $accessBlock;
-    }
-
     /**
      * Which messages are shown before the password is checked?
      */

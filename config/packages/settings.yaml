@@ -3,9 +3,13 @@ settings:
     login:
       limit: "%env(int:BLOCK_LOGIN_LIMIT)%"
       interval: "%env(BLOCK_LOGIN_INTERVAL)%"
+    new_idea:
     password_reset:
       limit: "%env(int:BLOCK_PW_RESET_LIMIT)%"
       interval: "%env(BLOCK_PW_RESET_INTERVAL)%"
+    report_project:
+      limit: "%env(int:BLOCK_REPORT_PROJECT_LIMIT)%"
+      interval: "%env(BLOCK_REPORT_PROJECT_INTERVAL)%"
     validation_confirm:
       limit: "%env(int:BLOCK_VALIDATION_CONFIRM_LIMIT)%"
       interval: "%env(BLOCK_VALIDATION_CONFIRM_INTERVAL)%"

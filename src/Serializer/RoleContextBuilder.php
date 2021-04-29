@@ -13,6 +13,7 @@ class RoleContextBuilder implements SerializerContextBuilderInterface
 {
     protected array $context;
     protected bool $isAdmin = false;
+    protected bool $isPM = false;
 
     protected $decorated;
     protected $authorizationChecker;
@@ -35,7 +36,7 @@ class RoleContextBuilder implements SerializerContextBuilderInterface
             return $this->context;
         }
 
-        // convert "App\Entity\User" to "user"
+        // convert "App\Entity\Project" to "project"
         $objectType = lcfirst(
             substr(
                 strrchr($resourceClass, '\\'),
@@ -45,19 +46,20 @@ class RoleContextBuilder implements SerializerContextBuilderInterface
 
         $requestType = $normalization ? 'read' : 'write';
         $this->isAdmin = $this->authorizationChecker->isGranted(User::ROLE_ADMIN);
+        $this->isPM = $this->authorizationChecker->isGranted(User::ROLE_PROCESS_MANAGER);
 
-        // add "user:admin-write", "user:admin-read" etc for properties only
+        // add "project:admin-write", "project:pm-read" etc for properties only
         // readable/writeable for those roles
         $this->addGroups($objectType, $requestType);
 
-        // add "user:create" etc for properties only writeable on creation
+        // add "project:create" etc for properties only writeable on creation
         if ('collection' === $this->context['operation_type']
             && 'post' === $this->context['collection_operation_name']
         ) {
             $this->addGroups($objectType, 'create');
         }
 
-        // add "user:update" etc for properties only writeable on update
+        // add "project:update" etc for properties only writeable on update
         if ('item' === $this->context['operation_type']
             && 'put' === $this->context['item_operation_name']
         ) {
@@ -88,15 +90,20 @@ class RoleContextBuilder implements SerializerContextBuilderInterface
 
     protected function addGroups(string $object, string $action)
     {
-        // group "$objectType:$requestType" (e.g. "user:write") is added
+        // group "$objectType:$requestType" (e.g. "project:write") is added
         // by the decorated builder, no need to do it here
         if ('write' !== $action && 'read' !== $action) {
             $this->addGroup($object, $action);
         }
 
-        // add "user:admin-read" etc.
+        // add "project:admin-read" etc.
         if ($this->isAdmin) {
             $this->addGroup($object, $action, 'admin');
+        }
+
+        // add "project:pm-read" etc.
+        if ($this->isPM) {
+            $this->addGroup($object, $action, 'pm');
         }
     }
 

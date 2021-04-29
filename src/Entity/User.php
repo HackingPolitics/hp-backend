@@ -37,7 +37,7 @@ use Vrok\SymfonyAddons\Validator\Constraints as VrokAssert;
  *
  * @ApiResource(
  *     attributes={
- *      "security"="is_granted('ROLE_ADMIN')",
+ *      "security"="is_granted('ROLE_ADMIN') or is_granted('ROLE_PROCESS_MANAGER')",
  *      "pagination_items_per_page"=15
  *     },
  *     collectionOperations={
@@ -64,7 +64,7 @@ use Vrok\SymfonyAddons\Validator\Constraints as VrokAssert;
  *             "controller"=UserStatisticsAction::class,
  *             "method"="GET",
  *             "path"="/users/statistics",
- *             "security"="is_granted('ROLE_ADMIN')",
+ *             "security"="is_granted('ROLE_ADMIN') or is_granted('ROLE_PROCESS_MANAGER')",
  *         },
  *     },
  *     itemOperations={
@@ -96,7 +96,7 @@ use Vrok\SymfonyAddons\Validator\Constraints as VrokAssert;
  *             "controller"=NewPasswordAction::class,
  *             "method"="POST",
  *             "path"="/users/{id}/new-password",
- *             "security"="is_granted('ROLE_ADMIN')",
+ *             "security"="is_granted('ROLE_ADMIN') or is_granted('ROLE_PROCESS_MANAGER')",
  *             "validation_groups"={"Default", "user:newPassword"}
  *         }
  *     },
@@ -112,16 +112,19 @@ use Vrok\SymfonyAddons\Validator\Constraints as VrokAssert;
  *     }
  * )
  *
- * @ApiFilter(SearchFilter::class, properties={"roles": "partial", "username": "exact"})
+ * @ApiFilter(SearchFilter::class, properties={
+ *     "roles": "partial",
+ *     "username": "exact"
+ * })
  * @ApiFilter(BooleanFilter::class, properties={"active", "validated"})
  * @ApiFilter(ExistsFilter::class, properties={"deletedAt"})
  * @ApiFilter(SimpleSearchFilter::class, properties={"lastName", "firstName", "username", "email"}, arguments={"searchParameterName"="pattern"})
  *
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @ORM\Table(indexes={
- *     @ORM\Index(name="deleted_idx", columns={"deleted_at"})
+ *     @ORM\Index(name="user_deleted_idx", columns={"deleted_at"})
  * }, uniqueConstraints={
- *     @ORM\UniqueConstraint(name="email", columns={"email"})
+ *     @ORM\UniqueConstraint(name="user_email", columns={"email"})
  * })
  * @UniqueEntity(fields={"email"}, message="Email already exists.")
  * @UniqueEntity(fields={"username"}, message="Username already exists.")
@@ -129,6 +132,7 @@ use Vrok\SymfonyAddons\Validator\Constraints as VrokAssert;
 class User implements UserInterface
 {
     public const ROLE_ADMIN           = 'ROLE_ADMIN';
+    public const ROLE_PROCESS_MANAGER = 'ROLE_PROCESS_MANAGER';
     public const ROLE_USER            = 'ROLE_USER';
 
     use AutoincrementId;
@@ -247,7 +251,8 @@ class User implements UserInterface
      *     @Assert\Choice(
      *         choices={
      *             User::ROLE_ADMIN,
-     *             User::ROLE_USER
+     *             User::ROLE_PROCESS_MANAGER,
+     *             User::ROLE_USER,
      *         },
      *     )
      * })
@@ -298,7 +303,7 @@ class User implements UserInterface
      *     "user:read",
      *     "user:write",
      *     "project:coordinator-read",
-     *     "project:planner-read",
+     *     "project:writer-read",
      *     "project:pm-read",
      * })
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -330,7 +335,7 @@ class User implements UserInterface
      *     "user:read",
      *     "user:write",
      *     "project:coordinator-read",
-     *     "project:planner-read",
+     *     "project:writer-read",
      *     "project:pm-read",
      * })
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -521,6 +526,104 @@ class User implements UserInterface
 
     //endregion
 
+    //region CreatedProjects
+    /**
+     * @var Collection|Project[]
+     * @Groups({
+     *     "user:admin-read",
+     *     "user:pm-read",
+     *     "user:self",
+     *     "user:register",
+     * })
+     * @MaxDepth(1)
+     * @ORM\OneToMany(targetEntity="Project", mappedBy="user", mappedBy="createdBy", cascade={"persist"})
+     */
+    private $createdProjects;
+
+    /**
+     * @return Collection|Project[]
+     */
+    public function getCreatedProjects(): Collection
+    {
+        return $this->createdProjects;
+    }
+
+    public function addCreatedProject(Project $project): self
+    {
+        if (!$this->createdProjects->contains($project)) {
+            $this->createdProjects[] = $project;
+            $project->setCreatedBy($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCreatedProject(Project $project): self
+    {
+        if ($this->createdProjects->contains($project)) {
+            $this->createdProjects->removeElement($project);
+            // set the owning side to null (unless already changed)
+            if ($project->getCreatedBy() === $this) {
+                $project->setCreatedBy(null);
+            }
+        }
+
+        return $this;
+    }
+
+    //endregion
+
+    //region ProjectMemberships
+    /**
+     * @var Collection|ProjectMembership[]
+     * @Groups({
+     *     "user:admin-read",
+     *     "user:pm-read",
+     *     "user:self",
+     *     "user:register"
+     * })
+     * @MaxDepth(2)
+     * @ORM\OneToMany(
+     *     targetEntity="ProjectMembership",
+     *     mappedBy="user",
+     *     cascade={"persist", "remove"},
+     *     orphanRemoval=true
+     * )
+     */
+    private $projectMemberships;
+
+    /**
+     * @return Collection|ProjectMembership[]
+     */
+    public function getProjectMemberships(): Collection
+    {
+        return $this->projectMemberships;
+    }
+
+    public function addProjectMembership(ProjectMembership $member): self
+    {
+        if (!$this->projectMemberships->contains($member)) {
+            $this->projectMemberships[] = $member;
+            $member->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProjectMembership(ProjectMembership $member): self
+    {
+        if ($this->projectMemberships->contains($member)) {
+            $this->projectMemberships->removeElement($member);
+            // set the owning side to null (unless already changed)
+            if ($member->getUser() === $this) {
+                $member->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+    //endregion
+
     //region Validations
     /**
      * @var Collection|Validation[]
@@ -563,7 +666,9 @@ class User implements UserInterface
 
     public function __construct()
     {
+        $this->createdProjects = new ArrayCollection();
         $this->objectRoles = new ArrayCollection();
+        $this->projectMemberships = new ArrayCollection();
         $this->validations = new ArrayCollection();
     }
 

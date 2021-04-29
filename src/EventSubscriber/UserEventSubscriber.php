@@ -30,6 +30,8 @@ class UserEventSubscriber implements EventSubscriberInterface, ServiceSubscriber
 {
     use ServiceSubscriberTrait;
 
+    private array $deletedMemberships = [];
+
     /**
      * {@inheritdoc}
      */
@@ -39,14 +41,31 @@ class UserEventSubscriber implements EventSubscriberInterface, ServiceSubscriber
             UserRegisteredEvent::class => [
                 ['onApiUserCreated', 100],
             ],
+            ApiUserPreDeleteEvent::class => [
+                ['onPreDelete', 100],
+            ],
+            ApiUserPostDeleteEvent::class => [
+                ['onPostDelete', 100],
+            ],
         ];
     }
 
     /**
      * Send the validation email asynchronously to reduce load time.
+     * If the user is already validated notify project coordinators of his
+     * membership application if any exists.
      */
     public function onApiUserCreated(UserRegisteredEvent $event): void
     {
+        // a new idea or project may be created (by the UserInputDataTransformer)
+        // together with a registration -> trigger an event for new projects/ideas
+        // @todo no ProjectPostCreateEvent is currently triggered on registration
+        if ($event->user->getCreatedProjects()->count()) {
+            foreach($event->user->getCreatedProjects() as $project) {
+                $this->dispatcher()->dispatch(new ProjectPreCreateEvent($project));
+            }
+        }
+
         $log = new ActionLog();
         $log->action = ActionLog::REGISTERED_USER;
         $log->ipAddress = $this->requestStack()->getCurrentRequest()->getClientIp();
@@ -54,6 +73,19 @@ class UserEventSubscriber implements EventSubscriberInterface, ServiceSubscriber
         $this->entityManager()->persist($log);
 
         if ($event->user->isValidated()) {
+            // notify project coordinators (they are not notified on registration if
+            // the user still needs to validate)
+            foreach ($event->user->getProjectMemberships() as $membership) {
+                if ($membership->getRole() === ProjectMembership::ROLE_APPLICANT) {
+                    $this->messageBus()->dispatch(
+                        new NewMemberApplicationMessage(
+                            $event->user->getId(),
+                            $membership->getProject()->getId()
+                        )
+                    );
+                }
+            }
+
             // if validation is not required -> nothing more to do
             return;
         }
@@ -61,6 +93,38 @@ class UserEventSubscriber implements EventSubscriberInterface, ServiceSubscriber
         $this->messageBus()->dispatch(
             new UserRegisteredMessage($event->user->getId(), $event->validationUrl)
         );
+    }
+
+    public function onPreDelete(ApiUserPreDeleteEvent $event): void
+    {
+        $this->deletedMemberships = [];
+
+        foreach($event->user->getProjectMemberships() as $membership) {
+            $this->dispatcher()->dispatch(new ProjectMembershipPreDeleteEvent($membership));
+
+            // orphan removal will delete those memberships
+            $event->user->removeProjectMembership($membership);
+
+            // collect the removed memberships to later trigger the postDelete event
+            $this->deletedMemberships[] = $membership;
+        }
+    }
+
+    /**
+     * We removed the memberships -> we are responsible to trigger the postDelete event.
+     */
+    public function onPostDelete(ApiUserPostDeleteEvent $event): void
+    {
+        foreach($this->deletedMemberships as $membership) {
+            $this->dispatcher()->dispatch(new ProjectMembershipPostDeleteEvent($membership));
+        }
+
+        $this->deletedMemberships = [];
+    }
+
+    private function dispatcher(): EventDispatcherInterface
+    {
+        return $this->container->get(__METHOD__);
     }
 
     private function entityManager(): EntityManagerInterface

@@ -6,7 +6,19 @@ namespace App\EventSubscriber;
 
 use ApiPlatform\Core\EventListener\EventPriorities;
 use ApiPlatform\Core\Util\RequestAttributesExtractor;
+use App\Entity\Project;
+use App\Entity\ProjectMembership;
 use App\Entity\User;
+use App\Event\Api\ApiProjectMembershipPostCreateEvent;
+use App\Event\Api\ApiProjectMembershipPostDeleteEvent;
+use App\Event\Api\ApiProjectMembershipPreCreateEvent;
+use App\Event\Api\ApiProjectMembershipPreDeleteEvent;
+use App\Event\Api\ApiProjectPostCreateEvent;
+use App\Event\Api\ApiProjectPostDeleteEvent;
+use App\Event\Api\ApiProjectPostUpdateEvent;
+use App\Event\Api\ApiProjectPreCreateEvent;
+use App\Event\Api\ApiProjectPreDeleteEvent;
+use App\Event\Api\ApiProjectPreUpdateEvent;
 use App\Event\Api\ApiUserPostDeleteEvent;
 use App\Event\Api\ApiUserPreDeleteEvent;
 use App\Event\EntityPostWriteEvent;
@@ -63,12 +75,22 @@ class WriteEventSubscriber implements EventSubscriberInterface
 
         if ($itemOperation === "put" && is_object($controllerResult)) {
             switch(get_class($controllerResult)) {
-                // pre update events
+                case Project::class:
+                    $eventClass = ApiProjectPreUpdateEvent::class;
+                    break;
             }
         }
 
         if ($itemOperation === "delete" && is_object($controllerResult)) {
             switch(get_class($controllerResult)) {
+                case Project::class:
+                    $eventClass = ApiProjectPreDeleteEvent::class;
+                    break;
+
+                case ProjectMembership::class:
+                    $eventClass = ApiProjectMembershipPreDeleteEvent::class;
+                    break;
+
                 case User::class:
                     $eventClass = ApiUserPreDeleteEvent::class;
                     break;
@@ -77,7 +99,13 @@ class WriteEventSubscriber implements EventSubscriberInterface
 
         if ($collectionOperation === "post" && is_object($controllerResult)) {
             switch(get_class($controllerResult)) {
-                // pre create events
+                case Project::class:
+                    $eventClass = ApiProjectPreCreateEvent::class;
+                    break;
+
+                case ProjectMembership::class:
+                    $eventClass = ApiProjectMembershipPreCreateEvent::class;
+                    break;
             }
         }
 
@@ -108,7 +136,9 @@ class WriteEventSubscriber implements EventSubscriberInterface
 
         if ($itemOperation === "put" && is_object($entity)) {
             switch(get_class($entity)) {
-                // post update events
+                case Project::class:
+                    $eventClass = ApiProjectPostUpdateEvent::class;
+                    break;
             }
         }
 
@@ -119,6 +149,14 @@ class WriteEventSubscriber implements EventSubscriberInterface
             }
 
             switch(get_class($entity)) {
+                case Project::class:
+                    $eventClass = ApiProjectPostDeleteEvent::class;
+                    break;
+
+                case ProjectMembership::class:
+                    $eventClass = ApiProjectMembershipPostDeleteEvent::class;
+                    break;
+
                 case User::class:
                     $eventClass = ApiUserPostDeleteEvent::class;
                     break;
@@ -127,7 +165,13 @@ class WriteEventSubscriber implements EventSubscriberInterface
 
         if ($collectionOperation === "post" && is_object($controllerResult)) {
             switch(get_class($controllerResult)) {
-                // post create events
+                case Project::class:
+                    $eventClass = ApiProjectPostCreateEvent::class;
+                    break;
+
+                case ProjectMembership::class:
+                    $eventClass = ApiProjectMembershipPostCreateEvent::class;
+                    break;
             }
         }
 

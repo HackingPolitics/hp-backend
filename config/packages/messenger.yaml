@@ -5,16 +5,8 @@ framework:
         transports:
             failed: 'doctrine://default?queue_name=failed'
 
-            amqp:
-                dsn: '%env(MESSENGER_AMQP_DSN)%'
-                options:
-                    exchange:
-                        name: hpo
-                        type: direct
-                        default_publish_routing_key: hpo
-                    queues:
-                        hpo:
-                            binding_keys: [hpo]
+            async:
+                dsn: '%env(MESSENGER_DOCTRINE_DSN)%'
                 retry_strategy:
                     max_retries: 3
                     delay: 1000
@@ -22,4 +14,13 @@ framework:
                     max_delay: 0
 
         routing:
-            '*': amqp
+            '*': async
+
+        buses:
+            messenger.bus.default:
+                middleware:
+                    # each time a message is handled, the Doctrine connection
+                    # is "pinged" and reconnected if it's closed. Useful
+                    # if your workers run for a long time and the database
+                    # connection is sometimes lost
+                    - doctrine_ping_connection
