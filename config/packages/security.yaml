@@ -39,3 +39,5 @@ security:
         #- { path: ^/refresh_token, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         #- { path: ^/authentication_token, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         #- { path: ^/profile, roles: ROLE_USER }
+
+    hide_user_not_found: false

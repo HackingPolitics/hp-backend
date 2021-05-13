@@ -23,6 +23,11 @@ class ProjectApiTest extends ApiTestCase
     use AuthenticatedClientTrait;
     use RefreshDatabaseTrait;
 
+    public static function setUpBeforeClass(): void
+    {
+        static::$fixtureGroups = ['initial', 'test'];
+    }
+
     /**
      * Test what anonymous users see.
      */
@@ -1111,7 +1116,7 @@ class ProjectApiTest extends ApiTestCase
         ]);
     }
 
-    public function testSettingEmptyTitle(): void
+    public function testSettingEmptyTitleFails(): void
     {
         $client = static::createAuthenticatedClient([
             'email' => TestFixtures::PROJECT_COORDINATOR['email'],
@@ -1124,10 +1129,15 @@ class ProjectApiTest extends ApiTestCase
             'title' => ' ',
         ]]);
 
-        self::assertResponseIsSuccessful();
+        self::assertResponseStatusCodeSame(422);
+        self::assertResponseHeaderSame('content-type',
+            'application/ld+json; charset=utf-8');
+
         self::assertJsonContains([
-            '@id'  => $iri,
-            'title' => '',
+            '@context'          => '/contexts/ConstraintViolationList',
+            '@type'             => 'ConstraintViolationList',
+            'hydra:title'       => 'An error occurred',
+            'hydra:description' => 'title: validate.general.notBlank',
         ]);
     }
 

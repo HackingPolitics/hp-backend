@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\DataFixtures;
 
 use App\Entity\ActionLog;
+use App\Entity\Faction;
+use App\Entity\FederalState;
+use App\Entity\Parliament;
 use App\Entity\Project;
 use App\Entity\ProjectMembership;
 use App\Entity\User;
@@ -14,10 +17,11 @@ use DateTimeImmutable;
 use DateTimeZone;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
-class TestFixtures extends Fixture implements FixtureGroupInterface
+class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFixtureInterface
 {
     public const ADMIN = [
         'id'        => 1, // because we persist him first
@@ -59,7 +63,6 @@ class TestFixtures extends Fixture implements FixtureGroupInterface
         'deletedAt' => null,
         'validated' => false,
     ];
-
 
     public const PROJECT_COORDINATOR = [
         'id'        => 5,
@@ -122,7 +125,47 @@ class TestFixtures extends Fixture implements FixtureGroupInterface
         'deletedAt' => '2019-12-12 12:12:12',
     ];
 
+    public const PARLIAMENT = [
+        'id'           => 1,
+        'title'        => 'Stadtrat Stuttgart',
+        'location'     => 'LH Stuttgart',
+        'zipArea'      => '123',
+        'federalState' => 'Baden-Württemberg',
+        'validatedAt'  => '2021-05-01',
+
+        // political/organizational details
+        'headOfAdministration'      => 'Max Muster',
+        'headOfAdministrationTitle' => 'Oberbürgermeister',
+    ];
+
+    public const FACTION_GREEN = [
+        'id'          => 1,
+        'name'        => 'Grün',
+        'memberCount' => 1,
+    ];
+    public const FACTION_RED = [
+        'id'          => 2,
+        'name'        => 'Rot',
+        'memberCount' => 2,
+    ];
+    public const FACTION_BLACK = [
+        'id'          => 3,
+        'name'        => 'Schwarz',
+        'memberCount' => 3,
+    ];
+    public const FACTION_YELLOW = [
+        'id'          => 4,
+        'name'        => 'Gelb',
+        'memberCount' => 4,
+        'active'      => false,
+    ];
+
     private UserPasswordEncoderInterface $encoder;
+
+    public function getDependencies(): array
+    {
+        return [InitialFixtures::class];
+    }
 
     public function __construct(UserPasswordEncoderInterface $encoder)
     {
@@ -212,6 +255,19 @@ class TestFixtures extends Fixture implements FixtureGroupInterface
         /*
          * /Create deleted project
          */
+
+        $parliament = $this->createParliament(self::PARLIAMENT, $manager, $admin);
+        $parliament->setUpdatedBy($admin);
+        $manager->persist($parliament);
+
+        $greenFaction = $this->createFaction(self::FACTION_GREEN, $admin);
+        $parliament->addFaction($greenFaction);
+        $redFaction = $this->createFaction(self::FACTION_RED, $admin);
+        $parliament->addFaction($redFaction);
+        $blackFaction = $this->createFaction(self::FACTION_BLACK, $admin);
+        $parliament->addFaction($blackFaction);
+        $yellowFaction = $this->createFaction(self::FACTION_YELLOW, $admin);
+        $parliament->addFaction($yellowFaction);
 
         $this->populateActionLog($manager);
 
@@ -320,6 +376,77 @@ class TestFixtures extends Fixture implements FixtureGroupInterface
         }
 
         return $project;
+    }
+
+    protected function createParliament(
+        array $data,
+        ObjectManager $manager,
+        ?User $creator = null
+    ): Parliament
+    {
+        $parliament = new Parliament();
+
+        if (isset($data['title'])) {
+            $parliament->setTitle($data['title']);
+        }
+        if (isset($data['location'])) {
+            $parliament->setLocation($data['location']);
+        }
+        if (isset($data['zipArea'])) {
+            $parliament->setZipArea($data['zipArea']);
+        }
+        if (isset($data['headOfAdministration'])) {
+            $parliament->setHeadOfAdministration($data['headOfAdministration']);
+        }
+        if (isset($data['headOfAdministrationTitle'])) {
+            $parliament->setHeadOfAdministrationTitle($data['headOfAdministrationTitle']);
+        }
+        if (isset($data['url'])) {
+            $parliament->setUrl($data['url']);
+        }
+        if (isset($data['wikipediaUrl'])) {
+            $parliament->setWikipediaUrl($data['wikipediaUrl']);
+        }
+        if (isset($data['validatedAt'])) {
+            $parliament->setValidatedAt(new DateTimeImmutable($data['validatedAt'], new DateTimeZone('UTC')));
+        }
+
+        if (isset($data['federalState'])) {
+            $fs = $manager->getRepository(FederalState::class)->findOneBy([
+                'name' => $data['federalState']
+            ]);
+            $parliament->setFederalState($fs);
+        }
+
+        if ($creator) {
+            $parliament->setUpdatedBy($creator);
+        }
+
+        return $parliament;
+    }
+
+    protected function createFaction(array $data, ?User $creator = null): Faction
+    {
+        $faction = new Faction();
+
+        if (isset($data['name'])) {
+            $faction->setName($data['name']);
+        }
+        if (isset($data['memberCount'])) {
+            $faction->setMemberCount($data['memberCount']);
+        }
+        if (isset($data['url'])) {
+            $faction->setUrl($data['url']);
+        }
+        if (isset($data['active'])) {
+            $faction->setActive($data['active']);
+        }
+
+        if ($creator) {
+            $faction->setUpdatedBy($creator);
+        }
+
+        return $faction;
     }
 
     protected function populateActionLog(ObjectManager $manager): void

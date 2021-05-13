@@ -10,6 +10,7 @@ use App\Entity\ProjectMembership;
 use App\Entity\User;
 use App\Message\NewMemberApplicationMessage;
 use App\MessageHandler\NewMemberApplicationMessageHandler;
+use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Vrok\SymfonyAddons\PHPUnit\RefreshDatabaseTrait;
 
@@ -17,10 +18,12 @@ class NewMemberApplicationTest extends KernelTestCase
 {
     use RefreshDatabaseTrait;
 
-    /**
-     * @var \Doctrine\ORM\EntityManager
-     */
-    private $entityManager;
+    private ?EntityManager $entityManager;
+
+    public static function setUpBeforeClass(): void
+    {
+        static::$fixtureGroups = ['initial', 'test'];
+    }
 
     protected function setUp(): void
     {
@@ -29,6 +32,17 @@ class NewMemberApplicationTest extends KernelTestCase
         $this->entityManager = $kernel->getContainer()
             ->get('doctrine')
             ->getManager();
+    }
+
+    public function tearDown(): void
+    {
+        parent::tearDown();
+        $this->entityManager = null;
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        self::fixtureCleanup();
     }
 
     public function testHandlerSendsMessage()

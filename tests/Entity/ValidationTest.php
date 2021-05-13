@@ -7,6 +7,7 @@ namespace App\Tests\Entity;
 use App\Entity\User;
 use App\Entity\Validation;
 use DateTimeImmutable;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Vrok\SymfonyAddons\PHPUnit\RefreshDatabaseTrait;
@@ -18,10 +19,12 @@ class ValidationTest extends KernelTestCase
 {
     use RefreshDatabaseTrait;
 
-    /**
-     * @var \Doctrine\ORM\EntityManager
-     */
-    private $entityManager;
+    private ?EntityManager $entityManager;
+
+    public static function setUpBeforeClass(): void
+    {
+        static::$fixtureGroups = ['initial', 'test'];
+    }
 
     protected function setUp(): void
     {
@@ -30,6 +33,17 @@ class ValidationTest extends KernelTestCase
         $this->entityManager = $kernel->getContainer()
             ->get('doctrine')
             ->getManager();
+    }
+
+    public function tearDown(): void
+    {
+        parent::tearDown();
+        $this->entityManager = null;
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        self::fixtureCleanup();
     }
 
     protected function getValidationRepository(): EntityRepository

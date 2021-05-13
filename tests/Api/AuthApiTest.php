@@ -22,6 +22,11 @@ class AuthApiTest extends ApiTestCase
     use AuthenticatedClientTrait;
     use RefreshDatabaseTrait;
 
+    public static function setUpBeforeClass(): void
+    {
+        static::$fixtureGroups = ['initial', 'test'];
+    }
+
     public function testAuthRequiresPassword(): void
     {
         static::createClient()->request('POST', '/authentication_token', [
@@ -100,7 +105,7 @@ class AuthApiTest extends ApiTestCase
     {
         $before = new \DateTimeImmutable();
 
-        $r = static::createClient()->request('POST', '/authentication_token', ['json' => [
+        $response = static::createClient()->request('POST', '/authentication_token', ['json' => [
             'username' => TestFixtures::ADMIN['username'],
             'password' => TestFixtures::ADMIN['password'],
         ]]);
@@ -108,7 +113,7 @@ class AuthApiTest extends ApiTestCase
         self::assertResponseIsSuccessful();
         self::assertResponseHeaderSame('content-type', 'application/json');
 
-        $auth = $r->toArray();
+        $auth = $response->toArray();
         self::assertArrayHasKey('token', $auth);
         self::assertArrayHasKey('refresh_token', $auth);
         self::assertArrayHasKey('refresh_token_expires', $auth);
@@ -300,14 +305,9 @@ class AuthApiTest extends ApiTestCase
         $before = new \DateTimeImmutable();
         $client = static::createClient();
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
-        $admin = $em->getRepository(User::class)->find(TestFixtures::ADMIN['id']);
-        $admin->setValidated(false);
-        $em->flush();
-
         $client->request('POST', '/authentication_token', ['json' => [
-            'username' => TestFixtures::ADMIN['username'],
-            'password' => TestFixtures::ADMIN['password'],
+            'username' => TestFixtures::GUEST['username'],
+            'password' => TestFixtures::GUEST['password'],
         ]]);
 
         self::assertResponseStatusCodeSame(401);
@@ -318,8 +318,9 @@ class AuthApiTest extends ApiTestCase
             'message' => 'user.notValidated',
         ]);
 
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
         $logs = $em->getRepository(ActionLog::class)
-            ->findBy(['username' => TestFixtures::ADMIN['username']]);
+            ->findBy(['username' => TestFixtures::GUEST['username']]);
         self::assertCount(1, $logs);
         self::assertSame(ActionLog::FAILED_LOGIN, $logs[0]->action);
         self::assertGreaterThan($before, $logs[0]->timestamp);

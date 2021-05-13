@@ -9,24 +9,14 @@ services:
       MYSQL_USER: hpo_test
       MYSQL_PASSWORD: hpo_test
 
-#  rabbitmq-hpo:
-#    image: rabbitmq:3-management
-#    container_name: rabbitmq-hpo
-#    hostname: rabbitmq
-#    ports:
-#      - 8090:15672
-#    environment:
-#      RABBITMQ_DEFAULT_USER: messenger
-#      RABBITMQ_DEFAULT_PASS: messenger
-
   php-hpo:
     build: php
     container_name: php-hpo
     links:
       - mysql-hpo
-#      - rabbitmq-hpo
     volumes:
-      - /phpstorm/hpo-backend/:/srv/api
+      # /projects muss in der Virtualbox als Shared Folder gemounted sein
+      - /projects/hpo-backend/:/srv/api
     extra_hosts:
       - host.vbox.internal:192.168.178.47
     environment:

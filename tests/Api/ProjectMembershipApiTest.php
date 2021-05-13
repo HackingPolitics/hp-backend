@@ -26,6 +26,11 @@ class ProjectMembershipApiTest extends ApiTestCase
 
     private EntityManager $entityManager;
 
+    public static function setUpBeforeClass(): void
+    {
+        static::$fixtureGroups = ['initial', 'test'];
+    }
+
     protected function getOwner(): Project
     {
         return $this->getEntityManager()->getRepository(User::class)

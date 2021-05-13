@@ -18,10 +18,12 @@ class ActionLogTest extends KernelTestCase
 {
     use RefreshDatabaseTrait;
 
-    /**
-     * @var EntityManager
-     */
-    private $entityManager;
+    private ?EntityManager $entityManager;
+
+    public static function setUpBeforeClass(): void
+    {
+        static::$fixtureGroups = ['initial', 'test'];
+    }
 
     protected function setUp(): void
     {
@@ -32,9 +34,19 @@ class ActionLogTest extends KernelTestCase
             ->getManager();
     }
 
+    public function tearDown(): void
+    {
+        parent::tearDown();
+        $this->entityManager = null;
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        self::fixtureCleanup();
+    }
+
     protected function getRepository(): ActionLogRepository
     {
-        /* @noinspection PhpIncompatibleReturnTypeInspection */
         return $this->entityManager->getRepository(ActionLog::class);
     }
 

@@ -425,6 +425,7 @@ class Project
      * Require at least one letter in the title so that the slug
      * is never only numeric, to differentiate it from an ID.
      * @Assert\Sequentially({
+     *     @Assert\NotBlank,
      *     @Assert\Length(min=5, max=100),
      *     @VrokAssert\NoLineBreaks,
      *     @Assert\Regex(

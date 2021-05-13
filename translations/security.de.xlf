@@ -2,6 +2,10 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
     <file source-language="de" datatype="plaintext" original="file.ext">
         <body>
+            <trans-unit id="Username could not be found.">
+                <source>Username could not be found.</source>
+                <target>user.invalidCredentials</target>
+            </trans-unit>
             <trans-unit id="Invalid credentials.">
                 <source>Invalid credentials.</source>
                 <target>user.invalidCredentials</target>

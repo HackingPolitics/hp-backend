@@ -139,8 +139,8 @@ class User implements UserInterface
 
     //region Username
     /**
-     * User names must start with a letter may contain only letters, digits,
-     * dots, hyphens and underscores, thy must contain at least two letters
+     * User names must start with a letter; may contain only letters, digits,
+     * dots, hyphens and underscores; they must contain at least two letters
      * (first regex).
      * User names may not be in the format "deleted_{0-9}" as this is reserved
      * for deleted users (second regex).
@@ -536,7 +536,7 @@ class User implements UserInterface
      *     "user:register",
      * })
      * @MaxDepth(1)
-     * @ORM\OneToMany(targetEntity="Project", mappedBy="user", mappedBy="createdBy", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="Project", mappedBy="createdBy", cascade={"persist"})
      */
     private $createdProjects;
 

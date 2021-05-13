@@ -54,10 +54,12 @@ class UserTest extends KernelTestCase
         'Test~de', // ~ not allowed
     ];
 
-    /**
-     * @var EntityManager
-     */
-    private $entityManager;
+    private ?EntityManager $entityManager;
+
+    public static function setUpBeforeClass(): void
+    {
+        static::$fixtureGroups = ['initial', 'test'];
+    }
 
     protected function setUp(): void
     {
@@ -66,6 +68,17 @@ class UserTest extends KernelTestCase
         $this->entityManager = $kernel->getContainer()
             ->get('doctrine')
             ->getManager();
+    }
+
+    public function tearDown(): void
+    {
+        parent::tearDown();
+        $this->entityManager = null;
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        self::fixtureCleanup();
     }
 
     protected function getUserRepository(): UserRepository

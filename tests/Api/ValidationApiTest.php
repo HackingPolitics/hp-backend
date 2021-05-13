@@ -23,6 +23,11 @@ class ValidationApiTest extends ApiTestCase
     use AuthenticatedClientTrait;
     use RefreshDatabaseTrait;
 
+    public static function setUpBeforeClass(): void
+    {
+        static::$fixtureGroups = ['initial', 'test'];
+    }
+
     public function testGetCollectionNotAvailable(): void
     {
         static::createAuthenticatedClient([

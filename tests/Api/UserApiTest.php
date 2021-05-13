@@ -30,6 +30,11 @@ class UserApiTest extends ApiTestCase
     use AuthenticatedClientTrait;
     use RefreshDatabaseTrait;
 
+    public static function setUpBeforeClass(): void
+    {
+        static::$fixtureGroups = ['initial', 'test'];
+    }
+
     public function testGetCollection(): void
     {
         $response = static::createAuthenticatedClient([

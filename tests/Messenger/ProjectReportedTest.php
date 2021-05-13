@@ -7,6 +7,7 @@ namespace App\Tests\Messenger;
 use App\DataFixtures\TestFixtures;
 use App\Message\ProjectReportedMessage;
 use App\MessageHandler\ProjectReportedMessageHandler;
+use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Vrok\SymfonyAddons\PHPUnit\RefreshDatabaseTrait;
 
@@ -14,10 +15,12 @@ class ProjectReportedTest extends KernelTestCase
 {
     use RefreshDatabaseTrait;
 
-    /**
-     * @var \Doctrine\ORM\EntityManager
-     */
-    private $entityManager;
+    private ?EntityManager $entityManager;
+
+    public static function setUpBeforeClass(): void
+    {
+        static::$fixtureGroups = ['initial', 'test'];
+    }
 
     protected function setUp(): void
     {
@@ -26,6 +29,17 @@ class ProjectReportedTest extends KernelTestCase
         $this->entityManager = $kernel->getContainer()
             ->get('doctrine')
             ->getManager();
+    }
+
+    public function tearDown(): void
+    {
+        parent::tearDown();
+        $this->entityManager = null;
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        self::fixtureCleanup();
     }
 
     public function testHandlerSendsMessageForProject()

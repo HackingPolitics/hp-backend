@@ -4,7 +4,8 @@ stof_doctrine_extensions:
     default_locale: "%env(DEFAULT_LOCALE)%"
     orm:
         default:
-            loggable: true
+            blameable: true
+            loggable: false
             sluggable: true
 
             # dont use it, it is incompatible with ODM which would prevent us

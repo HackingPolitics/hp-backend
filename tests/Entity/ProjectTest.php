@@ -8,6 +8,7 @@ use App\DataFixtures\TestFixtures;
 use App\Entity\Project;
 use App\Entity\ProjectMembership;
 use App\Entity\User;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Vrok\SymfonyAddons\PHPUnit\RefreshDatabaseTrait;
@@ -19,10 +20,12 @@ class ProjectTest extends KernelTestCase
 {
     use RefreshDatabaseTrait;
 
-    /**
-     * @var \Doctrine\ORM\EntityManager
-     */
-    private $entityManager;
+    private ?EntityManager $entityManager;
+
+    public static function setUpBeforeClass(): void
+    {
+        static::$fixtureGroups = ['initial', 'test'];
+    }
 
     protected function setUp(): void
     {
@@ -31,6 +34,17 @@ class ProjectTest extends KernelTestCase
         $this->entityManager = $kernel->getContainer()
             ->get('doctrine')
             ->getManager();
+    }
+
+    public function tearDown(): void
+    {
+        parent::tearDown();
+        $this->entityManager = null;
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        self::fixtureCleanup();
     }
 
     protected function getProjectRepository(): EntityRepository
