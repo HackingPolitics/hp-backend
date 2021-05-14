@@ -47,7 +47,7 @@ class UserApiTest extends ApiTestCase
             'application/ld+json; charset=utf-8');
 
         // @todo the schema is broken, "The property deletedAt is not defined and the definition does not allow additional properties" etc
-        //self::assertMatchesResourceCollectionJsonSchema(User::class);
+        self::assertMatchesResourceCollectionJsonSchema(User::class);
 
         self::assertJsonContains([
             '@context'         => '/contexts/User',
@@ -131,7 +131,7 @@ class UserApiTest extends ApiTestCase
     }
 
     /**
-     * Filter the collection by search pattern
+     * Filter the collection by search pattern.
      */
     public function testGetUsersByEmailPattern(): void
     {
@@ -158,7 +158,7 @@ class UserApiTest extends ApiTestCase
     }
 
     /**
-     * Filter the collection by search pattern
+     * Filter the collection by search pattern.
      */
     public function testGetUsersByNamePattern(): void
     {
@@ -185,7 +185,7 @@ class UserApiTest extends ApiTestCase
     }
 
     /**
-     * Filter the collection by user role
+     * Filter the collection by user role.
      */
     public function testGetUsersByRole(): void
     {
@@ -212,7 +212,7 @@ class UserApiTest extends ApiTestCase
     }
 
     /**
-     * Filter the collection by active flag
+     * Filter the collection by active flag.
      */
     public function testGetInactiveUsers(): void
     {
@@ -244,7 +244,7 @@ class UserApiTest extends ApiTestCase
     }
 
     /**
-     * Filter the collection by validated flag
+     * Filter the collection by validated flag.
      */
     public function testGetNotValidatedUsers(): void
     {
@@ -278,7 +278,7 @@ class UserApiTest extends ApiTestCase
         $response = static::createAuthenticatedClient([
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ])->request('GET', '/users', ['query' => [
-            'exists[deletedAt]' => 0
+            'exists[deletedAt]' => 0,
         ]]);
 
         self::assertResponseIsSuccessful();
@@ -306,7 +306,7 @@ class UserApiTest extends ApiTestCase
             'application/ld+json; charset=utf-8');
 
         // @todo the schema is broken, "The property deletedAt is not defined and the definition does not allow additional properties" etc
-        //self::assertMatchesResourceCollectionJsonSchema(User::class);
+        self::assertMatchesResourceCollectionJsonSchema(User::class);
 
         self::assertJsonContains([
             '@context'         => '/contexts/User',
@@ -359,7 +359,7 @@ class UserApiTest extends ApiTestCase
             'application/ld+json; charset=utf-8');
 
         // @todo the schema is broken, "The property deletedAt is not defined and the definition does not allow additional properties" etc
-        //self::assertMatchesResourceItemJsonSchema(User::class);
+        self::assertMatchesResourceItemJsonSchema(User::class);
 
         self::assertJsonContains([
             '@id'                => $iri,
@@ -426,8 +426,7 @@ class UserApiTest extends ApiTestCase
         self::assertResponseHeaderSame('content-type',
             'application/ld+json; charset=utf-8');
 
-        // @todo the schema is broken, "The property deletedAt is not defined and the definition does not allow additional properties" etc
-        //self::assertMatchesResourceItemJsonSchema(User::class);
+        self::assertMatchesResourceItemJsonSchema(User::class);
 
         self::assertJsonContains([
             '@id'                => $iri,
@@ -456,8 +455,7 @@ class UserApiTest extends ApiTestCase
         self::assertResponseHeaderSame('content-type',
             'application/ld+json; charset=utf-8');
 
-        // @todo the schema is broken, "The property deletedAt is not defined and the definition does not allow additional properties" etc
-        //self::assertMatchesResourceItemJsonSchema(User::class);
+        self::assertMatchesResourceItemJsonSchema(User::class);
 
         self::assertJsonContains([
             '@id'                => $iri,
@@ -501,9 +499,7 @@ class UserApiTest extends ApiTestCase
         self::assertResponseIsSuccessful();
         self::assertResponseHeaderSame('content-type',
             'application/ld+json; charset=utf-8');
-
-        // @todo the schema is broken, "The property deletedAt is not defined and the definition does not allow additional properties" etc
-        //self::assertMatchesResourceItemJsonSchema(User::class);
+        self::assertMatchesResourceItemJsonSchema(User::class);
 
         self::assertJsonContains([
             '@id'             => $iri,
@@ -531,9 +527,7 @@ class UserApiTest extends ApiTestCase
         self::assertResponseIsSuccessful();
         self::assertResponseHeaderSame('content-type',
             'application/ld+json; charset=utf-8');
-
-        // @todo the schema is broken, "The property deletedAt is not defined and the definition does not allow additional properties" etc
-        //self::assertMatchesResourceItemJsonSchema(User::class);
+        self::assertMatchesResourceItemJsonSchema(User::class);
 
         self::assertJsonContains([
             '@id'             => $iri,
@@ -603,9 +597,7 @@ class UserApiTest extends ApiTestCase
         self::assertResponseIsSuccessful();
         self::assertResponseHeaderSame('content-type',
             'application/ld+json; charset=utf-8');
-
-        // @todo the schema is broken, "The property deletedAt is not defined and the definition does not allow additional properties" etc
-        //self::assertMatchesResourceItemJsonSchema(User::class);
+        self::assertMatchesResourceItemJsonSchema(User::class);
     }
 
     /**
@@ -648,9 +640,7 @@ class UserApiTest extends ApiTestCase
         self::assertResponseStatusCodeSame(201);
         self::assertResponseHeaderSame('content-type',
             'application/ld+json; charset=utf-8');
-
-        // @todo the schema is broken, "The property deletedAt is not defined and the definition does not allow additional properties" etc
-        //self::assertMatchesResourceItemJsonSchema(User::class);
+        self::assertMatchesResourceItemJsonSchema(User::class);
 
         self::assertJsonContains([
             '@context'    => '/contexts/User',
@@ -740,9 +730,7 @@ class UserApiTest extends ApiTestCase
         self::assertResponseStatusCodeSame(201);
         self::assertResponseHeaderSame('content-type',
             'application/ld+json; charset=utf-8');
-
-        // @todo the schema is broken, "The property deletedAt is not defined and the definition does not allow additional properties" etc
-        //self::assertMatchesResourceItemJsonSchema(User::class);
+        self::assertMatchesResourceItemJsonSchema(User::class);
 
         self::assertJsonContains([
             'active'    => false,
@@ -922,9 +910,7 @@ class UserApiTest extends ApiTestCase
         self::assertResponseStatusCodeSame(201);
         self::assertResponseHeaderSame('content-type',
             'application/ld+json; charset=utf-8');
-
-        // @todo the schema is broken, "The property deletedAt is not defined and the definition does not allow additional properties" etc
-        //self::assertMatchesResourceItemJsonSchema(User::class);
+        self::assertMatchesResourceItemJsonSchema(User::class);
 
         $userData = $response->toArray();
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();
@@ -949,9 +935,7 @@ class UserApiTest extends ApiTestCase
         self::assertResponseStatusCodeSame(201);
         self::assertResponseHeaderSame('content-type',
             'application/ld+json; charset=utf-8');
-
-        // @todo the schema is broken, "The property deletedAt is not defined and the definition does not allow additional properties" etc
-        //self::assertMatchesResourceItemJsonSchema(User::class);
+        self::assertMatchesResourceItemJsonSchema(User::class);
 
         self::assertJsonContains([
             '@context'    => '/contexts/User',
@@ -1013,8 +997,6 @@ class UserApiTest extends ApiTestCase
         self::assertResponseStatusCodeSame(201);
         self::assertResponseHeaderSame('content-type',
             'application/ld+json; charset=utf-8');
-
-        // @todo the schema is broken, "The property deletedAt is not defined and the definition does not allow additional properties" etc
         self::assertMatchesResourceItemJsonSchema(User::class);
 
         self::assertJsonContains([
@@ -1213,7 +1195,7 @@ class UserApiTest extends ApiTestCase
     }
 
     /**
-     * requires zalas/phpunit-globals
+     * requires zalas/phpunit-globals.
      *
      * @env USER_VALIDATION_REQUIRED=false
      */
@@ -1242,9 +1224,7 @@ class UserApiTest extends ApiTestCase
         self::assertResponseStatusCodeSame(201);
         self::assertResponseHeaderSame('content-type',
             'application/ld+json; charset=utf-8');
-
-        // @todo the schema is broken, "The property deletedAt is not defined and the definition does not allow additional properties" etc
-        //self::assertMatchesResourceItemJsonSchema(User::class);
+        self::assertMatchesResourceItemJsonSchema(User::class);
 
         self::assertJsonContains([
             '@context'           => '/contexts/User',

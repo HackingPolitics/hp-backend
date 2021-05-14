@@ -87,6 +87,7 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
     public function loadProcessManagers()
     {
         $role = User::ROLE_PROCESS_MANAGER;
+
         return $this->getEntityManager()
             ->createQuery(
                 'SELECT u

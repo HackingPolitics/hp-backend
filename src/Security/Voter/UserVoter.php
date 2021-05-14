@@ -77,7 +77,7 @@ class UserVoter extends Voter
                 }
 
                 foreach ($subject->getProjectMemberships() as $membership) {
-                    if ($membership->getRole() !== ProjectMembership::ROLE_COORDINATOR) {
+                    if (ProjectMembership::ROLE_COORDINATOR !== $membership->getRole()) {
                         continue;
                     }
 

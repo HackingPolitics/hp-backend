@@ -56,7 +56,7 @@ class ProjectMembershipEventSubscriber implements EventSubscriberInterface, Serv
     {
         $user = $event->membership->getUser();
 
-        if ($event->membership->getRole() === ProjectMembership::ROLE_APPLICANT
+        if (ProjectMembership::ROLE_APPLICANT === $event->membership->getRole()
             && $user->isValidated() && $user->isActive()
         ) {
             $this->messageBus()->dispatch(
@@ -84,8 +84,8 @@ class ProjectMembershipEventSubscriber implements EventSubscriberInterface, Serv
     public function onPreDelete(ProjectMembershipPreDeleteEvent $event): void
     {
         // only deactivate if the leaving member has an "active" role
-        if ($event->membership->getRole() !== ProjectMembership::ROLE_COORDINATOR
-            && $event->membership->getRole() !== ProjectMembership::ROLE_WRITER
+        if (ProjectMembership::ROLE_COORDINATOR !== $event->membership->getRole()
+            && ProjectMembership::ROLE_WRITER !== $event->membership->getRole()
         ) {
             return;
         }

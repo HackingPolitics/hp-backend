@@ -70,6 +70,7 @@ use Vrok\SymfonyAddons\Validator\Constraints as VrokAssert;
 class FactionDetails
 {
     use AutoincrementId;
+    use UpdatedAtFunctions;
 
     //region ContactEmail
     /**
@@ -167,6 +168,7 @@ class FactionDetails
 
         return $this;
     }
+
     //endregion
 
     //region Interests
@@ -332,8 +334,6 @@ class FactionDetails
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
     protected ?DateTimeImmutable $updatedAt = null;
-
-    use UpdatedAtFunctions;
     //endregion
 
     //region UpdatedBy

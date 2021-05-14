@@ -196,7 +196,7 @@ class ProjectMembershipApiTest extends ApiTestCase
             'application/ld+json; charset=utf-8');
 
         // @todo the schema is broken, "The property applications is not defined and the definition does not allow additional properties" etc
-        //self::assertMatchesResourceItemJsonSchema(ProjectMembership::class);
+        self::assertMatchesResourceItemJsonSchema(ProjectMembership::class);
 
         self::assertJsonContains([
             'motivation' => 'motivation with 20 characters',
@@ -1344,7 +1344,7 @@ class ProjectMembershipApiTest extends ApiTestCase
         ]);
 
         $user = $this->getMember();
-        foreach($user->getProjectMemberships() as $membership) {
+        foreach ($user->getProjectMemberships() as $membership) {
             $membership->setRole(ProjectMembership::ROLE_APPLICANT);
         }
         $this->getEntityManager()->flush();
@@ -1547,7 +1547,7 @@ class ProjectMembershipApiTest extends ApiTestCase
             ->getRepository(ProjectMembership::class)
             ->findOneBy([
                 'user'    => TestFixtures::PROJECT_COORDINATOR['id'],
-                'project' => TestFixtures::PROJECT['id']
+                'project' => TestFixtures::PROJECT['id'],
             ]);
         self::assertNull($notExisting);
     }

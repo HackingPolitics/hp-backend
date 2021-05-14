@@ -49,15 +49,15 @@ class ProjectNormalizer implements ContextAwareNormalizerInterface, NormalizerAw
             }
 
             $role = $object->getUserRole($currentUser);
-            if ($role === ProjectMembership::ROLE_COORDINATOR) {
+            if (ProjectMembership::ROLE_COORDINATOR === $role) {
                 $context['groups'][] = 'project:coordinator-read';
             }
 
-            if ($role === ProjectMembership::ROLE_OBSERVER) {
+            if (ProjectMembership::ROLE_OBSERVER === $role) {
                 $context['groups'][] = 'project:observer-read';
             }
 
-            if ($role === ProjectMembership::ROLE_WRITER) {
+            if (ProjectMembership::ROLE_WRITER === $role) {
                 $context['groups'][] = 'project:writer-read';
             }
         }

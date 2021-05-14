@@ -27,7 +27,7 @@ class ValidationConfirmAction
         AuthorizationCheckerInterface $authorizationChecker
     ): JsonResponse {
         if (!$authorizationChecker->isGranted(AccessBlockedVoter::VALIDATION_CONFIRM, null)) {
-            throw new AccessDeniedHttpException("Access blocked, to many requests.");
+            throw new AccessDeniedHttpException('Access blocked, to many requests.');
         }
 
         // the DTO in $data was validated by the DataTransformer

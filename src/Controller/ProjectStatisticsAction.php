@@ -10,7 +10,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class ProjectStatisticsAction
 {
-    public function __invoke(ManagerRegistry $registry): JsonResponse {
+    public function __invoke(ManagerRegistry $registry): JsonResponse
+    {
         $data = [];
         $entityManager = $registry->getManagerForClass(Project::class);
         $pr = $entityManager->getRepository(Project::class);
@@ -18,33 +19,33 @@ class ProjectStatisticsAction
         $today = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
         $yesterday = $today->sub(new \DateInterval('P1D'));
 
-        $data['total'] = (int)$pr->createQueryBuilder('p')
-            ->select("count(p.id)")
+        $data['total'] = (int) $pr->createQueryBuilder('p')
+            ->select('count(p.id)')
             ->getQuery()
             ->enableResultCache(60*30)
             ->getSingleScalarResult();
 
-        $data['new'] = (int)$pr->createQueryBuilder('p')
-            ->select("count(p.id)")
-            ->where("p.createdAt >= :yesterday")
-            ->andWhere("p.deletedAt IS NULL")
+        $data['new'] = (int) $pr->createQueryBuilder('p')
+            ->select('count(p.id)')
+            ->where('p.createdAt >= :yesterday')
+            ->andWhere('p.deletedAt IS NULL')
             ->setParameter('yesterday', $yesterday)
             ->getQuery()
             ->enableResultCache(60*30)
             ->getSingleScalarResult();
 
-        $data['public'] = (int)$pr->createQueryBuilder('p')
-            ->select("count(p.id)")
+        $data['public'] = (int) $pr->createQueryBuilder('p')
+            ->select('count(p.id)')
             ->where('p.state = :state')
-            ->andWhere("p.deletedAt IS NULL")
+            ->andWhere('p.deletedAt IS NULL')
             ->setParameter('state', Project::STATE_PUBLIC)
             ->getQuery()
             ->enableResultCache(60*30)
             ->getSingleScalarResult();
 
-        $data['deleted'] = (int)$pr->createQueryBuilder('p')
-            ->select("count(p.id)")
-            ->where("p.deletedAt IS NOT NULL")
+        $data['deleted'] = (int) $pr->createQueryBuilder('p')
+            ->select('count(p.id)')
+            ->where('p.deletedAt IS NOT NULL')
             ->getQuery()
             ->enableResultCache(60*30)
             ->getSingleScalarResult();

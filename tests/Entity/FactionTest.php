@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Entity;
 
-use App\DataFixtures\InitialFixtures;
 use App\DataFixtures\TestFixtures;
 use App\Entity\Faction;
 use App\Entity\FactionDetails;
-use App\Entity\FederalState;
 use App\Entity\Parliament;
 use App\Entity\User;
 use Doctrine\ORM\EntityManager;

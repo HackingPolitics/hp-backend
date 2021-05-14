@@ -70,6 +70,7 @@ use Vrok\SymfonyAddons\Validator\Constraints as VrokAssert;
 class Faction
 {
     use AutoincrementId;
+    use UpdatedAtFunctions;
 
     //region Active
     /**
@@ -151,12 +152,14 @@ class Faction
     {
         $this->memberCount = $value;
     }
+
     //endregion
 
     //region Name
     /**
      * Require at least one letter in the name so that the slug
      * is never only numeric, to differentiate it from an ID.
+     *
      * @Assert\Sequentially({
      *     @Assert\NotBlank,
      *     @Assert\Length(max=60),
@@ -178,6 +181,7 @@ class Faction
 
         return $this;
     }
+
     //endregion
 
     //region Parliament
@@ -199,6 +203,7 @@ class Faction
 
         return $this;
     }
+
     //endregion
 
     //region Url
@@ -234,8 +239,6 @@ class Faction
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
     protected ?DateTimeImmutable $updatedAt = null;
-
-    use UpdatedAtFunctions;
     //endregion
 
     //region UpdatedBy

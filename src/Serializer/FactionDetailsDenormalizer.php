@@ -56,7 +56,7 @@ class FactionDetailsDenormalizer implements ContextAwareDenormalizerInterface, D
         if ($project && $token && $token->getUser() instanceof UserInterface) {
             $currentUser = $token->getUser();
 
-            if ($project->getUserRole($currentUser) === ProjectMembership::ROLE_COORDINATOR) {
+            if (ProjectMembership::ROLE_COORDINATOR === $project->getUserRole($currentUser)) {
                 $context['groups'][] = 'factionDetails:coordinator-write';
 
                 // this denormalizer is never called for the creation of

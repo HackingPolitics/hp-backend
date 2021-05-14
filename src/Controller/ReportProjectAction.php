@@ -24,10 +24,9 @@ class ReportProjectAction
         EventDispatcherInterface $dispatcher,
         MessageBusInterface $bus,
         AuthorizationCheckerInterface $authorizationChecker
-    ): JsonResponse
-    {
+    ): JsonResponse {
         if (!$authorizationChecker->isGranted(AccessBlockedVoter::REPORT_PROJECT)) {
-            throw new AccessDeniedHttpException("Access blocked, to many requests.");
+            throw new AccessDeniedHttpException('Access blocked, to many requests.');
         }
 
         // DTO was validated by the DataTransformer

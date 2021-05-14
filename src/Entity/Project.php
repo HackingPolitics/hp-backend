@@ -9,8 +9,8 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\ExistsFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
-use App\Controller\ReportProjectAction;
 use App\Controller\ProjectStatisticsAction;
+use App\Controller\ReportProjectAction;
 use App\Entity\Traits\AutoincrementId;
 use App\Entity\Traits\CreatedAtFunctions;
 use App\Entity\Traits\DeletedAtFunctions;
@@ -115,10 +115,13 @@ use Vrok\SymfonyAddons\Validator\Constraints as VrokAssert;
  */
 class Project
 {
+    use AutoincrementId;
+    use CreatedAtFunctions;
+    use DeletedAtFunctions;
+    use SlugFunctions;
+    use UpdatedAtFunctions;
     public const STATE_PUBLIC = 'public';
     public const STATE_PRIVATE = 'private';
-
-    use AutoincrementId;
 
     //region CreatedAt
     /**
@@ -127,8 +130,6 @@ class Project
      * @ORM\Column(type="datetime_immutable")
      */
     protected ?DateTimeImmutable $createdAt = null;
-
-    use CreatedAtFunctions;
     //endregion
 
     //region CreatedBy
@@ -166,8 +167,6 @@ class Project
      */
     protected ?DateTimeImmutable $deletedAt = null;
 
-    use DeletedAtFunctions;
-
     /**
      * Sets the deletedAt timestamp to mark the object as deleted.
      * Removes private and/or identifying data to comply with privacy laws.
@@ -184,6 +183,7 @@ class Project
 
         return $this;
     }
+
     //endregion
 
     //region Description
@@ -360,20 +360,22 @@ class Project
 
     public function userIsMember(User $user): bool
     {
-        return $this->getUserRole($user) !== null;
+        return null !== $this->getUserRole($user);
     }
 
     public function userCanRead(User $user): bool
     {
         $role = $this->getUserRole($user);
-        return $role && $role !== ProjectMembership::ROLE_APPLICANT;
+
+        return $role && ProjectMembership::ROLE_APPLICANT !== $role;
     }
 
     public function userCanWrite(User $user): bool
     {
         $role = $this->getUserRole($user);
-        return $role === ProjectMembership::ROLE_WRITER
-            || $role === ProjectMembership::ROLE_COORDINATOR;
+
+        return ProjectMembership::ROLE_WRITER === $role
+            || ProjectMembership::ROLE_COORDINATOR === $role;
     }
 
     /**
@@ -441,6 +443,7 @@ class Project
 
         return $this;
     }
+
     //endregion
 
     //region Slug
@@ -450,8 +453,6 @@ class Project
      * @Gedmo\Slug(fields={"title"})
      */
     private ?string $slug = null;
-
-    use SlugFunctions;
     //endregion
 
     //region State
@@ -491,6 +492,7 @@ class Project
     /**
      * Require at least one letter in the title so that the slug
      * is never only numeric, to differentiate it from an ID.
+     *
      * @Assert\Sequentially({
      *     @Assert\NotBlank,
      *     @Assert\Length(min=5, max=100),
@@ -556,8 +558,6 @@ class Project
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
     protected ?DateTimeImmutable $updatedAt = null;
-
-    use UpdatedAtFunctions;
     //endregion
 
     public function __construct()

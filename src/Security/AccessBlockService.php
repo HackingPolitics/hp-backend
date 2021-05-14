@@ -6,7 +6,6 @@ namespace App\Security;
 
 use App\Entity\ActionLog;
 use App\Repository\ActionLogRepository;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 class AccessBlockService

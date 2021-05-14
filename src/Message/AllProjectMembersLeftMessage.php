@@ -6,7 +6,7 @@ namespace App\Message;
 
 /**
  * Dispatched when all project members have left a project and it was
- * automatically deactivated
+ * automatically deactivated.
  */
 class AllProjectMembersLeftMessage
 {

@@ -34,7 +34,7 @@ class FactionDetailsVoter extends Voter
         $project = $subject->getProject();
         if (!$project) {
             // on creation handled by validator, else it's an error
-            return $attribute === 'CREATE';
+            return 'CREATE' === $attribute;
         }
 
         switch ($attribute) {

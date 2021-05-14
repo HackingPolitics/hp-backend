@@ -94,7 +94,7 @@ class FederalStateTest extends KernelTestCase
         /* @var $federalState FederalState */
         $federalState = $this->getRepository()
             ->findOneBy([
-                'name' => 'Baden-Württemberg'
+                'name' => 'Baden-Württemberg',
             ]);
 
         self::assertCount(1, $federalState->getParliaments());

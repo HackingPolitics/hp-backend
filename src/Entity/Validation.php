@@ -45,11 +45,11 @@ use Vrok\DoctrineAddons\Entity\NormalizerHelper;
  */
 class Validation
 {
+    use AutoincrementId;
+    use CreatedAtFunctions;
     public const TYPE_ACCOUNT        = 'account';
     public const TYPE_RESET_PASSWORD = 'reset-password';
     public const TYPE_CHANGE_EMAIL   = 'change-email';
-
-    use AutoincrementId;
 
     //region Content
     /**
@@ -77,8 +77,6 @@ class Validation
      * @ORM\Column(type="datetime_immutable")
      */
     protected ?DateTimeImmutable $createdAt = null;
-
-    use CreatedAtFunctions;
     //endregion
 
     //region ExpiresAt

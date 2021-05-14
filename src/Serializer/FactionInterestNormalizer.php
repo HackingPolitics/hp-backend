@@ -53,15 +53,15 @@ class FactionInterestNormalizer implements ContextAwareNormalizerInterface, Norm
                 }
 
                 $role = $project->getUserRole($currentUser);
-                if ($role === ProjectMembership::ROLE_COORDINATOR) {
+                if (ProjectMembership::ROLE_COORDINATOR === $role) {
                     $context['groups'][] = 'factionInterest:coordinator-read';
                 }
 
-                if ($role === ProjectMembership::ROLE_OBSERVER) {
+                if (ProjectMembership::ROLE_OBSERVER === $role) {
                     $context['groups'][] = 'factionInterest:observer-read';
                 }
 
-                if ($role === ProjectMembership::ROLE_WRITER) {
+                if (ProjectMembership::ROLE_WRITER === $role) {
                     $context['groups'][] = 'factionInterest:writer-read';
                 }
             }

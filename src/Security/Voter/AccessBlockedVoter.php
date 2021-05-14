@@ -32,7 +32,7 @@ class AccessBlockedVoter extends Voter
         return in_array($attribute, [
                 self::PW_RESET,
                 self::REPORT_PROJECT,
-                self::VALIDATION_CONFIRM
+                self::VALIDATION_CONFIRM,
             ]) && (is_string($subject) || null === $subject);
     }
 
@@ -44,19 +44,19 @@ class AccessBlockedVoter extends Voter
      */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
-        if ($attribute === self::PW_RESET) {
+        if (self::PW_RESET === $attribute) {
             return $this->accessBlock->passwordResetAllowed($subject);
         }
 
         $user = $this->security->getUser();
 
-        if ($attribute === self::VALIDATION_CONFIRM) {
+        if (self::VALIDATION_CONFIRM === $attribute) {
             return $this->accessBlock->validationConfirmAllowed(
                 $user ? $user->getUsername() : null
             );
         }
 
-        if ($attribute === self::REPORT_PROJECT) {
+        if (self::REPORT_PROJECT === $attribute) {
             return $this->accessBlock->reportProjectAllowed(
                 $user ? $user->getUsername() : null
             );

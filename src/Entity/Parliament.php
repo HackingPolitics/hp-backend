@@ -6,29 +6,18 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\ExistsFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
-use App\Controller\ChangeEmailAction;
-use App\Controller\ChangePasswordAction;
-use App\Controller\NewPasswordAction;
-use App\Controller\PasswordResetAction;
-use App\Controller\UserRegistrationAction;
-use App\Controller\UserStatisticsAction;
 use App\Entity\Traits\AutoincrementId;
-use App\Entity\Traits\CreatedAtFunctions;
 use App\Entity\Traits\DeletedAtFunctions;
 use App\Entity\Traits\SlugFunctions;
 use App\Entity\Traits\UpdatedAtFunctions;
-use App\Filter\SimpleSearchFilter;
-use App\Validator\Constraints as AppAssert;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -89,6 +78,9 @@ use Vrok\SymfonyAddons\Validator\Constraints as VrokAssert;
 class Parliament
 {
     use AutoincrementId;
+    use DeletedAtFunctions;
+    use SlugFunctions;
+    use UpdatedAtFunctions;
 
     //region DeletedAt
     /**
@@ -96,8 +88,6 @@ class Parliament
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
     protected ?DateTimeImmutable $deletedAt = null;
-
-    use DeletedAtFunctions;
 
     /**
      * Sets the deletedAt timestamp to mark the object as deleted.
@@ -114,6 +104,7 @@ class Parliament
 
         return $this;
     }
+
     //endregion
 
     //region Factions
@@ -179,6 +170,7 @@ class Parliament
 
         return $this;
     }
+
     //endregion
 
     //region HeadOfAdministration
@@ -309,14 +301,13 @@ class Parliament
      * @Gedmo\Slug(fields={"title"})
      */
     private ?string $slug = null;
-
-    use SlugFunctions;
     //endregion
 
     //region Title
     /**
      * Require at least one letter in the title so that the slug
      * is never only numeric, to differentiate it from an ID.
+     *
      * @Assert\Sequentially({
      *     @Assert\NotBlank,
      *     @Assert\Length(max=80),
@@ -353,8 +344,6 @@ class Parliament
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
     protected ?DateTimeImmutable $updatedAt = null;
-
-    use UpdatedAtFunctions;
     //endregion
 
     //region UpdatedBy
@@ -438,6 +427,7 @@ class Parliament
     {
         return $this->validatedAt;
     }
+
     //endregion
 
     //region WikipediaUrl

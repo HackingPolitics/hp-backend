@@ -112,7 +112,6 @@ class FactionApiTest extends ApiTestCase
         self::assertResponseHeaderSame('content-type',
             'application/ld+json; charset=utf-8');
 
-        // @todo kommt nicht mit den validatoren klar, bspw: location: Must be at least 2 characters long
         self::assertMatchesResourceItemJsonSchema(Faction::class);
 
         self::assertJsonContains([
@@ -287,7 +286,7 @@ class FactionApiTest extends ApiTestCase
         ]);
 
         $iri = $this->findIriBy(Faction::class, [
-            'id' => TestFixtures::FACTION_GREEN['id']]);
+            'id' => TestFixtures::FACTION_GREEN['id'], ]);
         $client->request('PUT', $iri, ['json' => [
             'name' => TestFixtures::FACTION_RED['name'],
         ]]);

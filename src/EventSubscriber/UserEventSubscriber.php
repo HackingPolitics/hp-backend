@@ -61,7 +61,7 @@ class UserEventSubscriber implements EventSubscriberInterface, ServiceSubscriber
         // together with a registration -> trigger an event for new projects/ideas
         // @todo no ProjectPostCreateEvent is currently triggered on registration
         if ($event->user->getCreatedProjects()->count()) {
-            foreach($event->user->getCreatedProjects() as $project) {
+            foreach ($event->user->getCreatedProjects() as $project) {
                 $this->dispatcher()->dispatch(new ProjectPreCreateEvent($project));
             }
         }
@@ -76,7 +76,7 @@ class UserEventSubscriber implements EventSubscriberInterface, ServiceSubscriber
             // notify project coordinators (they are not notified on registration if
             // the user still needs to validate)
             foreach ($event->user->getProjectMemberships() as $membership) {
-                if ($membership->getRole() === ProjectMembership::ROLE_APPLICANT) {
+                if (ProjectMembership::ROLE_APPLICANT === $membership->getRole()) {
                     $this->messageBus()->dispatch(
                         new NewMemberApplicationMessage(
                             $event->user->getId(),
@@ -99,7 +99,7 @@ class UserEventSubscriber implements EventSubscriberInterface, ServiceSubscriber
     {
         $this->deletedMemberships = [];
 
-        foreach($event->user->getProjectMemberships() as $membership) {
+        foreach ($event->user->getProjectMemberships() as $membership) {
             $this->dispatcher()->dispatch(new ProjectMembershipPreDeleteEvent($membership));
 
             // orphan removal will delete those memberships
@@ -115,7 +115,7 @@ class UserEventSubscriber implements EventSubscriberInterface, ServiceSubscriber
      */
     public function onPostDelete(ApiUserPostDeleteEvent $event): void
     {
-        foreach($this->deletedMemberships as $membership) {
+        foreach ($this->deletedMemberships as $membership) {
             $this->dispatcher()->dispatch(new ProjectMembershipPostDeleteEvent($membership));
         }
 

@@ -63,17 +63,16 @@ class ProjectMembershipVoter extends Voter
 
                 // project coordinators can edit applications/memberships for other
                 // members of their project
-                return $project->getUserRole($user) === ProjectMembership::ROLE_COORDINATOR;
+                return ProjectMembership::ROLE_COORDINATOR === $project->getUserRole($user);
 
             case 'DELETE':
                 // the last/only coordinator cannot be deleted if there
                 // are other members that could be upgraded beforehand
-                if ($subject->getRole() === ProjectMembership::ROLE_COORDINATOR)
-                {
+                if (ProjectMembership::ROLE_COORDINATOR === $subject->getRole()) {
                     $coordinators = $project->getMembersByRole(ProjectMembership::ROLE_COORDINATOR);
                     $writers = $project->getMembersByRole(ProjectMembership::ROLE_WRITER);
 
-                    if (count($coordinators) === 1
+                    if (1 === count($coordinators)
                         && count($writers) > 0
                     ) {
                         return false;
@@ -101,8 +100,8 @@ class ProjectMembershipVoter extends Voter
                 }
 
                 // coordinators can remove other members that aren't coordinators
-                if ($project->getUserRole($user) === ProjectMembership::ROLE_COORDINATOR) {
-                    return $subject->getRole() !== ProjectMembership::ROLE_COORDINATOR;
+                if (ProjectMembership::ROLE_COORDINATOR === $project->getUserRole($user)) {
+                    return ProjectMembership::ROLE_COORDINATOR !== $subject->getRole();
                 }
 
                 return false;

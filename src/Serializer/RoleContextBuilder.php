@@ -76,10 +76,10 @@ class RoleContextBuilder implements SerializerContextBuilderInterface
             // remove $objectType:write from the groups if a special operation
             // is used (like "submit" or "activate") to prevent setting of properties
             // via these custom actions
-            if ($this->context['item_operation_name'] !== 'put'
-                && $this->context['item_operation_name'] !== 'delete'
+            if ('put' !== $this->context['item_operation_name']
+                && 'delete' !== $this->context['item_operation_name']
             ) {
-                foreach(array_keys($this->context['groups'], "$objectType:write", true) as $key) {
+                foreach (array_keys($this->context['groups'], "$objectType:write", true) as $key) {
                     unset($this->context['groups'][$key]);
                 }
             }

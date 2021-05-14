@@ -107,7 +107,7 @@ class ProjectLockedExtension implements ContextAwareQueryCollectionExtensionInte
                 ->setParameter('memberRoles', [
                     ProjectMembership::ROLE_COORDINATOR,
                     ProjectMembership::ROLE_WRITER,
-                    ProjectMembership::ROLE_OBSERVER
+                    ProjectMembership::ROLE_OBSERVER,
                 ])
                 ->setParameter('currentUser', $this->security->getUser());
         }

@@ -46,7 +46,7 @@ class PasswordResetAction
         if (!$authorizationChecker->isGranted(AccessBlockedVoter::PW_RESET,
                 $user ? $user->getUsername() : null)
         ) {
-            throw new AccessDeniedHttpException("Access blocked, to many requests.");
+            throw new AccessDeniedHttpException('Access blocked, to many requests.');
         }
 
         $event = new ApiPasswordResetEvent($user, false);

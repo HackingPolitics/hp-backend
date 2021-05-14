@@ -27,7 +27,7 @@ class CleanupActionLogMessageHandler implements MessageHandlerInterface, Service
     protected function anonymizeLogs()
     {
         $qbIp = $this->entityManager()->createQueryBuilder()
-            ->update(ActionLog::class,'l')
+            ->update(ActionLog::class, 'l')
             ->set('l.ipAddress', ':ip')
             ->where('l.ipAddress IS NOT NULL')
             ->andWhere('l.timestamp <= :time')
@@ -43,7 +43,7 @@ class CleanupActionLogMessageHandler implements MessageHandlerInterface, Service
         // @todo keep the username on some actions, e.g. to have
         // a log of admin actions?
         $qbUser = $this->entityManager()->createQueryBuilder()
-            ->update(ActionLog::class,'l')
+            ->update(ActionLog::class, 'l')
             ->set('l.username', ':user')
             ->where('l.username IS NOT NULL')
             ->andWhere('l.timestamp <= :time')

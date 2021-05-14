@@ -92,7 +92,7 @@ class FederalStateApiTest extends ApiTestCase
             'slug'        => 'baden-wurttemberg',
             'parliaments' => [
                 0 => [],
-            ] ,
+            ],
         ]);
     }
 

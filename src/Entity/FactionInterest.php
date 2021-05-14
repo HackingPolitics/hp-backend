@@ -62,6 +62,7 @@ use Vrok\DoctrineAddons\Entity\NormalizerHelper;
 class FactionInterest
 {
     use AutoincrementId;
+    use UpdatedAtFunctions;
 
     //region Description
     /**
@@ -121,6 +122,7 @@ class FactionInterest
 
         return $this;
     }
+
     //endregion
 
     //region UpdatedAt
@@ -131,8 +133,6 @@ class FactionInterest
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
     protected ?DateTimeImmutable $updatedAt = null;
-
-    use UpdatedAtFunctions;
     //endregion
 
     //region UpdatedBy

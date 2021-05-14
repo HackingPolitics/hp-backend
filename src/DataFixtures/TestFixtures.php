@@ -420,8 +420,7 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         array $data,
         ObjectManager $manager,
         ?User $creator = null
-    ): Parliament
-    {
+    ): Parliament {
         $parliament = new Parliament();
 
         if (isset($data['title'])) {
@@ -451,7 +450,7 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
 
         if (isset($data['federalState'])) {
             $fs = $manager->getRepository(FederalState::class)->findOneBy([
-                'name' => $data['federalState']
+                'name' => $data['federalState'],
             ]);
             $parliament->setFederalState($fs);
         }

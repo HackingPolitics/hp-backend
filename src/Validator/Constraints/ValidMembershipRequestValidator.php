@@ -47,17 +47,20 @@ class ValidMembershipRequestValidator extends ConstraintValidator
             return;
         }
 
-        switch($this->context->getGroup()) {
+        switch ($this->context->getGroup()) {
             case 'user:register':
                 $this->onRegistration($object, $constraint);
+
                 return;
 
             case 'projectMembership:create':
                 $this->onCreate($object, $constraint);
+
                 return;
 
             case 'projectMembership:write':
                 $this->onUpdate($object, $constraint);
+
                 return;
 
             default:
@@ -76,6 +79,7 @@ class ValidMembershipRequestValidator extends ConstraintValidator
             $this->context
                 ->buildViolation($constraint->message)
                 ->addViolation();
+
             return;
         }
 
@@ -88,6 +92,7 @@ class ValidMembershipRequestValidator extends ConstraintValidator
             $this->context
                 ->buildViolation($constraint->message)
                 ->addViolation();
+
             return;
         }
 
@@ -96,6 +101,7 @@ class ValidMembershipRequestValidator extends ConstraintValidator
             $this->context
                 ->buildViolation($constraint->message)
                 ->addViolation();
+
             return;
         }
     }
@@ -111,6 +117,7 @@ class ValidMembershipRequestValidator extends ConstraintValidator
             $this->context
                 ->buildViolation($constraint->message)
                 ->addViolation();
+
             return;
         }
 
@@ -130,7 +137,7 @@ class ValidMembershipRequestValidator extends ConstraintValidator
                 ->addViolation();
         }
 
-        if ($project->getUserRole($currentUser) === ProjectMembership::ROLE_COORDINATOR) {
+        if (ProjectMembership::ROLE_COORDINATOR === $project->getUserRole($currentUser)) {
             // @todo implement invitation via Validations so users not
             // already existing on the platform can be invited to participate
 
@@ -172,7 +179,7 @@ class ValidMembershipRequestValidator extends ConstraintValidator
 
         // an application cannot be updated (only upgraded to a normal membership
         // or deleted) and an existing membership cannot be downgraded to an application
-        if ($newRole === ProjectMembership::ROLE_APPLICANT) {
+        if (ProjectMembership::ROLE_APPLICANT === $newRole) {
             $this->context
                 ->buildViolation($constraint->message)
                 ->addViolation();
@@ -200,7 +207,7 @@ class ValidMembershipRequestValidator extends ConstraintValidator
 
             // a coordinator cannot be downgraded if he is the only coordinator,
             // neither by himself nor by ProcessManagers/Admins
-            if (count($coordinators) === 0) {
+            if (0 === count($coordinators)) {
                 $this->context
                     ->buildViolation($constraint->coordinatorDowngradeMessage)
                     ->addViolation();
@@ -223,7 +230,7 @@ class ValidMembershipRequestValidator extends ConstraintValidator
 
         if ($currentUser->getId() === $member->getId()) {
             // only a coordinator can change is own role
-            if ($oldRole !== ProjectMembership::ROLE_COORDINATOR
+            if (ProjectMembership::ROLE_COORDINATOR !== $oldRole
                 && $newRole !== $oldRole
             ) {
                 $this->context
@@ -237,7 +244,7 @@ class ValidMembershipRequestValidator extends ConstraintValidator
             return;
         }
 
-        if ($project->getUserRole($currentUser) === ProjectMembership::ROLE_COORDINATOR) {
+        if (ProjectMembership::ROLE_COORDINATOR === $project->getUserRole($currentUser)) {
             // a coordinator cannot downgrade other coordinators
             if (ProjectMembership::ROLE_COORDINATOR === $oldRole
                 && ProjectMembership::ROLE_COORDINATOR !== $newRole

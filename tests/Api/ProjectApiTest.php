@@ -670,15 +670,15 @@ class ProjectApiTest extends ApiTestCase
             'title'         => TestFixtures::PROJECT['title'],
             'memberships' => [
                 0 => [
-                    'user' => []
+                    'user' => [],
                 ],
                 1 => [
-                    'user' => []
+                    'user' => [],
                 ],
                 2 => [
-                    'user' => []
+                    'user' => [],
                 ],
-            ]
+            ],
         ]);
     }
 
@@ -879,7 +879,6 @@ class ProjectApiTest extends ApiTestCase
 
         $iri = $this->findIriBy(Parliament::class,
             ['id' => TestFixtures::PARLIAMENT['id']]);
-
 
         $client->request('POST', '/projects', ['json' => [
             'motivation' => 'my motivation',
@@ -1167,7 +1166,7 @@ class ProjectApiTest extends ApiTestCase
         ]);
 
         $iri = $this->findIriBy(Project::class, [
-            'id' => TestFixtures::PROJECT['id']
+            'id' => TestFixtures::PROJECT['id'],
         ]);
         $client->request('PUT', $iri, ['json' => [
             'impact' => 'new challenges',
@@ -1189,7 +1188,7 @@ class ProjectApiTest extends ApiTestCase
         ]);
 
         $iri = $this->findIriBy(Project::class, [
-            'id' => TestFixtures::PROJECT['id']
+            'id' => TestFixtures::PROJECT['id'],
         ]);
         $client->request('PUT', $iri, ['json' => [
             'state' => '13',
@@ -1214,7 +1213,7 @@ class ProjectApiTest extends ApiTestCase
         ]);
 
         $iri = $this->findIriBy(Project::class, [
-            'id' => TestFixtures::PROJECT['id']
+            'id' => TestFixtures::PROJECT['id'],
         ]);
         $client->request('PUT', $iri, ['json' => [
             'title' => ' ',
@@ -1239,7 +1238,7 @@ class ProjectApiTest extends ApiTestCase
         ]);
 
         $iri = $this->findIriBy(Project::class, [
-            'id' => TestFixtures::PROJECT['id']
+            'id' => TestFixtures::PROJECT['id'],
         ]);
         $client->request('PUT', $iri, ['json' => [
             'title' => '  no  ',
@@ -1264,7 +1263,7 @@ class ProjectApiTest extends ApiTestCase
         ]);
 
         $iri = $this->findIriBy(Project::class, [
-            'id' => TestFixtures::PROJECT['id']
+            'id' => TestFixtures::PROJECT['id'],
         ]);
         $client->request('PUT', $iri, ['json' => [
             'title' => '66666',
@@ -1313,7 +1312,7 @@ class ProjectApiTest extends ApiTestCase
         ]);
 
         $iri = $this->findIriBy(Project::class, [
-            'id' => TestFixtures::PROJECT['id']
+            'id' => TestFixtures::PROJECT['id'],
         ]);
         $client->request('PUT', $iri, ['json' => [
             'locked' => true,
@@ -1342,7 +1341,7 @@ class ProjectApiTest extends ApiTestCase
         $em->clear();
 
         $iri = $this->findIriBy(Project::class, [
-            'id' => TestFixtures::PROJECT['id']
+            'id' => TestFixtures::PROJECT['id'],
         ]);
         $client->request('DELETE', $iri);
 
@@ -1369,7 +1368,7 @@ class ProjectApiTest extends ApiTestCase
            $em->clear();
    */
         $iri = $this->findIriBy(Project::class, [
-            'id' => TestFixtures::PROJECT['id']
+            'id' => TestFixtures::PROJECT['id'],
         ]);
         $client->request('DELETE', $iri);
 
@@ -1390,7 +1389,7 @@ class ProjectApiTest extends ApiTestCase
         ]);
 
         $iri = $this->findIriBy(Project::class, [
-            'id' => TestFixtures::PROJECT['id']
+            'id' => TestFixtures::PROJECT['id'],
         ]);
         $client->request('DELETE', $iri);
 

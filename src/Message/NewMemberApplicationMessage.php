@@ -10,7 +10,7 @@ namespace App\Message;
  * Dispatched when
  * - an user registers (with a membership) and is automatically validated & active
  * - an user (with a membership) validates his account
- * - an existing user applies for a project
+ * - an existing user applies for a project.
  */
 class NewMemberApplicationMessage extends UserMessage
 {

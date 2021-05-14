@@ -129,7 +129,7 @@ class AuthApiTest extends ApiTestCase
 
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();
         $rtoken = $em->getRepository(RefreshToken::class)->findOneBy([
-            'refreshToken' => $auth['refresh_token']
+            'refreshToken' => $auth['refresh_token'],
         ]);
 
         self::assertInstanceOf(RefreshToken::class, $rtoken);
@@ -169,7 +169,7 @@ class AuthApiTest extends ApiTestCase
 
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();
         $rtoken = $em->getRepository(RefreshToken::class)->findOneBy([
-            'refreshToken' => $auth['refresh_token']
+            'refreshToken' => $auth['refresh_token'],
         ]);
 
         self::assertInstanceOf(RefreshToken::class, $rtoken);
@@ -341,7 +341,7 @@ class AuthApiTest extends ApiTestCase
 
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();
         $oldLogs = $em->getRepository(ActionLog::class)->findAll();
-        foreach($oldLogs as $oldLog) {
+        foreach ($oldLogs as $oldLog) {
             $em->remove($oldLog);
         }
         $em->flush();
@@ -366,12 +366,12 @@ class AuthApiTest extends ApiTestCase
         self::assertSame([User::ROLE_ADMIN, User::ROLE_USER], $decoded['roles']);
 
         $oldToken = $em->getRepository(RefreshToken::class)->findOneBy([
-            'refreshToken' => $auth['refresh_token']
+            'refreshToken' => $auth['refresh_token'],
         ]);
         self::assertNull($oldToken);
 
         $newToken = $em->getRepository(RefreshToken::class)->findOneBy([
-            'refreshToken' => $result['refresh_token']
+            'refreshToken' => $result['refresh_token'],
         ]);
         self::assertInstanceOf(RefreshToken::class, $newToken);
 
@@ -382,7 +382,7 @@ class AuthApiTest extends ApiTestCase
     }
 
     /**
-     * requires zalas/phpunit-globals
+     * requires zalas/phpunit-globals.
      *
      * @env REFRESH_TOKEN_TTL=3
      */

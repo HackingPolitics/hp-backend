@@ -51,15 +51,15 @@ class FactionDetailsNormalizer implements ContextAwareNormalizerInterface, Norma
                 }
 
                 $role = $project->getUserRole($currentUser);
-                if ($role === ProjectMembership::ROLE_COORDINATOR) {
+                if (ProjectMembership::ROLE_COORDINATOR === $role) {
                     $context['groups'][] = 'factionDetails:coordinator-read';
                 }
 
-                if ($role === ProjectMembership::ROLE_OBSERVER) {
+                if (ProjectMembership::ROLE_OBSERVER === $role) {
                     $context['groups'][] = 'factionDetails:observer-read';
                 }
 
-                if ($role === ProjectMembership::ROLE_WRITER) {
+                if (ProjectMembership::ROLE_WRITER === $role) {
                     $context['groups'][] = 'factionDetails:writer-read';
                 }
             }

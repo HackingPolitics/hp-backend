@@ -51,7 +51,7 @@ class AllProjectMembersLeftTest extends KernelTestCase
         $project = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
         $project->setLocked(true);
-        $project->setTitle("");
+        $project->setTitle('');
         $em->flush();
 
         $msg = new AllProjectMembersLeftMessage(TestFixtures::PROJECT['id']);

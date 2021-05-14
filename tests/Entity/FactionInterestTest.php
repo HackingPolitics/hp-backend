@@ -83,7 +83,7 @@ class FactionInterestTest extends KernelTestCase
         self::assertInstanceOf(FactionDetails::class, $interest->getFactionDetails());
         self::assertInstanceOf(User::class, $interest->getUpdatedBy());
 
-// @todo motion usages
+        // @todo motion usages
 //        self::assertCount(1, $interest->getInterest());
 //        self::assertInstanceOf(FactionInterestInterest::class, $interest->getInterest()[0]);
     }

@@ -71,11 +71,13 @@ use Vrok\SymfonyAddons\Validator\Constraints as VrokAssert;
 class FederalState
 {
     use AutoincrementId;
+    use SlugFunctions;
 
     //region Name
     /**
      * Require at least one letter in the name so that the slug
      * is never only numeric, to differentiate it from an ID.
+     *
      * @Assert\Sequentially({
      *     @Assert\NotBlank,
      *     @Assert\Length(min=5, max=100),
@@ -101,6 +103,7 @@ class FederalState
 
         return $this;
     }
+
     //endregion
 
     //region Parliaments
@@ -154,8 +157,6 @@ class FederalState
      * @Gedmo\Slug(fields={"name"})
      */
     private ?string $slug = null;
-
-    use SlugFunctions;
     //endregion
 
     public function __construct()

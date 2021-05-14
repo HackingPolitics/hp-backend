@@ -73,16 +73,16 @@ class WriteEventSubscriber implements EventSubscriberInterface
         $itemOperation = $attributes['item_operation_name'] ?? null;
         $collectionOperation = $attributes['collection_operation_name'] ?? null;
 
-        if ($itemOperation === "put" && is_object($controllerResult)) {
-            switch(get_class($controllerResult)) {
+        if ('put' === $itemOperation && is_object($controllerResult)) {
+            switch (get_class($controllerResult)) {
                 case Project::class:
                     $eventClass = ApiProjectPreUpdateEvent::class;
                     break;
             }
         }
 
-        if ($itemOperation === "delete" && is_object($controllerResult)) {
-            switch(get_class($controllerResult)) {
+        if ('delete' === $itemOperation && is_object($controllerResult)) {
+            switch (get_class($controllerResult)) {
                 case Project::class:
                     $eventClass = ApiProjectPreDeleteEvent::class;
                     break;
@@ -97,8 +97,8 @@ class WriteEventSubscriber implements EventSubscriberInterface
             }
         }
 
-        if ($collectionOperation === "post" && is_object($controllerResult)) {
-            switch(get_class($controllerResult)) {
+        if ('post' === $collectionOperation && is_object($controllerResult)) {
+            switch (get_class($controllerResult)) {
                 case Project::class:
                     $eventClass = ApiProjectPreCreateEvent::class;
                     break;
@@ -134,21 +134,21 @@ class WriteEventSubscriber implements EventSubscriberInterface
         $itemOperation = $attributes['item_operation_name'] ?? null;
         $collectionOperation = $attributes['collection_operation_name'] ?? null;
 
-        if ($itemOperation === "put" && is_object($entity)) {
-            switch(get_class($entity)) {
+        if ('put' === $itemOperation && is_object($entity)) {
+            switch (get_class($entity)) {
                 case Project::class:
                     $eventClass = ApiProjectPostUpdateEvent::class;
                     break;
             }
         }
 
-        if ($itemOperation === "delete") {
+        if ('delete' === $itemOperation) {
             $entity = $attributes['previous_data'] ?? null;
             if (!is_object($entity)) {
                 return;
             }
 
-            switch(get_class($entity)) {
+            switch (get_class($entity)) {
                 case Project::class:
                     $eventClass = ApiProjectPostDeleteEvent::class;
                     break;
@@ -163,8 +163,8 @@ class WriteEventSubscriber implements EventSubscriberInterface
             }
         }
 
-        if ($collectionOperation === "post" && is_object($controllerResult)) {
-            switch(get_class($controllerResult)) {
+        if ('post' === $collectionOperation && is_object($controllerResult)) {
+            switch (get_class($controllerResult)) {
                 case Project::class:
                     $eventClass = ApiProjectPostCreateEvent::class;
                     break;

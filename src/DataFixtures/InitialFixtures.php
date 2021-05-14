@@ -47,13 +47,13 @@ class InitialFixtures extends Fixture implements FixtureGroupInterface
 
     public function load(ObjectManager $manager)
     {
-        foreach(self::CATEGORIES as $name) {
+        foreach (self::CATEGORIES as $name) {
             $cat = new Category();
             $cat->setName($name);
             $manager->persist($cat);
         }
 
-        foreach(self::FEDERAL_STATES as $name) {
+        foreach (self::FEDERAL_STATES as $name) {
             $state = new FederalState();
             $state->setName($name);
             $manager->persist($state);

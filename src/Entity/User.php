@@ -131,11 +131,11 @@ use Vrok\SymfonyAddons\Validator\Constraints as VrokAssert;
  */
 class User implements UserInterface
 {
+    use AutoincrementId;
+    use CreatedAtFunctions;
     public const ROLE_ADMIN           = 'ROLE_ADMIN';
     public const ROLE_PROCESS_MANAGER = 'ROLE_PROCESS_MANAGER';
     public const ROLE_USER            = 'ROLE_USER';
-
-    use AutoincrementId;
 
     //region Username
     /**
@@ -411,8 +411,6 @@ class User implements UserInterface
      * @ORM\Column(type="datetime_immutable")
      */
     protected ?DateTimeImmutable $createdAt = null;
-
-    use CreatedAtFunctions;
     //endregion
 
     //region DeletedAt
@@ -622,6 +620,7 @@ class User implements UserInterface
 
         return $this;
     }
+
     //endregion
 
     //region Validations

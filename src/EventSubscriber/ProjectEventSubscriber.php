@@ -106,7 +106,7 @@ class ProjectEventSubscriber implements EventSubscriberInterface, ServiceSubscri
     {
         $this->deletedMemberships = [];
 
-        foreach($event->project->getMemberships() as $membership) {
+        foreach ($event->project->getMemberships() as $membership) {
             $this->dispatcher()->dispatch(new ProjectMembershipPreDeleteEvent($membership));
 
             // orphan removal will delete those memberships
@@ -122,7 +122,7 @@ class ProjectEventSubscriber implements EventSubscriberInterface, ServiceSubscri
      */
     public function onApiPostDelete(ApiProjectPostDeleteEvent $event): void
     {
-        foreach($this->deletedMemberships as $membership) {
+        foreach ($this->deletedMemberships as $membership) {
             $this->dispatcher()->dispatch(new ProjectMembershipPostDeleteEvent($membership));
         }
 

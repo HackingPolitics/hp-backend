@@ -48,7 +48,7 @@ class AuthenticationEventSubscriber implements EventSubscriberInterface
     public function onAuthenticationSuccess(AuthenticationSuccessEvent $event): void
     {
         // token refresh triggers this with an AnonymousToken -> ignore
-        if (! $event->getAuthenticationToken() instanceof UsernamePasswordToken) {
+        if (!$event->getAuthenticationToken() instanceof UsernamePasswordToken) {
             return;
         }
 

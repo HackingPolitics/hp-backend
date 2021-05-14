@@ -20,15 +20,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class ActionLog
 {
-    public const FAILED_LOGIN = "failed_login";
-    public const SUCCESSFUL_LOGIN = "successful_login";
-    public const REGISTERED_USER = "registered_user";
-    public const FAILED_VALIDATION = "failed_validation";
-    public const FAILED_PW_RESET_REQUEST = "failed_pw_reset_request";
-    public const SUCCESSFUL_PW_RESET_REQUEST = "successful_pw_reset_request";
-    public const CREATED_PROJECT = "created_project";
-    public const REPORTED_PROJECT = "reported_project";
-
     /*
      * Because DateTime columns can't be used in composite identifiers we have
      * to use the autoincrement ID:
@@ -37,6 +28,14 @@ class ActionLog
      * - Gedmo\Timestampable uses Reflection instead of the setTimestamp() setter where we could convert to a subclass
      */
     use AutoincrementId;
+    public const FAILED_LOGIN = 'failed_login';
+    public const SUCCESSFUL_LOGIN = 'successful_login';
+    public const REGISTERED_USER = 'registered_user';
+    public const FAILED_VALIDATION = 'failed_validation';
+    public const FAILED_PW_RESET_REQUEST = 'failed_pw_reset_request';
+    public const SUCCESSFUL_PW_RESET_REQUEST = 'successful_pw_reset_request';
+    public const CREATED_PROJECT = 'created_project';
+    public const REPORTED_PROJECT = 'reported_project';
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -44,7 +43,8 @@ class ActionLog
     public ?string $ipAddress;
 
     /**
-     * Length=255 to equal email address
+     * Length=255 to equal email address.
+     *
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     public ?string $username;

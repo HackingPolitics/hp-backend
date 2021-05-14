@@ -57,7 +57,7 @@ class ValidationEventSubscriber implements EventSubscriberInterface, ServiceSubs
      * * NotFoundHttpException by the ValidationConfirmAction when the token
      *   does not match
      * * NotFoundHttpException by the ValidationConfirmAction when the validation
-     *   is in the database but already expired
+     *   is in the database but already expired.
      *
      * We don't use specific events because we have no way to differentiate
      * the NotFoundHttpExceptions to detect if the event was handled before
@@ -65,7 +65,7 @@ class ValidationEventSubscriber implements EventSubscriberInterface, ServiceSubs
      */
     public function onKernelException(ExceptionEvent $event): void
     {
-        if (! $event->getThrowable() instanceof NotFoundHttpException) {
+        if (!$event->getThrowable() instanceof NotFoundHttpException) {
             return;
         }
 
@@ -76,7 +76,7 @@ class ValidationEventSubscriber implements EventSubscriberInterface, ServiceSubs
         }
 
         $routeName = $request->attributes->get('_route');
-        if ($routeName !== 'api_validations_confirm_item') {
+        if ('api_validations_confirm_item' !== $routeName) {
             return;
         }
 

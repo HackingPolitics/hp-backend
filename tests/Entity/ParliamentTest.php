@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\Entity;
 
-use App\DataFixtures\InitialFixtures;
 use App\Entity\Faction;
 use App\Entity\FederalState;
 use App\Entity\Parliament;

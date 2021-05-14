@@ -25,6 +25,7 @@ class SimpleSearchFilter extends AbstractContextAwareFilter
     /**
      * Add configuration parameter
      * {@inheritdoc}
+     *
      * @param string $searchParameterName The parameter whose value this filter searches for
      */
     public function __construct(ManagerRegistry $managerRegistry, ?RequestStack $requestStack = null, LoggerInterface $logger = null, array $properties = null, NameConverterInterface $nameConverter = null, string $searchParameterName = 'pattern')
@@ -51,12 +52,12 @@ class SimpleSearchFilter extends AbstractContextAwareFilter
         // Build OR expression
         $orExp = $queryBuilder->expr()->orX();
         foreach ($this->getProperties() as $prop => $_) {
-            $orExp->add($queryBuilder->expr()->like('LOWER('. $alias. '.' . $prop. ')', ':' . $parameterName));
+            $orExp->add($queryBuilder->expr()->like('LOWER('.$alias.'.'.$prop.')', ':'.$parameterName));
         }
 
         $queryBuilder
-            ->andWhere('(' . $orExp . ')')
-            ->setParameter($parameterName, '%' . strtolower($value). '%');
+            ->andWhere('('.$orExp.')')
+            ->setParameter($parameterName, '%'.strtolower($value).'%');
     }
 
     /** {@inheritdoc} */
@@ -66,6 +67,7 @@ class SimpleSearchFilter extends AbstractContextAwareFilter
         if (null===$props) {
             throw new InvalidArgumentException('Properties must be specified');
         }
+
         return [
             $this->searchParameterName => [
                 'property' => implode(', ', array_keys($props)),
@@ -73,8 +75,8 @@ class SimpleSearchFilter extends AbstractContextAwareFilter
                 'required' => false,
                 'swagger' => [
                     'description' => 'Selects entities where each search term is found somewhere in at least one of the specified properties',
-                ]
-            ]
+                ],
+            ],
         ];
     }
 }
