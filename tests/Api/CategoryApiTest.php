@@ -62,10 +62,18 @@ class CategoryApiTest extends ApiTestCase
             '@id'              => '/categories',
             '@type'            => 'hydra:Collection',
             'hydra:totalItems' => 6,
+            'hydra:member' => [
+                0 => [
+                    'id'   => 1,
+                    'name' => 'Bildung und Soziales',
+                ],
+            ],
         ]);
 
         $collection = $response->toArray();
         self::assertCount(6, $collection['hydra:member']);
+
+        self::assertArrayNotHasKey('projects', $collection['hydra:member'][0]);
     }
 
     public function testGetCategory(): void
@@ -74,7 +82,7 @@ class CategoryApiTest extends ApiTestCase
 
         $iri = $this->findIriBy(Category::class, ['id' => 1]);
 
-        $client->request('GET', $iri);
+        $response = $client->request('GET', $iri);
 
         self::assertResponseIsSuccessful();
         self::assertResponseHeaderSame('content-type',
@@ -87,6 +95,8 @@ class CategoryApiTest extends ApiTestCase
             'name' => 'Bildung und Soziales',
             'slug' => 'bildung-und-soziales',
         ]);
+
+        self::assertArrayNotHasKey('projects', $response->toArray());
     }
 
     public function testCreateCategory(): void

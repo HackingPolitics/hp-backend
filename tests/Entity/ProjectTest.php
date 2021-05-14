@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Entity;
 
 use App\DataFixtures\TestFixtures;
+use App\Entity\Category;
 use App\Entity\FactionDetails;
 use App\Entity\Parliament;
 use App\Entity\Project;
@@ -127,7 +128,7 @@ class ProjectTest extends KernelTestCase
         self::assertSame('a-better-name-really', $after->getSlug());
     }
 
-    public function testRelationsAccessible()
+    public function testRelationsAccessible(): void
     {
         /* @var $project Project */
         $project = $this->getProjectRepository()
@@ -141,5 +142,8 @@ class ProjectTest extends KernelTestCase
 
         self::assertCount(2, $project->getFactionDetails());
         self::assertInstanceOf(FactionDetails::class, $project->getFactionDetails()[0]);
+
+        self::assertCount(3, $project->getCategories());
+        self::assertInstanceOf(Category::class, $project->getCategories()[0]);
     }
 }

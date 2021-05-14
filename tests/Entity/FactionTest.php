@@ -79,7 +79,7 @@ class FactionTest extends KernelTestCase
         self::assertSame(13, $found->getMemberCount());
     }
 
-    public function testRelationsAccessible()
+    public function testRelationsAccessible(): void
     {
         /* @var $faction Faction */
         $faction = $this->getRepository()->find(1);

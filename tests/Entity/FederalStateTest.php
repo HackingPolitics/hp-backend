@@ -89,7 +89,7 @@ class FederalStateTest extends KernelTestCase
         self::assertSame('a-better-name-really', $after->getSlug());
     }
 
-    public function testRelationsAccessible()
+    public function testRelationsAccessible(): void
     {
         /* @var $federalState FederalState */
         $federalState = $this->getRepository()

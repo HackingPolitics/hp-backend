@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\DataFixtures;
 
 use App\Entity\ActionLog;
+use App\Entity\Category;
 use App\Entity\Faction;
 use App\Entity\FactionDetails;
 use App\Entity\FactionInterest;
@@ -245,13 +246,19 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         $parliament->addFaction($yellowFaction);
         //endregion
 
-        /**
-         * Create normal project.
-         */
+        //region Normal project
         $project = $this->createProject(self::PROJECT, $projectCoordinator,
             $projectCoordinator, $projectWriter, $projectObserver);
         $parliament->addProject($project);
         $manager->persist($project);
+
+        $catRepo = $manager->getRepository(Category::class);
+        $cat1 = $catRepo->find(1);
+        $project->addCategory($cat1);
+        $cat2 = $catRepo->find(2);
+        $project->addCategory($cat2);
+        $cat3 = $catRepo->find(3);
+        $project->addCategory($cat3);
 
         $detailsGreen = new FactionDetails();
         $detailsGreen->setContactEmail('green@zukunftsstadt.de');
@@ -281,9 +288,7 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         $interest2->setDescription('interest2');
         $interest2->setUpdatedBy($admin);
         $detailsGreen->addInterest($interest2);
-        /**
-         * /Create normal project.
-         */
+        //endregion
 
         /**
          * Create locked project.

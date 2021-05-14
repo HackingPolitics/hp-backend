@@ -6,6 +6,7 @@ namespace App\Tests\Entity;
 
 use App\DataFixtures\InitialFixtures;
 use App\Entity\Category;
+use App\Entity\Project;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -22,7 +23,7 @@ class CategoryTest extends KernelTestCase
 
     public static function setUpBeforeClass(): void
     {
-        static::$fixtureGroups = ['initial'];
+        static::$fixtureGroups = ['initial', 'test'];
     }
 
     protected function setUp(): void
@@ -86,5 +87,15 @@ class CategoryTest extends KernelTestCase
         /* @var $after Category */
         $after = $this->getRepository()->find(1);
         self::assertSame('a-better-name-really', $after->getSlug());
+    }
+
+    public function testRelationsAccessible(): void
+    {
+        /* @var $category Category */
+        $category = $this->getRepository()
+            ->find(1);
+
+        self::assertCount(1, $category->getProjects());
+        self::assertInstanceOf(Project::class, $category->getProjects()[0]);
     }
 }

@@ -73,6 +73,10 @@ class ProjectInputDataTransformer implements DataTransformerInterface
             $project->setState($data->state);
         }
 
+        if (null !== $data->categories) {
+            $project->setCategories($data->categories);
+        }
+
         // creator is optional, we can create projects when a user registers
         // so the creator is set afterwards by the userInput Transformer
         if (!$project->getId() && $this->user instanceof UserInterface) {

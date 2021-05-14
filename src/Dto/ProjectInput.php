@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Dto;
 
+use App\Entity\Category;
 use App\Entity\Parliament;
 use App\Entity\Project;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -16,6 +17,13 @@ class ProjectInput
      * @Groups({"project:create", "user:register"})
      */
     public ?Parliament $parliament = null;
+
+    /**
+     * @var Category[]|null
+     * @Assert\Valid
+     * @Groups({"project:create", "project:write"})
+     */
+    public ?array $categories = null;
 
     /**
      * @Assert\Choice({Project::STATE_PRIVATE, Project::STATE_PUBLIC})
@@ -45,7 +53,7 @@ class ProjectInput
     public ?string $title = null;
 
     /**
-     * @Groups({"project:write"})
+     * @Groups({"project:write", "project:create", "user:register"})
      */
     public ?string $topic = null;
 

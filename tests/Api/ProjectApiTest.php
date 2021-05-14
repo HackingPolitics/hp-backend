@@ -7,6 +7,7 @@ namespace App\Tests\Api;
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
 use App\DataFixtures\TestFixtures;
 use App\Entity\ActionLog;
+use App\Entity\Category;
 use App\Entity\Parliament;
 use App\Entity\Project;
 use App\Entity\ProjectMembership;
@@ -50,11 +51,16 @@ class ProjectApiTest extends ApiTestCase
             'hydra:totalItems' => 1,
             'hydra:member'     => [
                 0 => [
-                    'id'                => TestFixtures::PROJECT['id'],
-                    'parliament'        => [
+                    'id'         => TestFixtures::PROJECT['id'],
+                    'parliament' => [
                         'id' => TestFixtures::PARLIAMENT['id'],
                     ],
-                    'createdBy'         => [
+                    'categories' => [
+                        0 => ['id' => 1],
+                        1 => ['id' => 2],
+                        2 => ['id' => 3],
+                    ],
+                    'createdBy'  => [
                         'id' => TestFixtures::PROJECT_COORDINATOR['id'],
                     ],
                 ],
@@ -71,6 +77,8 @@ class ProjectApiTest extends ApiTestCase
         self::assertArrayNotHasKey('memberships', $collection['hydra:member'][0]);
         self::assertArrayNotHasKey('firstName', $collection['hydra:member'][0]['createdBy']);
         self::assertArrayNotHasKey('lastName', $collection['hydra:member'][0]['createdBy']);
+
+        self::assertArrayNotHasKey('projects', $collection['hydra:member'][0]['categories'][0]);
     }
 
     public function testGetCollectionDoesNotReturnDeletedCreator(): void
@@ -516,6 +524,11 @@ class ProjectApiTest extends ApiTestCase
 
         self::assertJsonContains([
             '@id'              => $iri,
+            'categories' => [
+                0 => ['id' => 1],
+                1 => ['id' => 2],
+                2 => ['id' => 3],
+            ],
             'createdBy'        => [
                 'id' => TestFixtures::PROJECT_COORDINATOR['id'],
             ],
@@ -533,6 +546,7 @@ class ProjectApiTest extends ApiTestCase
         self::assertArrayNotHasKey('locked', $projectData);
         self::assertArrayNotHasKey('memberships', $projectData);
         self::assertArrayNotHasKey('factionDetails', $projectData);
+        self::assertArrayNotHasKey('projects', $projectData['categories'][0]);
 
         // @todo und weitere...
         self::assertArrayNotHasKey('arguments', $projectData);
@@ -542,6 +556,26 @@ class ProjectApiTest extends ApiTestCase
         self::assertArrayNotHasKey('lastName', $projectData['createdBy']);
     }
 
+    /* @todo with ApiSubresource
+        public function testGetProjectCategories(): void
+        {
+            $client = static::createClient();
+
+            $iri = $this->findIriBy(Project::class,
+                ['id' => TestFixtures::PROJECT['id']]);
+
+            $client->request('GET', $iri.'/categories');
+            self::assertMatchesResourceCollectionJsonSchema(Category::class);
+
+            self::assertJsonContains([
+                'hydra:member' => [
+                    0 => ['id' => 1],
+                    1 => ['id' => 2],
+                    2 => ['id' => 3],
+                ],
+            ]);
+        }
+    */
     public function testGetProjectDoesNotReturnDeletedCreator(): void
     {
         $client = static::createClient();
@@ -586,6 +620,11 @@ class ProjectApiTest extends ApiTestCase
         self::assertJsonContains([
             '@id'          => $iri,
             'id'           => TestFixtures::PROJECT['id'],
+            'categories'   => [
+                0 => ['id' => 1],
+                1 => ['id' => 2],
+                2 => ['id' => 3],
+            ],
             'createdBy'    => [
                 'id' => TestFixtures::PROJECT_COORDINATOR['id'],
             ],
@@ -642,9 +681,14 @@ class ProjectApiTest extends ApiTestCase
         self::assertMatchesResourceItemJsonSchema(Project::class);
 
         self::assertJsonContains([
-            '@id'       => $iri,
-            'id'        => TestFixtures::PROJECT['id'],
-            'createdBy' => [
+            '@id'            => $iri,
+            'id'             => TestFixtures::PROJECT['id'],
+            'categories'     => [
+                0 => ['id' => 1],
+                1 => ['id' => 2],
+                2 => ['id' => 3],
+            ],
+            'createdBy'      => [
                 'id' => TestFixtures::PROJECT_COORDINATOR['id'],
             ],
             'factionDetails' => [
@@ -801,10 +845,11 @@ class ProjectApiTest extends ApiTestCase
             ['id' => TestFixtures::PARLIAMENT['id']]);
 
         $response = $client->request('POST', '/projects', ['json' => [
-            'title'       => 'test project',
-            'parliament'  => $iri,
-            'motivation'  => 'my motivation',
-            'skills'      => 'my project skills',
+            'title'      => 'test project',
+            'topic'      => 'new topic',
+            'parliament' => $iri,
+            'motivation' => 'my motivation',
+            'skills'     => 'my project skills',
         ]]);
 
         self::assertResponseStatusCodeSame(201);
@@ -837,7 +882,7 @@ class ProjectApiTest extends ApiTestCase
             'slug'                  => 'test-project',
             'state'                 => Project::STATE_PRIVATE,
             'impact'                => '',
-            'topic'                 => '',
+            'topic'                 => 'new topic',
         ]);
 
         $projectData = $response->toArray();
@@ -907,6 +952,7 @@ class ProjectApiTest extends ApiTestCase
 
         $client->request('POST', '/projects', ['json' => [
             'title'      => 'test title',
+            'topic'      => 'new topic',
             'skills'     => 'my project skills',
             'motivation' => 'my project motivation',
         ]]);
@@ -1044,6 +1090,7 @@ class ProjectApiTest extends ApiTestCase
 
         $client->request('POST', '/projects', ['json' => [
             'title'       => 'test title',
+            'topic'       => 'new topic',
             'motivation'  => 'my motivation is good',
             'skills'      => 'my skills are better',
             'state'       => Project::STATE_PUBLIC,
@@ -1075,6 +1122,29 @@ class ProjectApiTest extends ApiTestCase
             '@id'                   => $iri,
             'topic'                 => 'new topic',
             'impact'                => 'another impact',
+        ]);
+    }
+
+    public function testUpdateCategories(): void
+    {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROJECT_WRITER['email'],
+        ]);
+
+        $categoryIri = $this->findIriBy(Category::class, ['id' => 4]);
+
+        $iri = $this->findIriBy(Project::class,
+            ['id' => TestFixtures::PROJECT['id']]);
+        $client->request('PUT', $iri, ['json' => [
+            'categories' => [$categoryIri],
+        ]]);
+
+        self::assertResponseIsSuccessful();
+        self::assertJsonContains([
+            '@id'        => $iri,
+            'categories' => [
+                0 => ['id' => 4],
+            ],
         ]);
     }
 

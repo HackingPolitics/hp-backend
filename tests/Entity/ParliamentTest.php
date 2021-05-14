@@ -91,7 +91,7 @@ class ParliamentTest extends KernelTestCase
         self::assertSame('a-better-name-really', $after->getSlug());
     }
 
-    public function testRelationsAccessible()
+    public function testRelationsAccessible(): void
     {
         /* @var $parliament Parliament */
         $parliament = $this->getRepository()->find(1);

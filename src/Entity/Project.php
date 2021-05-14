@@ -120,8 +120,67 @@ class Project
     use DeletedAtFunctions;
     use SlugFunctions;
     use UpdatedAtFunctions;
+
     public const STATE_PUBLIC = 'public';
     public const STATE_PRIVATE = 'private';
+
+    //region Categories
+    /**
+     * @var Collection|Category[]
+     * @Groups({"project:read", "project:write"})
+     * @ORM\ManyToMany(targetEntity="Category", inversedBy="projects")
+     * @ORM\JoinTable(
+     *     name="project_category",
+     *     joinColumns={
+     *         @ORM\JoinColumn(name="project_id", referencedColumnName="id")
+     *     },
+     *     inverseJoinColumns={
+     *         @ORM\JoinColumn(name="category_id", referencedColumnName="id")
+     *     }
+     * )
+     */
+    protected Collection $categories;
+
+    public function getCategories(): Collection
+    {
+        return $this->categories;
+    }
+
+    public function setCategories(array $categories): self
+    {
+        $this->categories->clear();
+        foreach ($categories as $category) {
+            $this->addCategory($category);
+        }
+
+        return $this;
+    }
+
+    public function addCategory(Category $category): self
+    {
+        if ($this->categories->contains($category)) {
+            return $this;
+        }
+
+        $this->categories->add($category);
+        $category->addProject($this);
+
+        return $this;
+    }
+
+    public function removeCategory(Category $category): self
+    {
+        if (!$this->categories->contains($category)) {
+            return $this;
+        }
+
+        $this->categories->removeElement($category);
+        $category->removeProject($this);
+
+        return $this;
+    }
+
+    //endregion
 
     //region CreatedAt
     /**
@@ -270,7 +329,7 @@ class Project
      *         normalizer={NormalizerHelper::class, "stripHtml"}
      *     ),
      * })
-     * @Groups({"elastica", "project:read", "project:write"})
+     * @Groups({"project:read", "project:write"})
      * @ORM\Column(type="text", length=6000, nullable=true)
      */
     private ?string $impact = null;
@@ -333,7 +392,7 @@ class Project
      *     orphanRemoval=true
      * )
      */
-    private $memberships;
+    private Collection $memberships;
 
     /**
      * @return Collection|ProjectMembership[]
@@ -495,7 +554,7 @@ class Project
      *
      * @Assert\Sequentially({
      *     @Assert\NotBlank,
-     *     @Assert\Length(min=5, max=100),
+     *     @Assert\Length(min=3, max=100),
      *     @VrokAssert\NoLineBreaks,
      *     @Assert\Regex(
      *         pattern="/[a-zA-Z]/",
@@ -503,7 +562,7 @@ class Project
      *     ),
      * })
      * @Groups({"elastica", "project:read", "project:write", "user:read"})
-     * @ORM\Column(type="string", length=100, nullable=true)
+     * @ORM\Column(type="string", length=100, nullable=false)
      */
     private ?string $title = null;
 
@@ -514,7 +573,7 @@ class Project
 
     public function setTitle(?string $value): self
     {
-        $this->title = NormalizerHelper::toNullableString($value);
+        $this->title = NormalizerHelper::toString($value);
 
         return $this;
     }
@@ -523,16 +582,13 @@ class Project
 
     //region Topic
     /**
-     * HTML allowed.
-     *
      * @Assert\Sequentially({
-     *     @Assert\Length(max=6000),
-     *     @Assert\Length(max=2000,
-     *         normalizer={NormalizerHelper::class, "stripHtml"}
-     *     ),
+     *     @Assert\NotBlank,
+     *     @Assert\Length(min=2, max=1000),
+     *     @VrokAssert\NoLineBreaks,
      * })
      * @Groups({"project:read", "project:write"})
-     * @ORM\Column(type="text", length=6000, nullable=true)
+     * @ORM\Column(type="text", length=1000, nullable=true)
      */
     private ?string $topic = null;
 
@@ -543,7 +599,7 @@ class Project
 
     public function setTopic(?string $value): self
     {
-        $this->topic = NormalizerHelper::toNullableHtml($value);
+        $this->topic = NormalizerHelper::toString($value);
 
         return $this;
     }
@@ -562,6 +618,7 @@ class Project
 
     public function __construct()
     {
+        $this->categories = new ArrayCollection();
         $this->factionDetails = new ArrayCollection();
         $this->memberships = new ArrayCollection();
     }

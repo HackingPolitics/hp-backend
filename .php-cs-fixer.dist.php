@@ -4,7 +4,8 @@ $finder = PhpCsFixer\Finder::create()
     ->in(['src', 'tests'])
 ;
 
-return PhpCsFixer\Config::create()
+$config = new PhpCsFixer\Config();
+return $config
     // keep close to the Symfony standard but allow
     // alignment of keys/values in array definitions
     ->setRules([

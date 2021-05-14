@@ -989,6 +989,7 @@ class UserApiTest extends ApiTestCase
                     'motivation' => 'I wanna do something',
                     'parliament' => $iri,
                     'title'      => 'new project title',
+                    'topic'      => 'new topic',
                     'skills'     => 'I can do it',
                 ],
             ],

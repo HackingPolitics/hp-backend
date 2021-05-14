@@ -9,6 +9,8 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use App\Entity\Traits\AutoincrementId;
 use App\Entity\Traits\SlugFunctions;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -103,6 +105,46 @@ class Category
 
     //endregion
 
+    //region Projects
+    /**
+     * @var Collection|Project[]
+     *
+     * @ORM\ManyToMany(targetEntity="Project", mappedBy="categories")
+     * @ORM\JoinTable(name="project_category")
+     */
+    protected Collection $projects;
+
+    public function getProjects(): Collection
+    {
+        return $this->projects;
+    }
+
+    public function addProject(Project $project): self
+    {
+        if ($this->projects->contains($project)) {
+            return $this;
+        }
+
+        $this->projects->add($project);
+        $project->addCategory($this);
+
+        return $this;
+    }
+
+    public function removeProject(Project $project): self
+    {
+        if (!$this->projects->contains($project)) {
+            return $this;
+        }
+
+        $this->projects->removeElement($project);
+        $project->removeCategory($this);
+
+        return $this;
+    }
+
+    //endregion
+
     //region Slug
     /**
      * @Groups({"category:read"})
@@ -111,4 +153,9 @@ class Category
      */
     private ?string $slug = null;
     //endregion
+
+    public function __construct()
+    {
+        $this->projects = new ArrayCollection();
+    }
 }
