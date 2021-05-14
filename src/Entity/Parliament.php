@@ -261,6 +261,47 @@ class Parliament
 
     //endregion
 
+    //region Projects
+    /**
+     * @var Collection|Project[]
+     * @Groups({"none"})
+     * @ORM\OneToMany(targetEntity="Project", mappedBy="parliament", cascade={"persist"})
+     */
+    private $projects;
+
+    /**
+     * @return Collection|Project[]
+     */
+    public function getProjects(): Collection
+    {
+        return $this->projects;
+    }
+
+    public function addProject(Project $project): self
+    {
+        if (!$this->projects->contains($project)) {
+            $this->projects[] = $project;
+            $project->setParliament($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProject(Project $project): self
+    {
+        if ($this->projects->contains($project)) {
+            $this->projects->removeElement($project);
+            // set the owning side to null (unless already changed)
+            if ($project->getParliament() === $this) {
+                $project->setParliament(null);
+            }
+        }
+
+        return $this;
+    }
+
+    //endregion
+
     //region Slug
     /**
      * @Groups({"parliament:read"})
@@ -456,5 +497,6 @@ class Parliament
     public function __construct()
     {
         $this->factions = new ArrayCollection();
+        $this->projects = new ArrayCollection();
     }
 }

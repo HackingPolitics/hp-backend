@@ -215,6 +215,51 @@ class Project
 
     //endregion
 
+    //region FactionDetails
+    /**
+     * @var Collection|FactionDetails[]
+     * @Groups({
+     *     "project:member-read",
+     *     "project:pm-read",
+     *     "project:admin-read",
+     * })
+     * @ORM\OneToMany(targetEntity="FactionDetails", mappedBy="project", cascade={"persist"})
+     */
+    private $factionDetails;
+
+    /**
+     * @return Collection|FactionDetails[]
+     */
+    public function getFactionDetails(): Collection
+    {
+        return $this->factionDetails;
+    }
+
+    public function addFactionDetails(FactionDetails $factionDetails): self
+    {
+        if (!$this->factionDetails->contains($factionDetails)) {
+            $this->factionDetails[] = $factionDetails;
+            $factionDetails->setProject($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFactionDetails(FactionDetails $factionDetails): self
+    {
+        if ($this->factionDetails->contains($factionDetails)) {
+            $this->factionDetails->removeElement($factionDetails);
+            // set the owning side to null (unless already changed)
+            if ($factionDetails->getProject() === $this) {
+                $factionDetails->setProject(null);
+            }
+        }
+
+        return $this;
+    }
+
+    //endregion
+
     //region Impact
     /**
      * HTML allowed.
@@ -276,7 +321,6 @@ class Project
     /**
      * @var Collection|ProjectMembership[]
      * @Groups({
-     *     "project:coordinator-read",
      *     "project:member-read",
      *     "project:pm-read",
      *     "project:admin-read",
@@ -376,6 +420,29 @@ class Project
 
     //endregion
 
+    //region Parliament
+    /**
+     * @Assert\NotBlank
+     * @Groups({"project:read", "project:create", "user:register"})
+     * @MaxDepth(1)
+     * @ORM\ManyToOne(targetEntity="Parliament", inversedBy="projects")
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
+     */
+    private ?Parliament $parliament = null;
+
+    public function getParliament(): ?Parliament
+    {
+        return $this->parliament;
+    }
+
+    public function setParliament(?Parliament $parliament): self
+    {
+        $this->parliament = $parliament;
+
+        return $this;
+    }
+    //endregion
+
     //region Slug
     /**
      * @Groups({"elastica", "project:read", "user:read"})
@@ -462,7 +529,7 @@ class Project
      *         normalizer={NormalizerHelper::class, "stripHtml"}
      *     ),
      * })
-     * @Groups({"elastica", "project:read", "project:write"})
+     * @Groups({"project:read", "project:write"})
      * @ORM\Column(type="text", length=6000, nullable=true)
      */
     private ?string $topic = null;
@@ -495,6 +562,7 @@ class Project
 
     public function __construct()
     {
+        $this->factionDetails = new ArrayCollection();
         $this->memberships = new ArrayCollection();
     }
 }

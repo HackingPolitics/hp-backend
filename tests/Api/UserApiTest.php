@@ -7,6 +7,7 @@ namespace App\Tests\Api;
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
 use App\DataFixtures\TestFixtures;
 use App\Entity\ActionLog;
+use App\Entity\Parliament;
 use App\Entity\Project;
 use App\Entity\ProjectMembership;
 use App\Entity\User;
@@ -990,6 +991,9 @@ class UserApiTest extends ApiTestCase
 
         $client = static::createClient();
 
+        $iri = $this->findIriBy(Parliament::class,
+            ['id' => TestFixtures::PARLIAMENT['id']]);
+
         $client->request('POST', '/users/register', ['json' => [
             'username'      => 'Tester',
             'email'         => 'new@zukunftsstadt.de',
@@ -999,6 +1003,7 @@ class UserApiTest extends ApiTestCase
             'createdProjects' => [
                 [
                     'motivation' => 'I wanna do something',
+                    'parliament' => $iri,
                     'title'      => 'new project title',
                     'skills'     => 'I can do it',
                 ],
@@ -1010,7 +1015,7 @@ class UserApiTest extends ApiTestCase
             'application/ld+json; charset=utf-8');
 
         // @todo the schema is broken, "The property deletedAt is not defined and the definition does not allow additional properties" etc
-        //self::assertMatchesResourceItemJsonSchema(User::class);
+        self::assertMatchesResourceItemJsonSchema(User::class);
 
         self::assertJsonContains([
             '@context'           => '/contexts/User',

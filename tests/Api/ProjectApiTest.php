@@ -7,6 +7,7 @@ namespace App\Tests\Api;
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
 use App\DataFixtures\TestFixtures;
 use App\Entity\ActionLog;
+use App\Entity\Parliament;
 use App\Entity\Project;
 use App\Entity\ProjectMembership;
 use App\Entity\User;
@@ -40,8 +41,7 @@ class ProjectApiTest extends ApiTestCase
         self::assertResponseHeaderSame('content-type',
             'application/ld+json; charset=utf-8');
 
-        // @todo schema is broken, picture & inspiration are returned as required etc
-        //self::assertMatchesResourceCollectionJsonSchema(Project::class);
+        self::assertMatchesResourceCollectionJsonSchema(Project::class);
 
         self::assertJsonContains([
             '@context'         => '/contexts/Project',
@@ -51,6 +51,9 @@ class ProjectApiTest extends ApiTestCase
             'hydra:member'     => [
                 0 => [
                     'id'                => TestFixtures::PROJECT['id'],
+                    'parliament'        => [
+                        'id' => TestFixtures::PARLIAMENT['id'],
+                    ],
                     'createdBy'         => [
                         'id' => TestFixtures::PROJECT_COORDINATOR['id'],
                     ],
@@ -88,7 +91,7 @@ class ProjectApiTest extends ApiTestCase
         self::assertResponseHeaderSame('content-type',
             'application/ld+json; charset=utf-8');
 
-        // @todo schema is broken, picture & inspiration are returned as required etc
+        // @todo kommt damit klar dass der creator hier leer ist obwohl pflichtfeld
         //self::assertMatchesResourceCollectionJsonSchema(Project::class);
 
         self::assertJsonContains([
@@ -124,8 +127,7 @@ class ProjectApiTest extends ApiTestCase
         self::assertResponseHeaderSame('content-type',
             'application/ld+json; charset=utf-8');
 
-        // @todo schema is broken, picture & inspiration are returned as required etc
-        //self::assertMatchesResourceCollectionJsonSchema(Project::class);
+        self::assertMatchesResourceCollectionJsonSchema(Project::class);
 
         self::assertJsonContains([
             '@context'         => '/contexts/Project',
@@ -149,8 +151,7 @@ class ProjectApiTest extends ApiTestCase
         self::assertResponseHeaderSame('content-type',
             'application/ld+json; charset=utf-8');
 
-        // @todo schema is broken, picture & inspiration are returned as required etc
-        //self::assertMatchesResourceCollectionJsonSchema(Project::class);
+        self::assertMatchesResourceCollectionJsonSchema(Project::class);
 
         self::assertJsonContains([
             '@context'         => '/contexts/Project',
@@ -176,8 +177,7 @@ class ProjectApiTest extends ApiTestCase
         self::assertResponseHeaderSame('content-type',
             'application/ld+json; charset=utf-8');
 
-        // @todo schema is broken, picture & inspiration are returned as required etc
-        //self::assertMatchesResourceCollectionJsonSchema(Project::class);
+        self::assertMatchesResourceCollectionJsonSchema(Project::class);
 
         self::assertJsonContains([
             '@context'         => '/contexts/Project',
@@ -202,8 +202,7 @@ class ProjectApiTest extends ApiTestCase
         self::assertResponseHeaderSame('content-type',
             'application/ld+json; charset=utf-8');
 
-        // @todo schema is broken, picture & inspiration are returned as required etc
-        //self::assertMatchesResourceCollectionJsonSchema(Project::class);
+        self::assertMatchesResourceCollectionJsonSchema(Project::class);
 
         self::assertJsonContains([
             '@context'         => '/contexts/Project',
@@ -227,9 +226,7 @@ class ProjectApiTest extends ApiTestCase
         self::assertResponseIsSuccessful();
         self::assertResponseHeaderSame('content-type',
             'application/ld+json; charset=utf-8');
-
-        // @todo schema is broken, picture & inspiration are returned as required etc
-        //self::assertMatchesResourceCollectionJsonSchema(Project::class);
+        self::assertMatchesResourceCollectionJsonSchema(Project::class);
 
         self::assertJsonContains([
             '@context'         => '/contexts/Project',
@@ -262,9 +259,7 @@ class ProjectApiTest extends ApiTestCase
         self::assertResponseIsSuccessful();
         self::assertResponseHeaderSame('content-type',
             'application/ld+json; charset=utf-8');
-
-        // @todo schema is broken, picture & inspiration are returned as required etc
-        //self::assertMatchesResourceCollectionJsonSchema(Project::class);
+        self::assertMatchesResourceCollectionJsonSchema(Project::class);
 
         self::assertJsonContains([
             '@context'         => '/contexts/Project',
@@ -294,9 +289,7 @@ class ProjectApiTest extends ApiTestCase
         self::assertResponseIsSuccessful();
         self::assertResponseHeaderSame('content-type',
             'application/ld+json; charset=utf-8');
-
-        // @todo schema is broken, picture & inspiration are returned as required etc
-        //self::assertMatchesResourceCollectionJsonSchema(Project::class);
+        self::assertMatchesResourceCollectionJsonSchema(Project::class);
 
         self::assertJsonContains([
             '@context'         => '/contexts/Project',
@@ -331,9 +324,7 @@ class ProjectApiTest extends ApiTestCase
         self::assertResponseIsSuccessful();
         self::assertResponseHeaderSame('content-type',
             'application/ld+json; charset=utf-8');
-
-        // @todo schema is broken, picture & inspiration are returned as required etc
-        //self::assertMatchesResourceCollectionJsonSchema(Project::class);
+        self::assertMatchesResourceCollectionJsonSchema(Project::class);
 
         self::assertJsonContains([
             '@context'         => '/contexts/Project',
@@ -521,14 +512,15 @@ class ProjectApiTest extends ApiTestCase
             ['id' => TestFixtures::PROJECT['id']]);
 
         $response = $client->request('GET', $iri);
-
-        // @todo schema is broken, picture & inspiration are returned as required etc
-        //self::assertMatchesResourceItemJsonSchema(Project::class);
+        self::assertMatchesResourceItemJsonSchema(Project::class);
 
         self::assertJsonContains([
             '@id'              => $iri,
             'createdBy'        => [
                 'id' => TestFixtures::PROJECT_COORDINATOR['id'],
+            ],
+            'parliament'        => [
+                'id'       => TestFixtures::PARLIAMENT['id'],
             ],
             'description'      => TestFixtures::PROJECT['description'],
             'id'               => TestFixtures::PROJECT['id'],
@@ -540,6 +532,11 @@ class ProjectApiTest extends ApiTestCase
 
         self::assertArrayNotHasKey('locked', $projectData);
         self::assertArrayNotHasKey('memberships', $projectData);
+        self::assertArrayNotHasKey('factionDetails', $projectData);
+
+        // @todo und weitere...
+        self::assertArrayNotHasKey('arguments', $projectData);
+        self::assertArrayNotHasKey('counterArguments', $projectData);
 
         self::assertArrayNotHasKey('firstName', $projectData['createdBy']);
         self::assertArrayNotHasKey('lastName', $projectData['createdBy']);
@@ -562,7 +559,7 @@ class ProjectApiTest extends ApiTestCase
 
         $client->request('GET', $iri);
 
-        // @todo schema is broken, picture & inspiration are returned as required etc
+        // @todo kommt damit klar dass der creator hier leer ist obwohl pflichtfeld
         //self::assertMatchesResourceItemJsonSchema(Project::class);
 
         self::assertJsonContains([
@@ -584,26 +581,49 @@ class ProjectApiTest extends ApiTestCase
         $response = $client->request('GET', $iri);
         $projectData = $response->toArray();
 
-        // @todo schema is broken, picture & inspiration are returned as required etc
-        //self::assertMatchesResourceItemJsonSchema(Project::class);
+        self::assertMatchesResourceItemJsonSchema(Project::class);
 
         self::assertJsonContains([
-            '@id'       => $iri,
-            'id'        => TestFixtures::PROJECT['id'],
-            'createdBy' => [
+            '@id'          => $iri,
+            'id'           => TestFixtures::PROJECT['id'],
+            'createdBy'    => [
                 'id' => TestFixtures::PROJECT_COORDINATOR['id'],
             ],
+            'factionDetails' => [
+                0 => [
+                    'contactName' => 'Green',
+                    'interests'   => [
+                        0 => [
+                            'description' => 'interest1',
+                        ],
+                        1 => [
+                            'description' => 'interest2',
+                        ],
+                    ],
+                ],
+            ],
             'locked'       => false,
-            'title'         => TestFixtures::PROJECT['title'],
-            'memberships' => [
+            'memberships'  => [
                 0 => [],
                 1 => [],
                 2 => [],
             ],
+            'parliament'        => [
+                'id' => TestFixtures::PARLIAMENT['id'],
+            ],
+            'title'         => TestFixtures::PROJECT['title'],
         ]);
 
+        self::assertArrayNotHasKey('updatedBy', $projectData);
         self::assertArrayNotHasKey('user',
             $projectData['memberships'][0]);
+        self::assertArrayNotHasKey('updatedBy',
+            $projectData['factionDetails'][0]);
+        self::assertArrayNotHasKey('teamContact',
+            $projectData['factionDetails'][0]);
+        self::assertArrayNotHasKey('updatedBy',
+            $projectData['factionDetails'][0]['interests'][0]);
+        // @todo weitere (Arg, Gegenarg + deren updatedBy)
 
         self::assertArrayNotHasKey('firstName', $projectData['createdBy']);
         self::assertArrayNotHasKey('lastName', $projectData['createdBy']);
@@ -619,8 +639,7 @@ class ProjectApiTest extends ApiTestCase
             ['id' => TestFixtures::PROJECT['id']]);
         $client->request('GET', $iri);
 
-        // @todo schema is broken, picture & inspiration are returned as required etc
-        //self::assertMatchesResourceItemJsonSchema(Project::class);
+        self::assertMatchesResourceItemJsonSchema(Project::class);
 
         self::assertJsonContains([
             '@id'       => $iri,
@@ -628,7 +647,26 @@ class ProjectApiTest extends ApiTestCase
             'createdBy' => [
                 'id' => TestFixtures::PROJECT_COORDINATOR['id'],
             ],
-            'locked'       => false,
+            'factionDetails' => [
+                0 => [
+                    'contactName' => 'Green',
+                    'interests'   => [
+                        0 => [
+                            'description' => 'interest1',
+                            'updatedBy'   => [],
+                        ],
+                        1 => [
+                            'description' => 'interest2',
+                            'updatedBy'   => [],
+                        ],
+                    ],
+                    'updatedBy'   => [],
+                ],
+            ],
+            'parliament'        => [
+                'id' => TestFixtures::PARLIAMENT['id'],
+            ],
+            'locked'        => false,
             'title'         => TestFixtures::PROJECT['title'],
             'memberships' => [
                 0 => [
@@ -654,8 +692,7 @@ class ProjectApiTest extends ApiTestCase
             ['id' => TestFixtures::PROJECT['id']]);
         $response = $client->request('GET', $iri);
 
-        // @todo schema is broken, picture & inspiration are returned as required etc
-        //self::assertMatchesResourceItemJsonSchema(Project::class);
+        self::assertMatchesResourceItemJsonSchema(Project::class);
 
         self::assertJsonContains([
             '@id'   => $iri,
@@ -665,10 +702,6 @@ class ProjectApiTest extends ApiTestCase
 
         $projectData = $response->toArray();
         self::assertCount(3, $projectData['memberships']);
-
-        // those properties are only visible to the PO/Admin
-        self::assertArrayHasKey('createdBy', $projectData);
-        self::assertArrayHasKey('locked', $projectData);
     }
 
     /**
@@ -764,8 +797,12 @@ class ProjectApiTest extends ApiTestCase
             'email' => TestFixtures::ADMIN['email'],
         ]);
 
+        $iri = $this->findIriBy(Parliament::class,
+            ['id' => TestFixtures::PARLIAMENT['id']]);
+
         $response = $client->request('POST', '/projects', ['json' => [
             'title'       => 'test project',
+            'parliament'  => $iri,
             'motivation'  => 'my motivation',
             'skills'      => 'my project skills',
         ]]);
@@ -774,14 +811,13 @@ class ProjectApiTest extends ApiTestCase
         self::assertResponseHeaderSame('content-type',
             'application/ld+json; charset=utf-8');
 
-        // @todo schema is broken, picture & inspiration are returned as required etc
-        //self::assertMatchesResourceItemJsonSchema(Project::class);
+        self::assertMatchesResourceItemJsonSchema(Project::class);
 
         self::assertJsonContains([
-            'description'  => '',
-            'id'           => 4, // ID 1-3 created by fixtures
-            'title'                 => 'test project',
-            'memberships'           => [
+            'description' => '',
+            'id'          => 4, // ID 1-3 created by fixtures
+            'title'       => 'test project',
+            'memberships' => [
                 [
                     '@type'      => 'ProjectMembership',
                     'role'       => ProjectMembership::ROLE_COORDINATOR,
@@ -791,6 +827,12 @@ class ProjectApiTest extends ApiTestCase
                         'id' => TestFixtures::ADMIN['id'],
                     ],
                 ],
+            ],
+            'createdBy'             => [
+                'id' => TestFixtures::ADMIN['id'],
+            ],
+            'parliament'            => [
+                'id' => TestFixtures::PARLIAMENT['id'],
             ],
             'slug'                  => 'test-project',
             'state'                 => Project::STATE_PRIVATE,
@@ -835,8 +877,13 @@ class ProjectApiTest extends ApiTestCase
             'email' => TestFixtures::ADMIN['email'],
         ]);
 
+        $iri = $this->findIriBy(Parliament::class,
+            ['id' => TestFixtures::PARLIAMENT['id']]);
+
+
         $client->request('POST', '/projects', ['json' => [
             'motivation' => 'my motivation',
+            'parliament' => $iri,
             'skills'     => 'my project skills',
             'topic'      => 'not required, only for this test',
         ]]);
@@ -853,15 +900,43 @@ class ProjectApiTest extends ApiTestCase
         ]);
     }
 
-    public function testCreateProjectWithoutMotivationFails(): void
+    public function testCreateProjectWithoutParliamentFails(): void
     {
         $client = static::createAuthenticatedClient([
             'email' => TestFixtures::ADMIN['email'],
         ]);
 
         $client->request('POST', '/projects', ['json' => [
-            'title'  => 'test title',
-            'skills' => 'my project skills',
+            'title'      => 'test title',
+            'skills'     => 'my project skills',
+            'motivation' => 'my project motivation',
+        ]]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertResponseHeaderSame('content-type',
+            'application/ld+json; charset=utf-8');
+
+        self::assertJsonContains([
+            '@context'          => '/contexts/ConstraintViolationList',
+            '@type'             => 'ConstraintViolationList',
+            'hydra:title'       => 'An error occurred',
+            'hydra:description' => 'parliament: validate.general.notBlank',
+        ]);
+    }
+
+    public function testCreateProjectWithoutMotivationFails(): void
+    {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::ADMIN['email'],
+        ]);
+
+        $iri = $this->findIriBy(Parliament::class,
+            ['id' => TestFixtures::PARLIAMENT['id']]);
+
+        $client->request('POST', '/projects', ['json' => [
+            'parliament' => $iri,
+            'title'      => 'test title',
+            'skills'     => 'my project skills',
         ]]);
 
         self::assertResponseStatusCodeSame(422);
@@ -882,9 +957,13 @@ class ProjectApiTest extends ApiTestCase
             'email' => TestFixtures::ADMIN['email'],
         ]);
 
+        $iri = $this->findIriBy(Parliament::class,
+            ['id' => TestFixtures::PARLIAMENT['id']]);
+
         $client->request('POST', '/projects', ['json' => [
             'title'      => 'test title',
             'motivation' => 'too short',
+            'parliament' => $iri,
             'skills'     => 'my project skills',
         ]]);
 
@@ -906,9 +985,13 @@ class ProjectApiTest extends ApiTestCase
             'email' => TestFixtures::ADMIN['email'],
         ]);
 
+        $iri = $this->findIriBy(Parliament::class,
+            ['id' => TestFixtures::PARLIAMENT['id']]);
+
         $client->request('POST', '/projects', ['json' => [
             'title'      => 'test title',
             'motivation' => 'my motivation',
+            'parliament' => $iri,
         ]]);
 
         self::assertResponseStatusCodeSame(422);
@@ -929,10 +1012,14 @@ class ProjectApiTest extends ApiTestCase
             'email' => TestFixtures::ADMIN['email'],
         ]);
 
+        $iri = $this->findIriBy(Parliament::class,
+            ['id' => TestFixtures::PARLIAMENT['id']]);
+
         $client->request('POST', '/projects', ['json' => [
-            'title'      => 'test title',
             'motivation' => 'my motivation',
+            'parliament' => $iri,
             'skills'     => 'my skills',
+            'title'      => 'test title',
         ]]);
 
         self::assertResponseStatusCodeSame(422);
@@ -953,11 +1040,15 @@ class ProjectApiTest extends ApiTestCase
             'email' => TestFixtures::ADMIN['email'],
         ]);
 
+        $iri = $this->findIriBy(Parliament::class,
+            ['id' => TestFixtures::PARLIAMENT['id']]);
+
         $client->request('POST', '/projects', ['json' => [
             'title'       => 'test title',
             'motivation'  => 'my motivation is good',
             'skills'      => 'my skills are better',
             'state'       => Project::STATE_PUBLIC,
+            'parliament'  => $iri,
         ]]);
 
         self::assertResponseIsSuccessful();

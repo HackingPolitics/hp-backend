@@ -7,6 +7,7 @@ namespace App\Tests\Entity;
 use App\DataFixtures\InitialFixtures;
 use App\DataFixtures\TestFixtures;
 use App\Entity\Faction;
+use App\Entity\FactionDetails;
 use App\Entity\FederalState;
 use App\Entity\Parliament;
 use App\Entity\User;
@@ -87,5 +88,8 @@ class FactionTest extends KernelTestCase
 
         self::assertInstanceOf(Parliament::class, $faction->getParliament());
         self::assertInstanceOf(User::class, $faction->getUpdatedBy());
+
+        self::assertCount(1, $faction->getDetails());
+        self::assertInstanceOf(FactionDetails::class, $faction->getDetails()[0]);
     }
 }

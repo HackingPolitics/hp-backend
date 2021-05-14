@@ -8,6 +8,8 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\Traits\AutoincrementId;
 use App\Entity\Traits\UpdatedAtFunctions;
 use DateTimeImmutable;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -90,6 +92,47 @@ class Faction
 
     //endregion
 
+    //region Details
+    /**
+     * @var Collection|FactionDetails[]
+     * @Groups({"none"})
+     * @ORM\OneToMany(targetEntity="FactionDetails", mappedBy="faction", cascade={"persist"})
+     */
+    private $details;
+
+    /**
+     * @return Collection|FactionDetails[]
+     */
+    public function getDetails(): Collection
+    {
+        return $this->details;
+    }
+
+    public function addDetails(FactionDetails $details): self
+    {
+        if (!$this->details->contains($details)) {
+            $this->details[] = $details;
+            $details->setFaction($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDetails(FactionDetails $factionDetails): self
+    {
+        if ($this->details->contains($factionDetails)) {
+            $this->details->removeElement($factionDetails);
+            // set the owning side to null (unless already changed)
+            if ($factionDetails->getFaction() === $this) {
+                $factionDetails->setFaction(null);
+            }
+        }
+
+        return $this;
+    }
+
+    //endregion
+
     //region MemberCount
     /**
      * @Assert\NotBlank
@@ -104,7 +147,7 @@ class Faction
         return $this->memberCount;
     }
 
-    public function setMemberCount(?int $value)
+    public function setMemberCount(?int $value): void
     {
         $this->memberCount = $value;
     }
@@ -221,4 +264,9 @@ class Faction
     }
 
     //endregion
+
+    public function __construct()
+    {
+        $this->details = new ArrayCollection();
+    }
 }

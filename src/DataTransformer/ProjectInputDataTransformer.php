@@ -61,6 +61,10 @@ class ProjectInputDataTransformer implements DataTransformerInterface
         $project = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE]
             ?? new Project();
 
+        if ($data->parliament) {
+            $project->setParliament($data->parliament);
+        }
+
         if (null !== $data->locked) {
             $project->setLocked($data->locked);
         }

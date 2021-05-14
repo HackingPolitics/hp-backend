@@ -8,6 +8,7 @@ use App\DataFixtures\InitialFixtures;
 use App\Entity\Faction;
 use App\Entity\FederalState;
 use App\Entity\Parliament;
+use App\Entity\Project;
 use App\Entity\User;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
@@ -101,5 +102,7 @@ class ParliamentTest extends KernelTestCase
 
         self::assertCount(4, $parliament->getFactions());
         self::assertInstanceOf(Faction::class, $parliament->getFactions()[0]);
+        self::assertCount(3, $parliament->getProjects());
+        self::assertInstanceOf(Project::class, $parliament->getProjects()[0]);
     }
 }

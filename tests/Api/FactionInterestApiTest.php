@@ -6,16 +6,16 @@ namespace App\Tests\Api;
 
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
 use App\DataFixtures\TestFixtures;
-use App\Entity\Faction;
-use App\Entity\Parliament;
+use App\Entity\FactionDetails;
+use App\Entity\FactionInterest;
 use Doctrine\ORM\EntityManager;
 use Vrok\SymfonyAddons\PHPUnit\AuthenticatedClientTrait;
 use Vrok\SymfonyAddons\PHPUnit\RefreshDatabaseTrait;
 
 /**
- * @group FactionApi
+ * @group FactionInterestApi
  */
-class FactionApiTest extends ApiTestCase
+class FactionInterestApiTest extends ApiTestCase
 {
     use AuthenticatedClientTrait;
     use RefreshDatabaseTrait;
@@ -48,13 +48,13 @@ class FactionApiTest extends ApiTestCase
     }
 
     /**
-     * Test that no collection of factions is available, not even for admins.
+     * Test that no collection of interests is available, not even for admins.
      */
     public function testCollectionNotAvailable(): void
     {
         static::createAuthenticatedClient([
             'email' => TestFixtures::ADMIN['email'],
-        ])->request('GET', '/factions');
+        ])->request('GET', '/faction_interests');
 
         self::assertResponseStatusCodeSame(405);
         self::assertResponseHeaderSame('content-type',
@@ -64,17 +64,17 @@ class FactionApiTest extends ApiTestCase
             '@context'          => '/contexts/Error',
             '@type'             => 'hydra:Error',
             'hydra:title'       => 'An error occurred',
-            'hydra:description' => 'No route found for "GET /factions": Method Not Allowed (Allow: POST)',
+            'hydra:description' => 'No route found for "GET /faction_interests": Method Not Allowed (Allow: POST)',
         ]);
     }
 
-    public function testGetFactionAsAdmin(): void
+    public function testGetFactionInterestAsAdmin(): void
     {
         $client = static::createAuthenticatedClient([
             'email' => TestFixtures::ADMIN['email'],
         ]);
 
-        $iri = $this->findIriBy(Faction::class, ['id' => 1]);
+        $iri = $this->findIriBy(FactionInterest::class, ['id' => 1]);
 
         $client->request('GET', $iri);
 
@@ -82,60 +82,52 @@ class FactionApiTest extends ApiTestCase
         self::assertResponseHeaderSame('content-type',
             'application/ld+json; charset=utf-8');
 
-        self::assertMatchesResourceItemJsonSchema(Faction::class);
+        self::assertMatchesResourceItemJsonSchema(FactionInterest::class);
 
         self::assertJsonContains([
-            '@id'          => $iri,
-            'name'        => TestFixtures::FACTION_GREEN['name'],
-            'parliament'  => [
-                'id' => 1,
-            ],
-            'updatedBy' => [
-                'id' => TestFixtures::ADMIN['id'],
-            ],
+            '@id'         => $iri,
+            'description' => 'interest1',
         ]);
     }
 
-    public function testCreateFaction(): void
+    public function testCreateFactionInterest(): void
     {
-        $parliamentIri = $this->findIriBy(Parliament::class, ['id' => 1]);
+        $factionDetailsIri = $this->findIriBy(FactionDetails::class,
+            ['id' => 1]);
 
         static::createAuthenticatedClient([
-            'email' => TestFixtures::PROCESS_MANAGER['email'],
-        ])->request('POST', '/factions', ['json' => [
-            'name'        => 'Grau',
-            'parliament'  => $parliamentIri,
-            'memberCount' => 14,
+            'email' => TestFixtures::PROJECT_WRITER['email'],
+        ])->request('POST', '/faction_interests', ['json' => [
+            'description'    => 'test interest',
+            'factionDetails' => $factionDetailsIri,
         ]]);
 
         self::assertResponseStatusCodeSame(201);
         self::assertResponseHeaderSame('content-type',
             'application/ld+json; charset=utf-8');
 
-        // @todo kommt nicht mit den validatoren klar, bspw: location: Must be at least 2 characters long
-        self::assertMatchesResourceItemJsonSchema(Faction::class);
+        // @todo kommt nicht mit den validatoren klar
+        self::assertMatchesResourceItemJsonSchema(FactionInterest::class);
 
         self::assertJsonContains([
-            '@context'    => '/contexts/Faction',
-            '@type'       => 'Faction',
-            'name'        => 'Grau',
-            'memberCount' => 14,
-            'parliament'  => [
-                '@id' => $parliamentIri,
-            ],
-            'updatedBy' => [
-                'id' => TestFixtures::PROCESS_MANAGER['id'],
+            '@context'       => '/contexts/FactionInterest',
+            '@type'          => 'FactionInterest',
+            'description'    => 'test interest',
+            'factionDetails' => ['@id' => $factionDetailsIri],
+            'updatedBy'      => [
+                'id' => TestFixtures::PROJECT_WRITER['id'],
             ],
         ]);
     }
 
     public function testCreateFailsUnauthenticated(): void
     {
-        $parliamentIri = $this->findIriBy(Parliament::class, ['id' => 1]);
+        $factionDetailsIri = $this->findIriBy(FactionDetails::class,
+            ['id' => 1]);
 
-        static::createClient()->request('POST', '/factions', ['json' => [
-            'name'        => 'Grau',
-            'parliament'  => $parliamentIri,
+        static::createClient()->request('POST', '/faction_interests', ['json' => [
+            'description'    => 'test interest',
+            'factionDetails' => $factionDetailsIri,
         ]]);
 
         self::assertResponseStatusCodeSame(401);
@@ -150,13 +142,14 @@ class FactionApiTest extends ApiTestCase
 
     public function testCreateFailsWithoutPrivilege(): void
     {
-        $parliamentIri = $this->findIriBy(Parliament::class, ['id' => 1]);
+        $factionDetailsIri = $this->findIriBy(FactionDetails::class,
+            ['id' => 1]);
 
         static::createAuthenticatedClient([
-            'email' => TestFixtures::PROJECT_COORDINATOR['email'],
-        ])->request('POST', '/factions', ['json' => [
-            'name'        => 'Grau',
-            'parliament'  => $parliamentIri,
+            'email' => TestFixtures::PROJECT_OBSERVER['email'],
+        ])->request('POST', '/faction_interests', ['json' => [
+            'description'    => 'test interest',
+            'factionDetails' => $factionDetailsIri,
         ]]);
 
         self::assertResponseStatusCodeSame(403);
@@ -171,15 +164,15 @@ class FactionApiTest extends ApiTestCase
         ]);
     }
 
-    public function testCreateWithoutNameFails(): void
+    public function testCreateWithoutDescriptionFails(): void
     {
-        $parliamentIri = $this->findIriBy(Parliament::class, ['id' => 1]);
+        $factionDetailsIri = $this->findIriBy(FactionDetails::class,
+            ['id' => 1]);
 
         static::createAuthenticatedClient([
             'email' => TestFixtures::PROCESS_MANAGER['email'],
-        ])->request('POST', '/factions', ['json' => [
-            'memberCount' => 11,
-            'parliament'  => $parliamentIri,
+        ])->request('POST', '/faction_interests', ['json' => [
+            'factionDetails' => $factionDetailsIri,
         ]]);
 
         self::assertResponseStatusCodeSame(422);
@@ -190,20 +183,16 @@ class FactionApiTest extends ApiTestCase
             '@context'          => '/contexts/ConstraintViolationList',
             '@type'             => 'ConstraintViolationList',
             'hydra:title'       => 'An error occurred',
-            'hydra:description' => 'name: validate.general.notBlank',
+            'hydra:description' => 'description: validate.general.notBlank',
         ]);
     }
 
-    public function testCreateWithDuplicateNameFails(): void
+    public function testCreateWithoutFactionDetailsFails(): void
     {
-        $parliamentIri = $this->findIriBy(Parliament::class, ['id' => 1]);
-
         static::createAuthenticatedClient([
             'email' => TestFixtures::PROCESS_MANAGER['email'],
-        ])->request('POST', '/factions', ['json' => [
-            'name'        => TestFixtures::FACTION_GREEN['name'],
-            'memberCount' => 1,
-            'parliament'  => $parliamentIri,
+        ])->request('POST', '/faction_interests', ['json' => [
+            'description'    => 'test interest',
         ]]);
 
         self::assertResponseStatusCodeSame(422);
@@ -214,27 +203,27 @@ class FactionApiTest extends ApiTestCase
             '@context'          => '/contexts/ConstraintViolationList',
             '@type'             => 'ConstraintViolationList',
             'hydra:title'       => 'An error occurred',
-            'hydra:description' => 'name: validate.faction.duplicateFaction',
+            'hydra:description' => 'factionDetails: validate.general.notBlank',
         ]);
     }
 
-    public function testUpdateFaction(): void
+    public function testUpdateFactionInterest(): void
     {
         $client = static::createAuthenticatedClient([
-            'email' => TestFixtures::PROCESS_MANAGER['email'],
+            'email' => TestFixtures::PROJECT_COORDINATOR['email'],
         ]);
 
-        $iri = $this->findIriBy(Faction::class, ['id' => 1]);
+        $iri = $this->findIriBy(FactionInterest::class, ['id' => 1]);
         $client->request('PUT', $iri, ['json' => [
-            'name' => 'Test #1',
+            'description' => 'new interest',
         ]]);
 
         self::assertResponseIsSuccessful();
         self::assertJsonContains([
-            '@id'       => $iri,
-            'name'      => 'Test #1',
-            'updatedBy' => [
-                'id' => TestFixtures::PROCESS_MANAGER['id'],
+            '@id'         => $iri,
+            'description' => 'new interest',
+            'updatedBy'   => [
+                'id' => TestFixtures::PROJECT_COORDINATOR['id'],
             ],
         ]);
     }
@@ -242,9 +231,9 @@ class FactionApiTest extends ApiTestCase
     public function testUpdateFailsUnauthenticated(): void
     {
         $client = static::createClient();
-        $iri = $this->findIriBy(Faction::class, ['id' => 1]);
+        $iri = $this->findIriBy(FactionInterest::class, ['id' => 1]);
         $client->request('PUT', $iri, ['json' => [
-            'name' => 'Test #1',
+            'description' => 'new interest',
         ]]);
 
         self::assertResponseStatusCodeSame(401);
@@ -260,12 +249,12 @@ class FactionApiTest extends ApiTestCase
     public function testUpdateFailsWithoutPrivilege(): void
     {
         $client = static::createAuthenticatedClient([
-            'email' => TestFixtures::PROJECT_COORDINATOR['email'],
+            'email' => TestFixtures::PROJECT_OBSERVER['email'],
         ]);
 
-        $iri = $this->findIriBy(Faction::class, ['id' => 1]);
+        $iri = $this->findIriBy(FactionInterest::class, ['id' => 1]);
         $client->request('PUT', $iri, ['json' => [
-            'name' => 'Test #1',
+            'description' => 'new interest',
         ]]);
 
         self::assertResponseStatusCodeSame(403);
@@ -280,61 +269,65 @@ class FactionApiTest extends ApiTestCase
         ]);
     }
 
-    public function testUpdateWithDuplicateNameFails(): void
+    public function testUpdateFactionDetailsFails(): void
     {
         $client = static::createAuthenticatedClient([
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
+        $detailsIri = $this->findIriBy(FactionDetails::class,
+            ['id' => 1]);
+        $newDetailsIRI = $this->findIriBy(FactionDetails::class,
+            ['id' => 2]);
+        $iri = $this->findIriBy(FactionInterest::class,
+            ['id' => 1]);
 
-        $iri = $this->findIriBy(Faction::class, [
-            'id' => TestFixtures::FACTION_GREEN['id']]);
         $client->request('PUT', $iri, ['json' => [
-            'name' => TestFixtures::FACTION_RED['name'],
+            'description'    => 'interest interest',
+            'factionDetails' => $newDetailsIRI,
         ]]);
 
-        self::assertResponseStatusCodeSame(422);
-        self::assertResponseHeaderSame('content-type',
-            'application/ld+json; charset=utf-8');
+        self::assertResponseIsSuccessful();
 
+        // description got updated but factionDetails didn't
         self::assertJsonContains([
-            '@context'          => '/contexts/ConstraintViolationList',
-            '@type'             => 'ConstraintViolationList',
-            'hydra:title'       => 'An error occurred',
-            'hydra:description' => 'name: validate.faction.duplicateFaction',
+            'description'    => 'interest interest',
+            'factionDetails'      => [
+                '@id' => $detailsIri,
+            ],
         ]);
     }
 
     public function testDelete(): void
     {
-        /** @var Parliament $before */
-        $before = $this->entityManager->getRepository(Parliament::class)
+        /** @var FactionDetails $before */
+        $before = $this->entityManager->getRepository(FactionDetails::class)
             ->find(1);
-        self::assertCount(4, $before->getFactions());
+        self::assertCount(2, $before->getInterests());
 
         $client = static::createAuthenticatedClient([
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
 
-        $iri = $this->findIriBy(Faction::class, ['id' => 1]);
+        $iri = $this->findIriBy(FactionInterest::class, ['id' => 1]);
         $client->request('DELETE', $iri);
 
         static::assertResponseStatusCodeSame(204);
 
-        /** @var Faction $deleted */
-        $deleted = $this->entityManager->getRepository(Faction::class)
+        /** @var FactionInterest $deleted */
+        $deleted = $this->entityManager->getRepository(FactionInterest::class)
             ->find(1);
         self::assertNull($deleted);
 
-        /** @var Parliament $after */
-        $after = $this->entityManager->getRepository(Parliament::class)
+        /** @var FactionDetails $after */
+        $after = $this->entityManager->getRepository(FactionDetails::class)
             ->find(1);
-        self::assertCount(3, $after->getFactions());
+        self::assertCount(1, $after->getInterests());
     }
 
     public function testDeleteFailsUnauthenticated(): void
     {
         $client = static::createClient();
-        $iri = $this->findIriBy(Faction::class, ['id' => 1]);
+        $iri = $this->findIriBy(FactionInterest::class, ['id' => 1]);
         $client->request('DELETE', $iri);
 
         self::assertResponseStatusCodeSame(401);
@@ -350,10 +343,10 @@ class FactionApiTest extends ApiTestCase
     public function testDeleteFailsWithoutPrivilege(): void
     {
         $client = static::createAuthenticatedClient([
-            'email' => TestFixtures::PROJECT_COORDINATOR['email'],
+            'email' => TestFixtures::PROJECT_OBSERVER['email'],
         ]);
 
-        $iri = $this->findIriBy(Faction::class, ['id' => 1]);
+        $iri = $this->findIriBy(FactionInterest::class, ['id' => 1]);
         $client->request('DELETE', $iri);
 
         self::assertResponseStatusCodeSame(403);

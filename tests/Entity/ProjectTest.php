@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Tests\Entity;
 
 use App\DataFixtures\TestFixtures;
+use App\Entity\FactionDetails;
+use App\Entity\Parliament;
 use App\Entity\Project;
 use App\Entity\ProjectMembership;
 use App\Entity\User;
@@ -65,12 +67,17 @@ class ProjectTest extends KernelTestCase
         $user = $this->entityManager->getRepository(User::class)
             ->find(TestFixtures::PROJECT_WRITER['id']);
 
+        /** @var $parliament Parliament */
+        $parliament = $this->entityManager->getRepository(Parliament::class)
+            ->find(TestFixtures::PARLIAMENT['id']);
+
         $project = new Project();
         $project->setTitle('Testing Project');
         $project->setDescription('long description');
         $project->setTopic('short topic');
-        $project->setCreatedBy($user);
         $project->setImpact('short impact');
+        $project->setCreatedBy($user);
+        $project->setParliament($parliament);
 
         $this->entityManager->persist($project);
         $this->entityManager->flush();
@@ -129,6 +136,10 @@ class ProjectTest extends KernelTestCase
         self::assertCount(3, $project->getMemberships());
         self::assertInstanceOf(ProjectMembership::class, $project->getMemberships()[0]);
 
+        self::assertInstanceOf(Parliament::class, $project->getParliament());
         self::assertInstanceOf(User::class, $project->getCreatedBy());
+
+        self::assertCount(2, $project->getFactionDetails());
+        self::assertInstanceOf(FactionDetails::class, $project->getFactionDetails()[0]);
     }
 }

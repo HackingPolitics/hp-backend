@@ -6,6 +6,8 @@ namespace App\DataFixtures;
 
 use App\Entity\ActionLog;
 use App\Entity\Faction;
+use App\Entity\FactionDetails;
+use App\Entity\FactionInterest;
 use App\Entity\FederalState;
 use App\Entity\Parliament;
 use App\Entity\Project;
@@ -183,6 +185,7 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
             ->getSQLLogger();
         $manager->getConnection()->getConfiguration()->setSQLLogger(null);
 
+        //region Users + Validations
         $admin = $this->createUser(self::ADMIN);
         $manager->persist($admin);
 
@@ -225,37 +228,9 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         $pwValidation->setType(Validation::TYPE_RESET_PASSWORD);
         $pwValidation->setExpiresAt(new DateTimeImmutable('tomorrow'));
         $manager->persist($pwValidation);
+        //endregion
 
-        /**
-         * Create normal project.
-         */
-        $project = $this->createProject(self::PROJECT, $projectCoordinator,
-            $projectCoordinator, $projectWriter, $projectObserver);
-        $manager->persist($project);
-        /**
-         * /Create normal project.
-         */
-
-        /**
-         * Create locked project.
-         */
-        $lockedProject = $this->createProject(self::LOCKED_PROJECT,
-            $projectCoordinator, $projectCoordinator, $projectWriter);
-        $manager->persist($lockedProject);
-        /**
-         * /Create locked project.
-         */
-
-        /**
-         * Create deleted project.
-         */
-        $deletedProject = $this->createProject(self::DELETED_PROJECT,
-            $projectWriter);
-        $manager->persist($deletedProject);
-        /*
-         * /Create deleted project
-         */
-
+        //region Parliament + Factions
         $parliament = $this->createParliament(self::PARLIAMENT, $manager, $admin);
         $parliament->setUpdatedBy($admin);
         $manager->persist($parliament);
@@ -268,6 +243,69 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         $parliament->addFaction($blackFaction);
         $yellowFaction = $this->createFaction(self::FACTION_YELLOW, $admin);
         $parliament->addFaction($yellowFaction);
+        //endregion
+
+        /**
+         * Create normal project.
+         */
+        $project = $this->createProject(self::PROJECT, $projectCoordinator,
+            $projectCoordinator, $projectWriter, $projectObserver);
+        $parliament->addProject($project);
+        $manager->persist($project);
+
+        $detailsGreen = new FactionDetails();
+        $detailsGreen->setContactEmail('green@zukunftsstadt.de');
+        $detailsGreen->setContactName('Green');
+        $detailsGreen->setContactPhone('123');
+        $detailsGreen->setPossiblePartner(true);
+        $detailsGreen->setPossibleProponent(true);
+        $detailsGreen->setTeamContact($projectObserver);
+        $detailsGreen->setUpdatedBy($projectWriter);
+        $greenFaction->addDetails($detailsGreen);
+        $project->addFactionDetails($detailsGreen);
+
+        $detailsBlack = new FactionDetails();
+        $detailsBlack->setContactEmail('black@zukunftsstadt.de');
+        $detailsBlack->setContactName('Black');
+        $detailsBlack->setContactPhone('321');
+        $detailsBlack->setPossiblePartner(true);
+        $blackFaction->addDetails($detailsBlack);
+        $project->addFactionDetails($detailsBlack);
+
+        $interest1 = new FactionInterest();
+        $interest1->setDescription('interest1');
+        $interest1->setUpdatedBy($admin);
+        $detailsGreen->addInterest($interest1);
+
+        $interest2 = new FactionInterest();
+        $interest2->setDescription('interest2');
+        $interest2->setUpdatedBy($admin);
+        $detailsGreen->addInterest($interest2);
+        /**
+         * /Create normal project.
+         */
+
+        /**
+         * Create locked project.
+         */
+        $lockedProject = $this->createProject(self::LOCKED_PROJECT,
+            $projectCoordinator, $projectCoordinator, $projectWriter);
+        $parliament->addProject($lockedProject);
+        $manager->persist($lockedProject);
+        /**
+         * /Create locked project.
+         */
+
+        /**
+         * Create deleted project.
+         */
+        $deletedProject = $this->createProject(self::DELETED_PROJECT,
+            $projectWriter);
+        $parliament->addProject($deletedProject);
+        $manager->persist($deletedProject);
+        /*
+         * /Create deleted project
+         */
 
         $this->populateActionLog($manager);
 

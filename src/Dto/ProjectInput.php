@@ -4,12 +4,19 @@ declare(strict_types=1);
 
 namespace App\Dto;
 
+use App\Entity\Parliament;
 use App\Entity\Project;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class ProjectInput
 {
+    /**
+     * @var Parliament
+     * @Groups({"project:create", "user:register"})
+     */
+    public ?Parliament $parliament = null;
+
     /**
      * @Assert\Choice({Project::STATE_PRIVATE, Project::STATE_PUBLIC})
      * @Groups({"project:coordinator-update", "project:pm-update", "project:admin-update"})
