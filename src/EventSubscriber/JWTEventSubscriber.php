@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\EventSubscriber;
 
+use App\Entity\User;
 use Lexik\Bundle\JWTAuthenticationBundle\Event\AuthenticationFailureEvent;
 use Lexik\Bundle\JWTAuthenticationBundle\Event\JWTCreatedEvent;
 use Lexik\Bundle\JWTAuthenticationBundle\Events;
@@ -35,8 +36,22 @@ class JWTEventSubscriber implements EventSubscriberInterface, ServiceSubscriberI
      */
     public function onJWTCreated(JWTCreatedEvent $event)
     {
+        /** @var User $user */
+        $user = $event->getUser();
+
         $payload       = $event->getData();
-        $payload['id'] = $event->getUser()->getId();
+        $payload['id'] = $user->getId();
+
+        // we need to encode the projects the user has write access to, so
+        // the socket.io server can cross-check this with the requested
+        // project ID before allowing a socket client into a room
+        $payload['editableProjects'] = [];
+        foreach ($user->getProjectMemberships() as $membership) {
+            if ($membership->getProject()->userCanWrite($user)) {
+                $payload['editableProjects'][] = $membership->getProject()->getId();
+            }
+        }
+
         $payload['groupID'] = 13; // @todo remove, debug only
         $event->setData($payload);
     }

@@ -125,7 +125,11 @@ class AuthApiTest extends ApiTestCase
         self::assertArrayHasKey('exp', $decoded);
         self::assertSame(TestFixtures::ADMIN['username'], $decoded['username']);
         self::assertSame([User::ROLE_ADMIN, User::ROLE_USER], $decoded['roles']);
+
+        // these are non-standard, added by our JWTEventSubscriber
         self::assertSame(TestFixtures::ADMIN['id'], $decoded['id']);
+        self::assertArrayHasKey('editableProjects', $decoded);
+        self::assertIsArray($decoded['editableProjects']);
 
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();
         $rtoken = $em->getRepository(RefreshToken::class)->findOneBy([
