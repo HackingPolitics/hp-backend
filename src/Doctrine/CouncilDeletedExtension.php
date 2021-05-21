@@ -7,12 +7,12 @@ namespace App\Doctrine;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Extension\ContextAwareQueryCollectionExtensionInterface;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Extension\QueryItemExtensionInterface;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
-use App\Entity\Parliament;
+use App\Entity\Council;
 use App\Entity\User;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\Security\Core\Security;
 
-class ParliamentDeletedExtension implements ContextAwareQueryCollectionExtensionInterface, QueryItemExtensionInterface
+class CouncilDeletedExtension implements ContextAwareQueryCollectionExtensionInterface, QueryItemExtensionInterface
 {
     /**
      * @var Security
@@ -36,7 +36,7 @@ class ParliamentDeletedExtension implements ContextAwareQueryCollectionExtension
         string $operationName = null,
         array $context = []
     ) {
-        if (Parliament::class !== $resourceClass) {
+        if (Council::class !== $resourceClass) {
             // we are not responsible...
             return;
         }
@@ -64,7 +64,7 @@ class ParliamentDeletedExtension implements ContextAwareQueryCollectionExtension
         string $operationName = null,
         array $context = []
     ) {
-        if (Parliament::class !== $resourceClass) {
+        if (Council::class !== $resourceClass) {
             return;
         }
 

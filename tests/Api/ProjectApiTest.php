@@ -8,7 +8,7 @@ use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
 use App\DataFixtures\TestFixtures;
 use App\Entity\ActionLog;
 use App\Entity\Category;
-use App\Entity\Parliament;
+use App\Entity\Council;
 use App\Entity\Project;
 use App\Entity\ProjectMembership;
 use App\Entity\User;
@@ -52,8 +52,8 @@ class ProjectApiTest extends ApiTestCase
             'hydra:member'     => [
                 0 => [
                     'id'         => TestFixtures::PROJECT['id'],
-                    'parliament' => [
-                        'id' => TestFixtures::PARLIAMENT['id'],
+                    'council' => [
+                        'id' => TestFixtures::COUNCIL['id'],
                     ],
                     'categories' => [
                         0 => ['id' => 1],
@@ -532,8 +532,8 @@ class ProjectApiTest extends ApiTestCase
             'createdBy'        => [
                 'id' => TestFixtures::PROJECT_COORDINATOR['id'],
             ],
-            'parliament'        => [
-                'id'       => TestFixtures::PARLIAMENT['id'],
+            'council'        => [
+                'id'       => TestFixtures::COUNCIL['id'],
             ],
             'description'      => TestFixtures::PROJECT['description'],
             'id'               => TestFixtures::PROJECT['id'],
@@ -545,7 +545,7 @@ class ProjectApiTest extends ApiTestCase
 
         self::assertArrayNotHasKey('locked', $projectData);
         self::assertArrayNotHasKey('memberships', $projectData);
-        self::assertArrayNotHasKey('factionDetails', $projectData);
+        self::assertArrayNotHasKey('fractionDetails', $projectData);
         self::assertArrayNotHasKey('projects', $projectData['categories'][0]);
 
         // @todo und weitere...
@@ -628,7 +628,7 @@ class ProjectApiTest extends ApiTestCase
             'createdBy'    => [
                 'id' => TestFixtures::PROJECT_COORDINATOR['id'],
             ],
-            'factionDetails' => [
+            'fractionDetails' => [
                 0 => [
                     'contactName' => 'Green',
                     'interests'   => [
@@ -647,8 +647,8 @@ class ProjectApiTest extends ApiTestCase
                 1 => [],
                 2 => [],
             ],
-            'parliament'        => [
-                'id' => TestFixtures::PARLIAMENT['id'],
+            'council'        => [
+                'id' => TestFixtures::COUNCIL['id'],
             ],
             'title'         => TestFixtures::PROJECT['title'],
         ]);
@@ -657,11 +657,11 @@ class ProjectApiTest extends ApiTestCase
         self::assertArrayNotHasKey('user',
             $projectData['memberships'][0]);
         self::assertArrayNotHasKey('updatedBy',
-            $projectData['factionDetails'][0]);
+            $projectData['fractionDetails'][0]);
         self::assertArrayNotHasKey('teamContact',
-            $projectData['factionDetails'][0]);
+            $projectData['fractionDetails'][0]);
         self::assertArrayNotHasKey('updatedBy',
-            $projectData['factionDetails'][0]['interests'][0]);
+            $projectData['fractionDetails'][0]['interests'][0]);
         // @todo weitere (Arg, Gegenarg + deren updatedBy)
 
         self::assertArrayNotHasKey('firstName', $projectData['createdBy']);
@@ -691,7 +691,7 @@ class ProjectApiTest extends ApiTestCase
             'createdBy'      => [
                 'id' => TestFixtures::PROJECT_COORDINATOR['id'],
             ],
-            'factionDetails' => [
+            'fractionDetails' => [
                 0 => [
                     'contactName' => 'Green',
                     'interests'   => [
@@ -707,8 +707,8 @@ class ProjectApiTest extends ApiTestCase
                     'updatedBy'   => [],
                 ],
             ],
-            'parliament'        => [
-                'id' => TestFixtures::PARLIAMENT['id'],
+            'council'        => [
+                'id' => TestFixtures::COUNCIL['id'],
             ],
             'locked'        => false,
             'title'         => TestFixtures::PROJECT['title'],
@@ -841,13 +841,13 @@ class ProjectApiTest extends ApiTestCase
             'email' => TestFixtures::ADMIN['email'],
         ]);
 
-        $iri = $this->findIriBy(Parliament::class,
-            ['id' => TestFixtures::PARLIAMENT['id']]);
+        $iri = $this->findIriBy(Council::class,
+            ['id' => TestFixtures::COUNCIL['id']]);
 
         $response = $client->request('POST', '/projects', ['json' => [
             'title'      => 'test project',
             'topic'      => 'new topic',
-            'parliament' => $iri,
+            'council' => $iri,
             'motivation' => 'my motivation',
             'skills'     => 'my project skills',
         ]]);
@@ -876,8 +876,8 @@ class ProjectApiTest extends ApiTestCase
             'createdBy'             => [
                 'id' => TestFixtures::ADMIN['id'],
             ],
-            'parliament'            => [
-                'id' => TestFixtures::PARLIAMENT['id'],
+            'council'            => [
+                'id' => TestFixtures::COUNCIL['id'],
             ],
             'slug'                  => 'test-project',
             'state'                 => Project::STATE_PRIVATE,
@@ -922,12 +922,12 @@ class ProjectApiTest extends ApiTestCase
             'email' => TestFixtures::ADMIN['email'],
         ]);
 
-        $iri = $this->findIriBy(Parliament::class,
-            ['id' => TestFixtures::PARLIAMENT['id']]);
+        $iri = $this->findIriBy(Council::class,
+            ['id' => TestFixtures::COUNCIL['id']]);
 
         $client->request('POST', '/projects', ['json' => [
             'motivation' => 'my motivation',
-            'parliament' => $iri,
+            'council' => $iri,
             'skills'     => 'my project skills',
             'topic'      => 'not required, only for this test',
         ]]);
@@ -944,7 +944,7 @@ class ProjectApiTest extends ApiTestCase
         ]);
     }
 
-    public function testCreateProjectWithoutParliamentFails(): void
+    public function testCreateProjectWithoutCouncilFails(): void
     {
         $client = static::createAuthenticatedClient([
             'email' => TestFixtures::ADMIN['email'],
@@ -965,7 +965,7 @@ class ProjectApiTest extends ApiTestCase
             '@context'          => '/contexts/ConstraintViolationList',
             '@type'             => 'ConstraintViolationList',
             'hydra:title'       => 'An error occurred',
-            'hydra:description' => 'parliament: validate.general.notBlank',
+            'hydra:description' => 'council: validate.general.notBlank',
         ]);
     }
 
@@ -975,11 +975,11 @@ class ProjectApiTest extends ApiTestCase
             'email' => TestFixtures::ADMIN['email'],
         ]);
 
-        $iri = $this->findIriBy(Parliament::class,
-            ['id' => TestFixtures::PARLIAMENT['id']]);
+        $iri = $this->findIriBy(Council::class,
+            ['id' => TestFixtures::COUNCIL['id']]);
 
         $client->request('POST', '/projects', ['json' => [
-            'parliament' => $iri,
+            'council' => $iri,
             'title'      => 'test title',
             'skills'     => 'my project skills',
         ]]);
@@ -1002,13 +1002,13 @@ class ProjectApiTest extends ApiTestCase
             'email' => TestFixtures::ADMIN['email'],
         ]);
 
-        $iri = $this->findIriBy(Parliament::class,
-            ['id' => TestFixtures::PARLIAMENT['id']]);
+        $iri = $this->findIriBy(Council::class,
+            ['id' => TestFixtures::COUNCIL['id']]);
 
         $client->request('POST', '/projects', ['json' => [
             'title'      => 'test title',
             'motivation' => 'too short',
-            'parliament' => $iri,
+            'council' => $iri,
             'skills'     => 'my project skills',
         ]]);
 
@@ -1030,13 +1030,13 @@ class ProjectApiTest extends ApiTestCase
             'email' => TestFixtures::ADMIN['email'],
         ]);
 
-        $iri = $this->findIriBy(Parliament::class,
-            ['id' => TestFixtures::PARLIAMENT['id']]);
+        $iri = $this->findIriBy(Council::class,
+            ['id' => TestFixtures::COUNCIL['id']]);
 
         $client->request('POST', '/projects', ['json' => [
             'title'      => 'test title',
             'motivation' => 'my motivation',
-            'parliament' => $iri,
+            'council' => $iri,
         ]]);
 
         self::assertResponseStatusCodeSame(422);
@@ -1057,12 +1057,12 @@ class ProjectApiTest extends ApiTestCase
             'email' => TestFixtures::ADMIN['email'],
         ]);
 
-        $iri = $this->findIriBy(Parliament::class,
-            ['id' => TestFixtures::PARLIAMENT['id']]);
+        $iri = $this->findIriBy(Council::class,
+            ['id' => TestFixtures::COUNCIL['id']]);
 
         $client->request('POST', '/projects', ['json' => [
             'motivation' => 'my motivation',
-            'parliament' => $iri,
+            'council' => $iri,
             'skills'     => 'my skills',
             'title'      => 'test title',
         ]]);
@@ -1085,8 +1085,8 @@ class ProjectApiTest extends ApiTestCase
             'email' => TestFixtures::ADMIN['email'],
         ]);
 
-        $iri = $this->findIriBy(Parliament::class,
-            ['id' => TestFixtures::PARLIAMENT['id']]);
+        $iri = $this->findIriBy(Council::class,
+            ['id' => TestFixtures::COUNCIL['id']]);
 
         $client->request('POST', '/projects', ['json' => [
             'title'       => 'test title',
@@ -1094,7 +1094,7 @@ class ProjectApiTest extends ApiTestCase
             'motivation'  => 'my motivation is good',
             'skills'      => 'my skills are better',
             'state'       => Project::STATE_PUBLIC,
-            'parliament'  => $iri,
+            'council'  => $iri,
         ]]);
 
         self::assertResponseIsSuccessful();

@@ -7,7 +7,7 @@ namespace App\Tests\Api;
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
 use App\DataFixtures\TestFixtures;
 use App\Entity\ActionLog;
-use App\Entity\Parliament;
+use App\Entity\Council;
 use App\Entity\Project;
 use App\Entity\ProjectMembership;
 use App\Entity\User;
@@ -975,8 +975,8 @@ class UserApiTest extends ApiTestCase
 
         $client = static::createClient();
 
-        $iri = $this->findIriBy(Parliament::class,
-            ['id' => TestFixtures::PARLIAMENT['id']]);
+        $iri = $this->findIriBy(Council::class,
+            ['id' => TestFixtures::COUNCIL['id']]);
 
         $client->request('POST', '/users/register', ['json' => [
             'username'      => 'Tester',
@@ -987,7 +987,7 @@ class UserApiTest extends ApiTestCase
             'createdProjects' => [
                 [
                     'motivation' => 'I wanna do something',
-                    'parliament' => $iri,
+                    'council' => $iri,
                     'title'      => 'new project title',
                     'topic'      => 'new topic',
                     'skills'     => 'I can do it',

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Entity;
 
-use App\Entity\Faction;
+use App\Entity\Fraction;
 use App\Entity\FederalState;
-use App\Entity\Parliament;
+use App\Entity\Council;
 use App\Entity\Project;
 use App\Entity\User;
 use Doctrine\ORM\EntityManager;
@@ -17,7 +17,7 @@ use Vrok\SymfonyAddons\PHPUnit\RefreshDatabaseTrait;
 /**
  * @group ParliamentEntity
  */
-class ParliamentTest extends KernelTestCase
+class CouncilTest extends KernelTestCase
 {
     use RefreshDatabaseTrait;
 
@@ -50,7 +50,7 @@ class ParliamentTest extends KernelTestCase
 
     protected function getRepository(): EntityRepository
     {
-        return $this->entityManager->getRepository(Parliament::class);
+        return $this->entityManager->getRepository(Council::class);
     }
 
     public function testCreateAndRead(): void
@@ -58,7 +58,7 @@ class ParliamentTest extends KernelTestCase
         $before = $this->getRepository()->findAll();
         self::assertCount(1, $before);
 
-        $parliament = new Parliament();
+        $parliament = new Council();
         $parliament->setTitle('Testing');
         $this->entityManager->persist($parliament);
         $this->entityManager->flush();
@@ -67,7 +67,7 @@ class ParliamentTest extends KernelTestCase
         $after = $this->getRepository()->findAll();
         self::assertCount(2, $after);
 
-        /* @var $found Parliament */
+        /* @var $found Council */
         $found = $this->getRepository()->find(2);
 
         self::assertSame('Testing', $found->getTitle());
@@ -76,7 +76,7 @@ class ParliamentTest extends KernelTestCase
 
     public function testSlugIsUpdatedAutomatically(): void
     {
-        /* @var $parliament Parliament */
+        /* @var $parliament Council */
         $parliament = $this->getRepository()->find(1);
 
         self::assertSame('Stadtrat Stuttgart', $parliament->getTitle());
@@ -86,21 +86,21 @@ class ParliamentTest extends KernelTestCase
         $this->entityManager->flush();
         $this->entityManager->clear();
 
-        /* @var $after Parliament */
+        /* @var $after Council */
         $after = $this->getRepository()->find(1);
         self::assertSame('a-better-name-really', $after->getSlug());
     }
 
     public function testRelationsAccessible(): void
     {
-        /* @var $parliament Parliament */
+        /* @var $parliament Council */
         $parliament = $this->getRepository()->find(1);
 
         self::assertInstanceOf(FederalState::class, $parliament->getFederalState());
         self::assertInstanceOf(User::class, $parliament->getUpdatedBy());
 
-        self::assertCount(4, $parliament->getFactions());
-        self::assertInstanceOf(Faction::class, $parliament->getFactions()[0]);
+        self::assertCount(4, $parliament->getFractions());
+        self::assertInstanceOf(Fraction::class, $parliament->getFractions()[0]);
         self::assertCount(3, $parliament->getProjects());
         self::assertInstanceOf(Project::class, $parliament->getProjects()[0]);
     }

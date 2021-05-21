@@ -6,16 +6,16 @@ namespace App\Tests\Api;
 
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
 use App\DataFixtures\TestFixtures;
-use App\Entity\FederalState;
-use App\Entity\Parliament;
+use App\Entity\Fraction;
+use App\Entity\Council;
 use Doctrine\ORM\EntityManager;
 use Vrok\SymfonyAddons\PHPUnit\AuthenticatedClientTrait;
 use Vrok\SymfonyAddons\PHPUnit\RefreshDatabaseTrait;
 
 /**
- * @group ParliamentApi
+ * @group FractionApi
  */
-class ParliamentApiTest extends ApiTestCase
+class FractionApiTest extends ApiTestCase
 {
     use AuthenticatedClientTrait;
     use RefreshDatabaseTrait;
@@ -47,33 +47,34 @@ class ParliamentApiTest extends ApiTestCase
         self::fixtureCleanup();
     }
 
-    public function testGetCollection(): void
+    /**
+     * Test that no collection of fractions is available, not even for admins.
+     */
+    public function testCollectionNotAvailable(): void
     {
-        $response = static::createClient()
-            ->request('GET', '/parliaments');
+        static::createAuthenticatedClient([
+            'email' => TestFixtures::ADMIN['email'],
+        ])->request('GET', '/fractions');
 
-        self::assertResponseIsSuccessful();
+        self::assertResponseStatusCodeSame(405);
         self::assertResponseHeaderSame('content-type',
-            'application/ld+json; charset=utf-8');
-
-        self::assertMatchesResourceCollectionJsonSchema(Parliament::class);
+            'application/ld+json');
 
         self::assertJsonContains([
-            '@context'         => '/contexts/Parliament',
-            '@id'              => '/parliaments',
-            '@type'            => 'hydra:Collection',
-            'hydra:totalItems' => 1,
+            '@context'          => '/contexts/Error',
+            '@type'             => 'hydra:Error',
+            'hydra:title'       => 'An error occurred',
+            'hydra:description' => 'No route found for "GET /fractions": Method Not Allowed (Allow: POST)',
         ]);
-
-        $collection = $response->toArray();
-        self::assertCount(1, $collection['hydra:member']);
     }
 
-    public function testGetParliament(): void
+    public function testGetFractionAsAdmin(): void
     {
-        $client = static::createClient();
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::ADMIN['email'],
+        ]);
 
-        $iri = $this->findIriBy(Parliament::class, ['id' => 1]);
+        $iri = $this->findIriBy(Fraction::class, ['id' => 1]);
 
         $client->request('GET', $iri);
 
@@ -81,18 +82,12 @@ class ParliamentApiTest extends ApiTestCase
         self::assertResponseHeaderSame('content-type',
             'application/ld+json; charset=utf-8');
 
-        self::assertMatchesResourceItemJsonSchema(Parliament::class);
+        self::assertMatchesResourceItemJsonSchema(Fraction::class);
 
         self::assertJsonContains([
             '@id'          => $iri,
-            'title'        => TestFixtures::PARLIAMENT['title'],
-            'factions'     => [
-                0 => [],
-                1 => [],
-                2 => [],
-                3 => [],
-            ],
-            'federalState' => [
+            'name'        => TestFixtures::FRACTION_GREEN['name'],
+            'council'  => [
                 'id' => 1,
             ],
             'updatedBy' => [
@@ -101,32 +96,31 @@ class ParliamentApiTest extends ApiTestCase
         ]);
     }
 
-    public function testCreateParliament(): void
+    public function testCreateFraction(): void
     {
-        $stateIri = $this->findIriBy(FederalState::class, ['id' => 3]);
+        $councilIri = $this->findIriBy(Council::class, ['id' => 1]);
 
         static::createAuthenticatedClient([
             'email' => TestFixtures::PROCESS_MANAGER['email'],
-        ])->request('POST', '/parliaments', ['json' => [
-            'title'                     => 'Musterland',
-            'federalState'              => $stateIri,
-            'headOfAdministrationTitle' => 'OBM',
+        ])->request('POST', '/fractions', ['json' => [
+            'name'        => 'Grau',
+            'council'  => $councilIri,
+            'memberCount' => 14,
         ]]);
 
         self::assertResponseStatusCodeSame(201);
         self::assertResponseHeaderSame('content-type',
             'application/ld+json; charset=utf-8');
 
-        // @todo kommt nicht mit den validatoren klar, bspw: location: Must be at least 2 characters long
-        //self::assertMatchesResourceItemJsonSchema(Parliament::class);
+        self::assertMatchesResourceItemJsonSchema(Fraction::class);
 
         self::assertJsonContains([
-            '@context'                  => '/contexts/Parliament',
-            '@type'                     => 'Parliament',
-            'title'                     => 'Musterland',
-            'headOfAdministrationTitle' => 'OBM',
-            'federalState'              => [
-                '@id' => $stateIri,
+            '@context'    => '/contexts/Fraction',
+            '@type'       => 'Fraction',
+            'name'        => 'Grau',
+            'memberCount' => 14,
+            'council'  => [
+                '@id' => $councilIri,
             ],
             'updatedBy' => [
                 'id' => TestFixtures::PROCESS_MANAGER['id'],
@@ -136,8 +130,11 @@ class ParliamentApiTest extends ApiTestCase
 
     public function testCreateFailsUnauthenticated(): void
     {
-        static::createClient()->request('POST', '/parliaments', ['json' => [
-            'title' => 'Musterland',
+        $councilIri = $this->findIriBy(Council::class, ['id' => 1]);
+
+        static::createClient()->request('POST', '/fractions', ['json' => [
+            'name'        => 'Grau',
+            'council'  => $councilIri,
         ]]);
 
         self::assertResponseStatusCodeSame(401);
@@ -152,10 +149,13 @@ class ParliamentApiTest extends ApiTestCase
 
     public function testCreateFailsWithoutPrivilege(): void
     {
+        $councilIri = $this->findIriBy(Council::class, ['id' => 1]);
+
         static::createAuthenticatedClient([
             'email' => TestFixtures::PROJECT_COORDINATOR['email'],
-        ])->request('POST', '/parliaments', ['json' => [
-            'title' => 'Musterland',
+        ])->request('POST', '/fractions', ['json' => [
+            'name'        => 'Grau',
+            'council'  => $councilIri,
         ]]);
 
         self::assertResponseStatusCodeSame(403);
@@ -170,12 +170,15 @@ class ParliamentApiTest extends ApiTestCase
         ]);
     }
 
-    public function testCreateWithoutTitleFails(): void
+    public function testCreateWithoutNameFails(): void
     {
+        $councilIri = $this->findIriBy(Council::class, ['id' => 1]);
+
         static::createAuthenticatedClient([
             'email' => TestFixtures::PROCESS_MANAGER['email'],
-        ])->request('POST', '/parliaments', ['json' => [
-            'headOfAdministrationTitle' => 'OBM',
+        ])->request('POST', '/fractions', ['json' => [
+            'memberCount' => 11,
+            'council'  => $councilIri,
         ]]);
 
         self::assertResponseStatusCodeSame(422);
@@ -186,17 +189,20 @@ class ParliamentApiTest extends ApiTestCase
             '@context'          => '/contexts/ConstraintViolationList',
             '@type'             => 'ConstraintViolationList',
             'hydra:title'       => 'An error occurred',
-            'hydra:description' => 'title: validate.general.notBlank',
+            'hydra:description' => 'name: validate.general.notBlank',
         ]);
     }
 
-    public function testCreateWithDuplicateTitleFails(): void
+    public function testCreateWithDuplicateNameFails(): void
     {
+        $councilIri = $this->findIriBy(Council::class, ['id' => 1]);
+
         static::createAuthenticatedClient([
             'email' => TestFixtures::PROCESS_MANAGER['email'],
-        ])->request('POST', '/parliaments', ['json' => [
-            'title'                     => TestFixtures::PARLIAMENT['title'],
-            'headOfAdministrationTitle' => 'OBM',
+        ])->request('POST', '/fractions', ['json' => [
+            'name'        => TestFixtures::FRACTION_GREEN['name'],
+            'memberCount' => 1,
+            'council'  => $councilIri,
         ]]);
 
         self::assertResponseStatusCodeSame(422);
@@ -207,25 +213,25 @@ class ParliamentApiTest extends ApiTestCase
             '@context'          => '/contexts/ConstraintViolationList',
             '@type'             => 'ConstraintViolationList',
             'hydra:title'       => 'An error occurred',
-            'hydra:description' => 'title: validate.parliament.duplicateTitle',
+            'hydra:description' => 'name: validate.fraction.duplicateFraction',
         ]);
     }
 
-    public function testUpdateParliament(): void
+    public function testUpdateFraction(): void
     {
         $client = static::createAuthenticatedClient([
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
 
-        $iri = $this->findIriBy(Parliament::class, ['id' => 1]);
+        $iri = $this->findIriBy(Fraction::class, ['id' => 1]);
         $client->request('PUT', $iri, ['json' => [
-            'title' => 'Test #1',
+            'name' => 'Test #1',
         ]]);
 
         self::assertResponseIsSuccessful();
         self::assertJsonContains([
             '@id'       => $iri,
-            'title'     => 'Test #1',
+            'name'      => 'Test #1',
             'updatedBy' => [
                 'id' => TestFixtures::PROCESS_MANAGER['id'],
             ],
@@ -235,9 +241,9 @@ class ParliamentApiTest extends ApiTestCase
     public function testUpdateFailsUnauthenticated(): void
     {
         $client = static::createClient();
-        $iri = $this->findIriBy(Parliament::class, ['id' => 1]);
+        $iri = $this->findIriBy(Fraction::class, ['id' => 1]);
         $client->request('PUT', $iri, ['json' => [
-            'title' => 'Test #1',
+            'name' => 'Test #1',
         ]]);
 
         self::assertResponseStatusCodeSame(401);
@@ -256,9 +262,9 @@ class ParliamentApiTest extends ApiTestCase
             'email' => TestFixtures::PROJECT_COORDINATOR['email'],
         ]);
 
-        $iri = $this->findIriBy(Parliament::class, ['id' => 1]);
+        $iri = $this->findIriBy(Fraction::class, ['id' => 1]);
         $client->request('PUT', $iri, ['json' => [
-            'title' => 'Test #1',
+            'name' => 'Test #1',
         ]]);
 
         self::assertResponseStatusCodeSame(403);
@@ -273,22 +279,16 @@ class ParliamentApiTest extends ApiTestCase
         ]);
     }
 
-    public function testUpdateWithDuplicateTitleFails(): void
+    public function testUpdateWithDuplicateNameFails(): void
     {
         $client = static::createAuthenticatedClient([
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
 
-        // add a second parliament to the db, we will try to name it like the first
-        $parliament = new Parliament();
-        $parliament->setTitle('just for fun');
-        $parliament->setHeadOfAdministrationTitle('OBM');
-        $this->entityManager->persist($parliament);
-        $this->entityManager->flush();
-
-        $iri = $this->findIriBy(Parliament::class, ['id' => 2]);
+        $iri = $this->findIriBy(Fraction::class, [
+            'id' => TestFixtures::FRACTION_GREEN['id'], ]);
         $client->request('PUT', $iri, ['json' => [
-            'title' => TestFixtures::PARLIAMENT['title'],
+            'name' => TestFixtures::FRACTION_RED['name'],
         ]]);
 
         self::assertResponseStatusCodeSame(422);
@@ -299,42 +299,41 @@ class ParliamentApiTest extends ApiTestCase
             '@context'          => '/contexts/ConstraintViolationList',
             '@type'             => 'ConstraintViolationList',
             'hydra:title'       => 'An error occurred',
-            'hydra:description' => 'title: validate.parliament.duplicateTitle',
+            'hydra:description' => 'name: validate.fraction.duplicateFraction',
         ]);
     }
 
     public function testDelete(): void
     {
-        /** @var FederalState $before */
-        $before = $this->entityManager->getRepository(FederalState::class)
+        /** @var Council $before */
+        $before = $this->entityManager->getRepository(Council::class)
             ->find(1);
-        self::assertCount(1, $before->getParliaments());
+        self::assertCount(4, $before->getFractions());
 
         $client = static::createAuthenticatedClient([
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
 
-        $iri = $this->findIriBy(Parliament::class, ['id' => 1]);
+        $iri = $this->findIriBy(Fraction::class, ['id' => 1]);
         $client->request('DELETE', $iri);
 
         static::assertResponseStatusCodeSame(204);
 
-        /** @var Parliament $deleted */
-        $deleted = $this->entityManager->getRepository(Parliament::class)
+        /** @var Fraction $deleted */
+        $deleted = $this->entityManager->getRepository(Fraction::class)
             ->find(1);
-        self::assertNotNull($deleted);
-        self::assertNotNull($deleted->getDeletedAt());
+        self::assertNull($deleted);
 
-        /** @var FederalState $after */
-        $after = $this->entityManager->getRepository(FederalState::class)
+        /** @var Council $after */
+        $after = $this->entityManager->getRepository(Council::class)
             ->find(1);
-        self::assertCount(1, $after->getParliaments());
+        self::assertCount(3, $after->getFractions());
     }
 
     public function testDeleteFailsUnauthenticated(): void
     {
         $client = static::createClient();
-        $iri = $this->findIriBy(Parliament::class, ['id' => 1]);
+        $iri = $this->findIriBy(Fraction::class, ['id' => 1]);
         $client->request('DELETE', $iri);
 
         self::assertResponseStatusCodeSame(401);
@@ -353,7 +352,7 @@ class ParliamentApiTest extends ApiTestCase
             'email' => TestFixtures::PROJECT_COORDINATOR['email'],
         ]);
 
-        $iri = $this->findIriBy(Parliament::class, ['id' => 1]);
+        $iri = $this->findIriBy(Fraction::class, ['id' => 1]);
         $client->request('DELETE', $iri);
 
         self::assertResponseStatusCodeSame(403);

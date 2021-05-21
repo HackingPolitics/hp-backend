@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Entity;
 
-use App\Entity\FactionDetails;
-use App\Entity\FactionInterest;
+use App\Entity\FractionDetails;
+use App\Entity\FractionInterest;
 use App\Entity\User;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
@@ -13,9 +13,9 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Vrok\SymfonyAddons\PHPUnit\RefreshDatabaseTrait;
 
 /**
- * @group FactionInterestEntity
+ * @group FractionInterestEntity
  */
-class FactionInterestTest extends KernelTestCase
+class FractionInterestTest extends KernelTestCase
 {
     use RefreshDatabaseTrait;
 
@@ -48,7 +48,7 @@ class FactionInterestTest extends KernelTestCase
 
     protected function getRepository(): EntityRepository
     {
-        return $this->entityManager->getRepository(FactionInterest::class);
+        return $this->entityManager->getRepository(FractionInterest::class);
     }
 
     public function testCreateAndRead(): void
@@ -56,11 +56,11 @@ class FactionInterestTest extends KernelTestCase
         $before = $this->getRepository()->findAll();
         self::assertCount(2, $before);
 
-        $details = $this->entityManager->getRepository(FactionDetails::class)
+        $details = $this->entityManager->getRepository(FractionDetails::class)
             ->find(1);
 
-        $interest = new FactionInterest();
-        $interest->setFactionDetails($details);
+        $interest = new FractionInterest();
+        $interest->setFractionDetails($details);
         $interest->setDescription('Testing');
         $this->entityManager->persist($interest);
         $this->entityManager->flush();
@@ -69,7 +69,7 @@ class FactionInterestTest extends KernelTestCase
         $after = $this->getRepository()->findAll();
         self::assertCount(3, $after);
 
-        /* @var $found FactionInterest */
+        /* @var $found FractionInterest */
         $found = $this->getRepository()->find(3);
 
         self::assertSame('Testing', $found->getDescription());
@@ -77,14 +77,14 @@ class FactionInterestTest extends KernelTestCase
 
     public function testRelationsAccessible(): void
     {
-        /* @var $interest FactionInterest */
+        /* @var $interest FractionInterest */
         $interest = $this->getRepository()->find(1);
 
-        self::assertInstanceOf(FactionDetails::class, $interest->getFactionDetails());
+        self::assertInstanceOf(FractionDetails::class, $interest->getFractionDetails());
         self::assertInstanceOf(User::class, $interest->getUpdatedBy());
 
         // @todo motion usages
 //        self::assertCount(1, $interest->getInterest());
-//        self::assertInstanceOf(FactionInterestInterest::class, $interest->getInterest()[0]);
+//        self::assertInstanceOf(FractionInterestInterest::class, $interest->getInterest()[0]);
     }
 }

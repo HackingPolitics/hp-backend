@@ -132,10 +132,10 @@ class Project
      * @ORM\JoinTable(
      *     name="project_category",
      *     joinColumns={
-     *         @ORM\JoinColumn(name="project_id", referencedColumnName="id")
+     *         @ORM\JoinColumn(name="project_id", referencedColumnName="id", onDelete="CASCADE")
      *     },
      *     inverseJoinColumns={
-     *         @ORM\JoinColumn(name="category_id", referencedColumnName="id")
+     *         @ORM\JoinColumn(name="category_id", referencedColumnName="id", onDelete="CASCADE")
      *     }
      * )
      */
@@ -274,43 +274,43 @@ class Project
 
     //endregion
 
-    //region FactionDetails
+    //region FractionDetails
     /**
-     * @var Collection|FactionDetails[]
+     * @var Collection|FractionDetails[]
      * @Groups({
      *     "project:member-read",
      *     "project:pm-read",
      *     "project:admin-read",
      * })
-     * @ORM\OneToMany(targetEntity="FactionDetails", mappedBy="project", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="FractionDetails", mappedBy="project", cascade={"persist"})
      */
-    private $factionDetails;
+    private $fractionDetails;
 
     /**
-     * @return Collection|FactionDetails[]
+     * @return Collection|FractionDetails[]
      */
-    public function getFactionDetails(): Collection
+    public function getFractionDetails(): Collection
     {
-        return $this->factionDetails;
+        return $this->fractionDetails;
     }
 
-    public function addFactionDetails(FactionDetails $factionDetails): self
+    public function addFractionDetails(FractionDetails $fractionDetails): self
     {
-        if (!$this->factionDetails->contains($factionDetails)) {
-            $this->factionDetails[] = $factionDetails;
-            $factionDetails->setProject($this);
+        if (!$this->fractionDetails->contains($fractionDetails)) {
+            $this->fractionDetails[] = $fractionDetails;
+            $fractionDetails->setProject($this);
         }
 
         return $this;
     }
 
-    public function removeFactionDetails(FactionDetails $factionDetails): self
+    public function removeFractionDetails(FractionDetails $fractionDetails): self
     {
-        if ($this->factionDetails->contains($factionDetails)) {
-            $this->factionDetails->removeElement($factionDetails);
+        if ($this->fractionDetails->contains($fractionDetails)) {
+            $this->fractionDetails->removeElement($fractionDetails);
             // set the owning side to null (unless already changed)
-            if ($factionDetails->getProject() === $this) {
-                $factionDetails->setProject(null);
+            if ($fractionDetails->getProject() === $this) {
+                $fractionDetails->setProject(null);
             }
         }
 
@@ -481,24 +481,24 @@ class Project
 
     //endregion
 
-    //region Parliament
+    //region Council
     /**
      * @Assert\NotBlank
      * @Groups({"project:read", "project:create", "user:register"})
      * @MaxDepth(1)
-     * @ORM\ManyToOne(targetEntity="Parliament", inversedBy="projects")
+     * @ORM\ManyToOne(targetEntity="Council", inversedBy="projects")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
-    private ?Parliament $parliament = null;
+    private ?Council $council = null;
 
-    public function getParliament(): ?Parliament
+    public function getCouncil(): ?Council
     {
-        return $this->parliament;
+        return $this->council;
     }
 
-    public function setParliament(?Parliament $parliament): self
+    public function setCouncil(?Council $council): self
     {
-        $this->parliament = $parliament;
+        $this->council = $council;
 
         return $this;
     }
@@ -619,7 +619,7 @@ class Project
     public function __construct()
     {
         $this->categories = new ArrayCollection();
-        $this->factionDetails = new ArrayCollection();
+        $this->fractionDetails = new ArrayCollection();
         $this->memberships = new ArrayCollection();
     }
 }

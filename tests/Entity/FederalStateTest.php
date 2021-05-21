@@ -6,7 +6,7 @@ namespace App\Tests\Entity;
 
 use App\DataFixtures\InitialFixtures;
 use App\Entity\FederalState;
-use App\Entity\Parliament;
+use App\Entity\Council;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -97,7 +97,7 @@ class FederalStateTest extends KernelTestCase
                 'name' => 'Baden-Württemberg',
             ]);
 
-        self::assertCount(1, $federalState->getParliaments());
-        self::assertInstanceOf(Parliament::class, $federalState->getParliaments()[0]);
+        self::assertCount(1, $federalState->getCouncils());
+        self::assertInstanceOf(Council::class, $federalState->getCouncils()[0]);
     }
 }

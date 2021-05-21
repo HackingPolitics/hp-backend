@@ -16,10 +16,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Vrok\DoctrineAddons\Entity\NormalizerHelper;
 
 /**
- * FactionInterest.
+ * FractionInterest.
  *
- * Collection cannot be queried, factionInterest can only be retrieved via the
- * FactionDetails relations.
+ * Collection cannot be queried, fractionInterest can only be retrieved via the
+ * FractionDetails relations.
  * Item GET is required for API Platform to work, thus restricted to admins,
  * should not be used.
  *
@@ -31,7 +31,7 @@ use Vrok\DoctrineAddons\Entity\NormalizerHelper;
  *     collectionOperations={
  *         "post"={
  *             "security_post_denormalize" = "is_granted('CREATE', object)",
- *             "validation_groups"={"Default", "factionInterest:create"},
+ *             "validation_groups"={"Default", "fractionInterest:create"},
  *         },
  *     },
  *     itemOperations={
@@ -40,26 +40,26 @@ use Vrok\DoctrineAddons\Entity\NormalizerHelper;
  *         },
  *         "put"={
  *             "security"="is_granted('EDIT', object)",
- *             "validation_groups"={"Default", "factionInterest:write"},
+ *             "validation_groups"={"Default", "fractionInterest:write"},
  *         },
  *         "delete"={
  *              "security"="is_granted('DELETE', object)",
  *         },
  *     },
  *     normalizationContext={
- *         "groups"={"default:read", "factionInterest:read"},
+ *         "groups"={"default:read", "fractionInterest:read"},
  *         "enable_max_depth"=true,
  *         "swagger_definition_name"="Read"
  *     },
  *     denormalizationContext={
- *         "groups"={"default:write", "factionInterest:write"},
+ *         "groups"={"default:write", "fractionInterest:write"},
  *         "swagger_definition_name"="Write"
  *     }
  * )
  *
- * @ORM\Entity(repositoryClass="App\Repository\FactionInterestRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\FractionInterestRepository")
  */
-class FactionInterest
+class FractionInterest
 {
     use AutoincrementId;
     use UpdatedAtFunctions;
@@ -76,9 +76,9 @@ class FactionInterest
      *     ),
      * })
      * @Groups({
-     *     "factionInterest:read",
-     *     "factionInterest:write",
-     *     "factionDetails:read",
+     *     "fractionInterest:read",
+     *     "fractionInterest:write",
+     *     "fractionDetails:read",
      *     "project:read",
      * })
      * @ORM\Column(type="text", length=6000, nullable=true)
@@ -99,26 +99,26 @@ class FactionInterest
 
     //endregion
 
-    //region FactionDetails
+    //region FractionDetails
     /**
      * @Assert\NotBlank
      * @Groups({
-     *     "factionInterest:read",
-     *     "factionInterest:create",
+     *     "fractionInterest:read",
+     *     "fractionInterest:create",
      * })
-     * @ORM\ManyToOne(targetEntity="FactionDetails", inversedBy="interests")
+     * @ORM\ManyToOne(targetEntity="FractionDetails", inversedBy="interests")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
-    private ?FactionDetails $factionDetails = null;
+    private ?FractionDetails $fractionDetails = null;
 
-    public function getFactionDetails(): ?FactionDetails
+    public function getFractionDetails(): ?FractionDetails
     {
-        return $this->factionDetails;
+        return $this->fractionDetails;
     }
 
-    public function setFactionDetails(?FactionDetails $faction): self
+    public function setFractionDetails(?FractionDetails $fraction): self
     {
-        $this->factionDetails = $faction;
+        $this->fractionDetails = $fraction;
 
         return $this;
     }
@@ -128,7 +128,7 @@ class FactionInterest
     //region UpdatedAt
     /**
      * @Assert\NotBlank(allowNull=true)
-     * @Groups({"factionInterest:read", "factionDetails:read", "project:read"})
+     * @Groups({"fractionInterest:read", "fractionDetails:read", "project:read"})
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
@@ -138,14 +138,14 @@ class FactionInterest
     //region UpdatedBy
     /**
      * @Groups({
-     *     "factionInterest:writer-read",
-     *     "factionInterest:coordinator-read",
-     *     "factionInterest:pm-read",
-     *     "factionInterest:admin-read",
-     *     "factionDetails:writer-read",
-     *     "factionDetails:coordinator-read",
-     *     "factionDetails:pm-read",
-     *     "factionDetails:admin-read",
+     *     "fractionInterest:writer-read",
+     *     "fractionInterest:coordinator-read",
+     *     "fractionInterest:pm-read",
+     *     "fractionInterest:admin-read",
+     *     "fractionDetails:writer-read",
+     *     "fractionDetails:coordinator-read",
+     *     "fractionDetails:pm-read",
+     *     "fractionDetails:admin-read",
      *     "project:writer-read",
      *     "project:coordinator-read",
      *     "project:pm-read",

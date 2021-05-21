@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Serializer;
 
-use App\Entity\FactionDetails;
+use App\Entity\FractionInterest;
 use App\Entity\ProjectMembership;
 use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -13,11 +13,11 @@ use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
 
-class FactionDetailsNormalizer implements ContextAwareNormalizerInterface, NormalizerAwareInterface
+class FractionInterestNormalizer implements ContextAwareNormalizerInterface, NormalizerAwareInterface
 {
     use NormalizerAwareTrait;
 
-    private const ALREADY_CALLED = 'FACTION_DETAILS_NORMALIZER_ALREADY_CALLED';
+    private const ALREADY_CALLED = 'FACTION_INTEREST_NORMALIZER_ALREADY_CALLED';
 
     private TokenStorageInterface $tokenStorage;
 
@@ -29,7 +29,7 @@ class FactionDetailsNormalizer implements ContextAwareNormalizerInterface, Norma
     /**
      * {@inheritdoc}
      *
-     * @param FactionDetails $object
+     * @param FractionInterest $object
      */
     public function normalize($object, $format = null, array $context = [])
     {
@@ -44,23 +44,25 @@ class FactionDetailsNormalizer implements ContextAwareNormalizerInterface, Norma
                 $isPM = true;
             }
 
-            $project = $object->getProject();
+            $project = $object->getFractionDetails()
+                ? $object->getFractionDetails()->getProject()
+                : null;
             if ($project) {
                 if ($project->userCanRead($currentUser)) {
-                    $context['groups'][] = 'factionDetails:member-read';
+                    $context['groups'][] = 'fractionInterest:member-read';
                 }
 
                 $role = $project->getUserRole($currentUser);
                 if (ProjectMembership::ROLE_COORDINATOR === $role) {
-                    $context['groups'][] = 'factionDetails:coordinator-read';
+                    $context['groups'][] = 'fractionInterest:coordinator-read';
                 }
 
                 if (ProjectMembership::ROLE_OBSERVER === $role) {
-                    $context['groups'][] = 'factionDetails:observer-read';
+                    $context['groups'][] = 'fractionInterest:observer-read';
                 }
 
                 if (ProjectMembership::ROLE_WRITER === $role) {
-                    $context['groups'][] = 'factionDetails:writer-read';
+                    $context['groups'][] = 'fractionInterest:writer-read';
                 }
             }
         }
@@ -81,14 +83,6 @@ class FactionDetailsNormalizer implements ContextAwareNormalizerInterface, Norma
             $result['updatedBy'] = null;
         }
 
-        if (!$isPM && $object->getTeamContact() && (
-                $object->getTeamContact()->isDeleted()
-                || !$object->getTeamContact()->isValidated()
-                || !$object->getTeamContact()->isActive()
-            )) {
-            $result['teamContact'] = null;
-        }
-
         return $result;
     }
 
@@ -99,6 +93,6 @@ class FactionDetailsNormalizer implements ContextAwareNormalizerInterface, Norma
             return false;
         }
 
-        return $data instanceof FactionDetails;
+        return $data instanceof FractionInterest;
     }
 }

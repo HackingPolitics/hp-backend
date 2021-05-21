@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Dto;
 
 use App\Entity\Category;
-use App\Entity\Parliament;
+use App\Entity\Council;
 use App\Entity\Project;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -13,10 +13,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 class ProjectInput
 {
     /**
-     * @var Parliament
+     * @var Council
      * @Groups({"project:create", "user:register"})
      */
-    public ?Parliament $parliament = null;
+    public ?Council $council = null;
 
     /**
      * @var Category[]|null

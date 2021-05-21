@@ -2,12 +2,12 @@
 
 namespace App\Security\Voter;
 
-use App\Entity\FactionDetails;
+use App\Entity\FractionInterest;
 use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
-class FactionDetailsVoter extends Voter
+class FractionInterestVoter extends Voter
 {
     /**
      * {@inheritdoc}
@@ -15,13 +15,13 @@ class FactionDetailsVoter extends Voter
     protected function supports($attribute, $subject): bool
     {
         return in_array($attribute, ['CREATE', 'EDIT', 'DELETE'])
-            && $subject instanceof FactionDetails;
+            && $subject instanceof FractionInterest;
     }
 
     /**
      * {@inheritdoc}
      *
-     * @param FactionDetails $subject
+     * @param FractionInterest $subject
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
@@ -31,16 +31,23 @@ class FactionDetailsVoter extends Voter
             return false;
         }
 
-        $project = $subject->getProject();
-        if (!$project) {
+        $details = $subject->getFractionDetails();
+        if (!$details) {
             // on creation handled by validator, else it's an error
             return 'CREATE' === $attribute;
+        }
+
+        $project = $details->getProject();
+        if (!$project) {
+            return false;
         }
 
         switch ($attribute) {
             case 'CREATE':
                 // fall through
             case 'EDIT':
+                // fall through
+            case 'DELETE':
                 if ($user->hasRole(User::ROLE_ADMIN)
                     || $user->hasRole(User::ROLE_PROCESS_MANAGER)
                 ) {
@@ -52,9 +59,6 @@ class FactionDetailsVoter extends Voter
                 }
 
                 return $project->userCanWrite($user);
-
-            case 'DELETE':
-                return $user->hasRole(User::ROLE_PROCESS_MANAGER);
         }
 
         return false;

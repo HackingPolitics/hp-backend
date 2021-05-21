@@ -7,13 +7,13 @@ namespace App\DataPersister;
 use ApiPlatform\Core\Bridge\Doctrine\Common\DataPersister;
 use ApiPlatform\Core\DataPersister\ContextAwareDataPersisterInterface;
 use ApiPlatform\Core\Exception\InvalidResourceException;
-use App\Entity\Parliament;
+use App\Entity\Council;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * Handles persisting soft-deletes.
  */
-class ParliamentPersister implements ContextAwareDataPersisterInterface
+class CouncilPersister implements ContextAwareDataPersisterInterface
 {
     protected DataPersister $wrapped;
 
@@ -27,13 +27,13 @@ class ParliamentPersister implements ContextAwareDataPersisterInterface
      */
     public function supports($data, array $context = []): bool
     {
-        return $data instanceof Parliament;
+        return $data instanceof Council;
     }
 
     /**
      * {@inheritdoc}
      *
-     * @param Parliament $data
+     * @param Council $data
      */
     public function persist($data, array $context = [])
     {
@@ -43,14 +43,14 @@ class ParliamentPersister implements ContextAwareDataPersisterInterface
     /**
      * {@inheritdoc}
      *
-     * @param Parliament $data
+     * @param Council $data
      *
      * @throws InvalidResourceException when the project is already marked as deleted
      */
     public function remove($data, array $context = [])
     {
         if ($data->isDeleted()) {
-            throw new InvalidResourceException('Parliament already deleted');
+            throw new InvalidResourceException('Council already deleted');
         }
 
         $data->markDeleted();

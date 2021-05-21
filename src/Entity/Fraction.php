@@ -20,10 +20,10 @@ use Vrok\DoctrineAddons\Entity\NormalizerHelper;
 use Vrok\SymfonyAddons\Validator\Constraints as VrokAssert;
 
 /**
- * Faction.
+ * Fraction.
  *
- * Collection cannot be queried, factions can only be retrieved via the
- * Parliament relations.
+ * Collection cannot be queried, fractions can only be retrieved via the
+ * Council relations.
  * Item GET is required for API Platform to work, thus restricted to admins,
  * should not be used.
  *
@@ -35,7 +35,7 @@ use Vrok\SymfonyAddons\Validator\Constraints as VrokAssert;
  *     collectionOperations={
  *         "post"={
  *             "security"="is_granted('ROLE_PROCESS_MANAGER')",
- *             "validation_groups"={"Default", "faction:create"}
+ *             "validation_groups"={"Default", "fraction:create"}
  *         },
  *     },
  *     itemOperations={
@@ -44,37 +44,37 @@ use Vrok\SymfonyAddons\Validator\Constraints as VrokAssert;
  *         },
  *         "put"={
  *             "security"="is_granted('ROLE_PROCESS_MANAGER')",
- *             "validation_groups"={"Default", "faction:write"}
+ *             "validation_groups"={"Default", "fraction:write"}
  *         },
  *         "delete"={
  *              "security"="is_granted('ROLE_PROCESS_MANAGER')",
  *          },
  *     },
  *     normalizationContext={
- *         "groups"={"default:read", "faction:read"},
+ *         "groups"={"default:read", "fraction:read"},
  *         "enable_max_depth"=true,
  *         "swagger_definition_name"="Read"
  *     },
  *     denormalizationContext={
- *         "groups"={"default:write", "faction:write"},
+ *         "groups"={"default:write", "fraction:write"},
  *         "swagger_definition_name"="Write"
  *     }
  * )
  *
- * @ORM\Entity(repositoryClass="App\Repository\FactionRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\FractionRepository")
  * @ORM\Table(uniqueConstraints={
- *     @ORM\UniqueConstraint(name="faction_parliament_name", columns={"parliament_id", "name"})
+ *     @ORM\UniqueConstraint(name="fraction_council_name", columns={"council_id", "name"})
  * })
- * @UniqueEntity(fields={"name", "parliament"}, message="validate.faction.duplicateFaction")
+ * @UniqueEntity(fields={"name", "council"}, message="validate.fraction.duplicateFraction")
  */
-class Faction
+class Fraction
 {
     use AutoincrementId;
     use UpdatedAtFunctions;
 
     //region Active
     /**
-     * @Groups({"faction:read", "faction:write"})
+     * @Groups({"fraction:read", "fraction:write"})
      * @ORM\Column(type="boolean", options={"default":true})
      */
     private bool $active = true;
@@ -95,37 +95,37 @@ class Faction
 
     //region Details
     /**
-     * @var Collection|FactionDetails[]
+     * @var Collection|FractionDetails[]
      * @Groups({"none"})
-     * @ORM\OneToMany(targetEntity="FactionDetails", mappedBy="faction", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="FractionDetails", mappedBy="fraction", cascade={"persist"})
      */
     private $details;
 
     /**
-     * @return Collection|FactionDetails[]
+     * @return Collection|FractionDetails[]
      */
     public function getDetails(): Collection
     {
         return $this->details;
     }
 
-    public function addDetails(FactionDetails $details): self
+    public function addDetails(FractionDetails $details): self
     {
         if (!$this->details->contains($details)) {
             $this->details[] = $details;
-            $details->setFaction($this);
+            $details->setFraction($this);
         }
 
         return $this;
     }
 
-    public function removeDetails(FactionDetails $factionDetails): self
+    public function removeDetails(FractionDetails $fractionDetails): self
     {
-        if ($this->details->contains($factionDetails)) {
-            $this->details->removeElement($factionDetails);
+        if ($this->details->contains($fractionDetails)) {
+            $this->details->removeElement($fractionDetails);
             // set the owning side to null (unless already changed)
-            if ($factionDetails->getFaction() === $this) {
-                $factionDetails->setFaction(null);
+            if ($fractionDetails->getFraction() === $this) {
+                $fractionDetails->setFraction(null);
             }
         }
 
@@ -138,7 +138,7 @@ class Faction
     /**
      * @Assert\NotBlank
      * @Assert\Range(min=1)
-     * @Groups({"faction:read", "faction:write", "parliament:read"})
+     * @Groups({"fraction:read", "fraction:write", "council:read"})
      * @ORM\Column(type="integer", options={"unsigned"=true})
      */
     private ?int $memberCount = null;
@@ -165,7 +165,7 @@ class Faction
      *     @Assert\Length(max=60),
      *     @VrokAssert\NoLineBreaks,
      * })
-     * @Groups({"faction:read", "faction:write"})
+     * @Groups({"fraction:read", "fraction:write"})
      * @ORM\Column(type="string", length=100, nullable=false)
      */
     private ?string $name = null;
@@ -184,22 +184,22 @@ class Faction
 
     //endregion
 
-    //region Parliament
+    //region Council
     /**
-     * @Groups({"faction:read", "faction:write"})
-     * @ORM\ManyToOne(targetEntity="Parliament", inversedBy="factions")
+     * @Groups({"fraction:read", "fraction:write"})
+     * @ORM\ManyToOne(targetEntity="Council", inversedBy="fractions")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
-    private ?Parliament $parliament = null;
+    private ?Council $council = null;
 
-    public function getParliament(): ?Parliament
+    public function getCouncil(): ?Council
     {
-        return $this->parliament;
+        return $this->council;
     }
 
-    public function setParliament(?Parliament $parliament): self
+    public function setCouncil(?Council $council): self
     {
-        $this->parliament = $parliament;
+        $this->council = $council;
 
         return $this;
     }
@@ -212,7 +212,7 @@ class Faction
      *     @Assert\Length(max=200),
      *     @VrokAssert\NoLineBreaks,
      * })
-     * @Groups({"faction:read", "faction:write"})
+     * @Groups({"fraction:read", "fraction:write"})
      * @ORM\Column(type="text", length=200, nullable=true)
      */
     private ?string $url = null;
@@ -234,7 +234,7 @@ class Faction
     //region UpdatedAt
     /**
      * @Assert\NotBlank(allowNull=true)
-     * @Groups({"faction:read"})
+     * @Groups({"fraction:read"})
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
@@ -244,8 +244,8 @@ class Faction
     //region UpdatedBy
     /**
      * @Groups({
-     *     "faction:create",
-     *     "faction:read"
+     *     "fraction:create",
+     *     "fraction:read"
      * })
      * @MaxDepth(1)
      * @Gedmo\Blameable(on="update")

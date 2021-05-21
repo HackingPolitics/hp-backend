@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Tests\Entity;
 
 use App\DataFixtures\TestFixtures;
-use App\Entity\Faction;
-use App\Entity\FactionDetails;
-use App\Entity\Parliament;
+use App\Entity\Fraction;
+use App\Entity\FractionDetails;
+use App\Entity\Council;
 use App\Entity\User;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
@@ -15,9 +15,9 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Vrok\SymfonyAddons\PHPUnit\RefreshDatabaseTrait;
 
 /**
- * @group FactionEntity
+ * @group FractionEntity
  */
-class FactionTest extends KernelTestCase
+class FractionTest extends KernelTestCase
 {
     use RefreshDatabaseTrait;
 
@@ -50,7 +50,7 @@ class FactionTest extends KernelTestCase
 
     protected function getRepository(): EntityRepository
     {
-        return $this->entityManager->getRepository(Faction::class);
+        return $this->entityManager->getRepository(Fraction::class);
     }
 
     public function testCreateAndRead(): void
@@ -58,21 +58,21 @@ class FactionTest extends KernelTestCase
         $before = $this->getRepository()->findAll();
         self::assertCount(4, $before);
 
-        $parliament = $this->entityManager->getRepository(Parliament::class)
-            ->find(TestFixtures::PARLIAMENT['id']);
+        $council = $this->entityManager->getRepository(Council::class)
+            ->find(TestFixtures::COUNCIL['id']);
 
-        $faction = new Faction();
-        $faction->setName('Testing');
-        $faction->setMemberCount(13);
-        $faction->setParliament($parliament);
-        $this->entityManager->persist($faction);
+        $fraction = new Fraction();
+        $fraction->setName('Testing');
+        $fraction->setMemberCount(13);
+        $fraction->setCouncil($council);
+        $this->entityManager->persist($fraction);
         $this->entityManager->flush();
         $this->entityManager->clear();
 
         $after = $this->getRepository()->findAll();
         self::assertCount(5, $after);
 
-        /* @var $found Faction */
+        /* @var $found Fraction */
         $found = $this->getRepository()->find(5);
 
         self::assertSame('Testing', $found->getName());
@@ -81,13 +81,13 @@ class FactionTest extends KernelTestCase
 
     public function testRelationsAccessible(): void
     {
-        /* @var $faction Faction */
-        $faction = $this->getRepository()->find(1);
+        /* @var $fraction Fraction */
+        $fraction = $this->getRepository()->find(1);
 
-        self::assertInstanceOf(Parliament::class, $faction->getParliament());
-        self::assertInstanceOf(User::class, $faction->getUpdatedBy());
+        self::assertInstanceOf(Council::class, $fraction->getCouncil());
+        self::assertInstanceOf(User::class, $fraction->getUpdatedBy());
 
-        self::assertCount(1, $faction->getDetails());
-        self::assertInstanceOf(FactionDetails::class, $faction->getDetails()[0]);
+        self::assertCount(1, $fraction->getDetails());
+        self::assertInstanceOf(FractionDetails::class, $fraction->getDetails()[0]);
     }
 }

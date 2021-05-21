@@ -20,9 +20,9 @@ use Vrok\DoctrineAddons\Entity\NormalizerHelper;
 use Vrok\SymfonyAddons\Validator\Constraints as VrokAssert;
 
 /**
- * FactionDetails.
+ * FractionDetails.
  *
- * Collection cannot be queried, factionDetails can only be retrieved via the
+ * Collection cannot be queried, fractionDetails can only be retrieved via the
  * Project relations.
  * Item GET is required for API Platform to work, thus restricted to admins,
  * should not be used.
@@ -35,7 +35,7 @@ use Vrok\SymfonyAddons\Validator\Constraints as VrokAssert;
  *     collectionOperations={
  *         "post"={
  *             "security_post_denormalize" = "is_granted('CREATE', object)",
- *             "validation_groups"={"Default", "factionDetails:create"},
+ *             "validation_groups"={"Default", "fractionDetails:create"},
  *         },
  *     },
  *     itemOperations={
@@ -44,30 +44,30 @@ use Vrok\SymfonyAddons\Validator\Constraints as VrokAssert;
  *         },
  *         "put"={
  *             "security"="is_granted('EDIT', object)",
- *             "validation_groups"={"Default", "factionDetails:write"},
+ *             "validation_groups"={"Default", "fractionDetails:write"},
  *         },
  *         "delete"={
  *              "security"="is_granted('DELETE', object)",
  *         },
  *     },
  *     normalizationContext={
- *         "groups"={"default:read", "factionDetails:read"},
+ *         "groups"={"default:read", "fractionDetails:read"},
  *         "enable_max_depth"=true,
  *         "swagger_definition_name"="Read"
  *     },
  *     denormalizationContext={
- *         "groups"={"default:write", "factionDetails:write"},
+ *         "groups"={"default:write", "fractionDetails:write"},
  *         "swagger_definition_name"="Write"
  *     }
  * )
  *
- * @ORM\Entity(repositoryClass="App\Repository\FactionDetailsRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\FractionDetailsRepository")
  * @ORM\Table(uniqueConstraints={
- *     @ORM\UniqueConstraint(name="faction_project", columns={"faction_id", "project_id"})
+ *     @ORM\UniqueConstraint(name="fraction_project", columns={"fraction_id", "project_id"})
  * })
- * @UniqueEntity(fields={"faction", "project"}, message="validate.factionDetails.duplicateFactionDetails")
+ * @UniqueEntity(fields={"fraction", "project"}, message="validate.fractionDetails.duplicateFractionDetails")
  */
-class FactionDetails
+class FractionDetails
 {
     use AutoincrementId;
     use UpdatedAtFunctions;
@@ -76,7 +76,7 @@ class FactionDetails
     /**
      * @Assert\Email
      * @Assert\Length(max=255)
-     * @Groups({"factionDetails:read", "factionDetails:write", "project:read"})
+     * @Groups({"fractionDetails:read", "fractionDetails:write", "project:read"})
      * @ORM\Column(type="text", length=255, nullable=true)
      */
     private ?string $contactEmail = null;
@@ -101,7 +101,7 @@ class FactionDetails
      *     @Assert\Length(max=100),
      *     @VrokAssert\NoLineBreaks,
      * })
-     * @Groups({"factionDetails:read", "factionDetails:write", "project:read"})
+     * @Groups({"fractionDetails:read", "fractionDetails:write", "project:read"})
      * @ORM\Column(type="text", length=100, nullable=true)
      */
     private ?string $contactName = null;
@@ -126,7 +126,7 @@ class FactionDetails
      *     @Assert\Length(max=100),
      *     @VrokAssert\NoLineBreaks,
      * })
-     * @Groups({"factionDetails:read", "factionDetails:write", "project:read"})
+     * @Groups({"fractionDetails:read", "fractionDetails:write", "project:read"})
      * @ORM\Column(type="text", length=100, nullable=true)
      */
     private ?string $contactPhone = null;
@@ -145,26 +145,26 @@ class FactionDetails
 
     //endregion
 
-    //region Faction
+    //region Fraction
     /**
      * @Assert\NotBlank
      * @Groups({
-     *     "factionDetails:read",
-     *     "factionDetails:create"
+     *     "fractionDetails:read",
+     *     "fractionDetails:create"
      * })
-     * @ORM\ManyToOne(targetEntity="Faction", inversedBy="details")
+     * @ORM\ManyToOne(targetEntity="Fraction", inversedBy="details")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
-    private ?Faction $faction = null;
+    private ?Fraction $fraction = null;
 
-    public function getFaction(): ?Faction
+    public function getFraction(): ?Fraction
     {
-        return $this->faction;
+        return $this->fraction;
     }
 
-    public function setFaction(?Faction $faction): self
+    public function setFraction(?Fraction $fraction): self
     {
-        $this->faction = $faction;
+        $this->fraction = $fraction;
 
         return $this;
     }
@@ -173,41 +173,41 @@ class FactionDetails
 
     //region Interests
     /**
-     * @var Collection|FactionInterest[]
+     * @var Collection|FractionInterest[]
      * @Groups({
-     *     "factionDetails:read",
-     *     "factionDetails:create",
+     *     "fractionDetails:read",
+     *     "fractionDetails:create",
      *     "project:member-read",
      * })
-     * @ORM\OneToMany(targetEntity="FactionInterest", mappedBy="factionDetails", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="FractionInterest", mappedBy="fractionDetails", cascade={"persist"})
      */
     private $interests;
 
     /**
-     * @return Collection|FactionInterest[]
+     * @return Collection|FractionInterest[]
      */
     public function getInterests(): Collection
     {
         return $this->interests;
     }
 
-    public function addInterest(FactionInterest $interest): self
+    public function addInterest(FractionInterest $interest): self
     {
         if (!$this->interests->contains($interest)) {
             $this->interests[] = $interest;
-            $interest->setFactionDetails($this);
+            $interest->setFractionDetails($this);
         }
 
         return $this;
     }
 
-    public function removeInterest(FactionInterest $interest): self
+    public function removeInterest(FractionInterest $interest): self
     {
         if ($this->interests->contains($interest)) {
             $this->interests->removeElement($interest);
             // set the owning side to null (unless already changed)
-            if ($interest->getFactionDetails() === $this) {
-                $interest->setFactionDetails(null);
+            if ($interest->getFractionDetails() === $this) {
+                $interest->setFractionDetails(null);
             }
         }
 
@@ -218,7 +218,7 @@ class FactionDetails
 
     //region PossiblePartner
     /**
-     * @Groups({"factionDetails:read", "factionDetails:write", "project:read"})
+     * @Groups({"fractionDetails:read", "fractionDetails:write", "project:read"})
      * @ORM\Column(type="boolean", options={"default":false})
      */
     private bool $possiblePartner = false;
@@ -237,25 +237,25 @@ class FactionDetails
 
     //endregion
 
-    //region PossibleProponent
+    //region PossibleSponsor
     /**
      * @Groups({
-     *     "factionDetails:read",
-     *     "factionDetails:write",
+     *     "fractionDetails:read",
+     *     "fractionDetails:write",
      *     "project:read",
      * })
      * @ORM\Column(type="boolean", options={"default":false})
      */
-    private bool $possibleProponent = false;
+    private bool $possibleSponsor = false;
 
-    public function isPossibleProponent(): bool
+    public function isPossibleSponsor(): bool
     {
-        return $this->possibleProponent;
+        return $this->possibleSponsor;
     }
 
-    public function setPossibleProponent(bool $value = true): self
+    public function setPossibleSponsor(bool $value = true): self
     {
-        $this->possibleProponent = $value;
+        $this->possibleSponsor = $value;
 
         return $this;
     }
@@ -266,11 +266,11 @@ class FactionDetails
     /**
      * @Assert\NotBlank
      * @Groups({
-     *     "factionDetails:read",
-     *     "factionDetails:create",
+     *     "fractionDetails:read",
+     *     "fractionDetails:create",
      * })
      * @MaxDepth(1)
-     * @ORM\ManyToOne(targetEntity="Project", inversedBy="factionDetails")
+     * @ORM\ManyToOne(targetEntity="Project", inversedBy="fractionDetails")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private ?Project $project = null;
@@ -292,15 +292,15 @@ class FactionDetails
     //region TeamContact
     /**
      * @Groups({
-     *     "factionDetails:create",
-     *     "factionDetails:writer-read",
-     *     "factionDetails:coordinator-read",
-     *     "factionDetails:pm-read",
-     *     "factionDetails:admin-read",
-     *     "factionDetails:member-write",
-     *     "factionDetails:coordinator-write",
-     *     "factionDetails:pm-write",
-     *     "factionDetails:admin-write",
+     *     "fractionDetails:create",
+     *     "fractionDetails:writer-read",
+     *     "fractionDetails:coordinator-read",
+     *     "fractionDetails:pm-read",
+     *     "fractionDetails:admin-read",
+     *     "fractionDetails:member-write",
+     *     "fractionDetails:coordinator-write",
+     *     "fractionDetails:pm-write",
+     *     "fractionDetails:admin-write",
      *     "project:writer-read",
      *     "project:coordinator-read",
      *     "project:pm-read",
@@ -329,7 +329,7 @@ class FactionDetails
     //region UpdatedAt
     /**
      * @Assert\NotBlank(allowNull=true)
-     * @Groups({"factionDetails:read", "project:read"})
+     * @Groups({"fractionDetails:read", "project:read"})
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
@@ -339,10 +339,10 @@ class FactionDetails
     //region UpdatedBy
     /**
      * @Groups({
-     *     "factionDetails:writer-read",
-     *     "factionDetails:coordinator-read",
-     *     "factionDetails:pm-read",
-     *     "factionDetails:admin-read",
+     *     "fractionDetails:writer-read",
+     *     "fractionDetails:coordinator-read",
+     *     "fractionDetails:pm-read",
+     *     "fractionDetails:admin-read",
      *     "project:writer-read",
      *     "project:coordinator-read",
      *     "project:pm-read",

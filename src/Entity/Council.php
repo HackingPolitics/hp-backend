@@ -25,7 +25,7 @@ use Vrok\DoctrineAddons\Entity\NormalizerHelper;
 use Vrok\SymfonyAddons\Validator\Constraints as VrokAssert;
 
 /**
- * Parliament.
+ * Council.
  *
  * @ApiResource(
  *     attributes={
@@ -36,26 +36,26 @@ use Vrok\SymfonyAddons\Validator\Constraints as VrokAssert;
  *         "get",
  *         "post"={
  *             "security"="is_granted('ROLE_PROCESS_MANAGER')",
- *             "validation_groups"={"Default", "parliament:create"}
+ *             "validation_groups"={"Default", "council:create"}
  *         },
  *     },
  *     itemOperations={
  *         "get",
  *         "put"={
  *             "security"="is_granted('ROLE_PROCESS_MANAGER')",
- *             "validation_groups"={"Default", "parliament:write"}
+ *             "validation_groups"={"Default", "council:write"}
  *         },
  *         "delete"={
  *              "security"="is_granted('ROLE_PROCESS_MANAGER')",
  *          },
  *     },
  *     normalizationContext={
- *         "groups"={"default:read", "parliament:read"},
+ *         "groups"={"default:read", "council:read"},
  *         "enable_max_depth"=true,
  *         "swagger_definition_name"="Read"
  *     },
  *     denormalizationContext={
- *         "groups"={"default:write", "parliament:write"},
+ *         "groups"={"default:write", "council:write"},
  *         "swagger_definition_name"="Write"
  *     }
  * )
@@ -67,15 +67,15 @@ use Vrok\SymfonyAddons\Validator\Constraints as VrokAssert;
  *     "slug": "exact"
  * })
  *
- * @ORM\Entity(repositoryClass="App\Repository\ParliamentRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\CouncilRepository")
  * @ORM\Table(indexes={
- *     @ORM\Index(name="parliament_deleted_idx", columns={"deleted_at"})
+ *     @ORM\Index(name="council_deleted_idx", columns={"deleted_at"})
  * }, uniqueConstraints={
- *     @ORM\UniqueConstraint(name="parliament_title", columns={"title"})
+ *     @ORM\UniqueConstraint(name="council_title", columns={"title"})
  * })
- * @UniqueEntity(fields={"title"}, message="validate.parliament.duplicateTitle")
+ * @UniqueEntity(fields={"title"}, message="validate.council.duplicateTitle")
  */
-class Parliament
+class Council
 {
     use AutoincrementId;
     use DeletedAtFunctions;
@@ -84,7 +84,7 @@ class Parliament
 
     //region DeletedAt
     /**
-     * @Groups({"parliament:admin-read", "parliament:pm-read"})
+     * @Groups({"council:admin-read", "council:pm-read"})
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
     protected ?DateTimeImmutable $deletedAt = null;
@@ -107,42 +107,42 @@ class Parliament
 
     //endregion
 
-    //region Factions
+    //region Fractions
     /**
-     * @var Collection|Faction[]
+     * @var Collection|Fraction[]
      * @Groups({
-     *     "parliament:read",
+     *     "council:read",
      * })
      * @MaxDepth(1)
-     * @ORM\OneToMany(targetEntity="Faction", mappedBy="parliament", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="Fraction", mappedBy="council", cascade={"persist"})
      */
-    private $factions;
+    private $fractions;
 
     /**
-     * @return Collection|Faction[]
+     * @return Collection|Fraction[]
      */
-    public function getFactions(): Collection
+    public function getFractions(): Collection
     {
-        return $this->factions;
+        return $this->fractions;
     }
 
-    public function addFaction(Faction $faction): self
+    public function addFraction(Fraction $fraction): self
     {
-        if (!$this->factions->contains($faction)) {
-            $this->factions[] = $faction;
-            $faction->setParliament($this);
+        if (!$this->fractions->contains($fraction)) {
+            $this->fractions[] = $fraction;
+            $fraction->setCouncil($this);
         }
 
         return $this;
     }
 
-    public function removeFaction(Faction $faction): self
+    public function removeFraction(Fraction $fraction): self
     {
-        if ($this->factions->contains($faction)) {
-            $this->factions->removeElement($faction);
+        if ($this->fractions->contains($fraction)) {
+            $this->fractions->removeElement($fraction);
             // set the owning side to null (unless already changed)
-            if ($faction->getParliament() === $this) {
-                $faction->setParliament(null);
+            if ($fraction->getCouncil() === $this) {
+                $fraction->setCouncil(null);
             }
         }
 
@@ -153,8 +153,8 @@ class Parliament
 
     //region FederalState
     /**
-     * @Groups({"parliament:read", "parliament:write"})
-     * @ORM\ManyToOne(targetEntity="FederalState", inversedBy="parliaments")
+     * @Groups({"council:read", "council:write"})
+     * @ORM\ManyToOne(targetEntity="FederalState", inversedBy="councils")
      * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     private ?FederalState $federalState = null;
@@ -179,7 +179,7 @@ class Parliament
      *     @Assert\Length(max=50),
      *     @VrokAssert\NoLineBreaks,
      * })
-     * @Groups({"parliament:read", "parliament:write"})
+     * @Groups({"council:read", "council:write"})
      * @ORM\Column(type="text", length=50, nullable=true)
      */
     private ?string $headOfAdministration = null;
@@ -205,7 +205,7 @@ class Parliament
      *     @Assert\Length(max=50),
      *     @VrokAssert\NoLineBreaks,
      * })
-     * @Groups({"parliament:read", "parliament:write"})
+     * @Groups({"council:read", "council:write"})
      * @ORM\Column(type="text", length=50, nullable=true)
      */
     private ?string $headOfAdministrationTitle = null;
@@ -231,10 +231,10 @@ class Parliament
      *     @VrokAssert\NoLineBreaks,
      *     @Assert\Regex(
      *         pattern="/[a-zA-Z\-\.\(\)]/",
-     *         message="validate.parliament.invalidLocation"
+     *         message="validate.council.invalidLocation"
      *     ),
      * })
-     * @Groups({"parliament:read", "parliament:write"})
+     * @Groups({"council:read", "council:write"})
      * @ORM\Column(type="text", length=200, nullable=true)
      */
     private ?string $location = null;
@@ -257,7 +257,7 @@ class Parliament
     /**
      * @var Collection|Project[]
      * @Groups({"none"})
-     * @ORM\OneToMany(targetEntity="Project", mappedBy="parliament", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="Project", mappedBy="council", cascade={"persist"})
      */
     private $projects;
 
@@ -273,7 +273,7 @@ class Parliament
     {
         if (!$this->projects->contains($project)) {
             $this->projects[] = $project;
-            $project->setParliament($this);
+            $project->setCouncil($this);
         }
 
         return $this;
@@ -284,8 +284,8 @@ class Parliament
         if ($this->projects->contains($project)) {
             $this->projects->removeElement($project);
             // set the owning side to null (unless already changed)
-            if ($project->getParliament() === $this) {
-                $project->setParliament(null);
+            if ($project->getCouncil() === $this) {
+                $project->setCouncil(null);
             }
         }
 
@@ -296,7 +296,7 @@ class Parliament
 
     //region Slug
     /**
-     * @Groups({"parliament:read"})
+     * @Groups({"council:read"})
      * @ORM\Column(type="string", length=150, nullable=true)
      * @Gedmo\Slug(fields={"title"})
      */
@@ -317,7 +317,7 @@ class Parliament
      *         message="validate.general.letterRequired"
      *     ),
      * })
-     * @Groups({"parliament:read", "parliament:write"})
+     * @Groups({"council:read", "council:write"})
      * @ORM\Column(type="string", length=100, nullable=true)
      */
     private ?string $title = null;
@@ -339,7 +339,7 @@ class Parliament
     //region UpdatedAt
     /**
      * @Assert\NotBlank(allowNull=true)
-     * @Groups({"parliament:read"})
+     * @Groups({"council:read"})
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
@@ -349,8 +349,8 @@ class Parliament
     //region UpdatedBy
     /**
      * @Groups({
-     *     "parliament:create",
-     *     "parliament:read"
+     *     "council:create",
+     *     "council:read"
      * })
      * @Gedmo\Blameable(on="update")
      * @MaxDepth(1)
@@ -379,7 +379,7 @@ class Parliament
      *     @Assert\Length(max=200),
      *     @VrokAssert\NoLineBreaks,
      * })
-     * @Groups({"parliament:read", "parliament:write"})
+     * @Groups({"council:read", "council:write"})
      * @ORM\Column(type="text", length=200, nullable=true)
      */
     private ?string $url = null;
@@ -401,7 +401,7 @@ class Parliament
     //region ValidatedAt
     /**
      * @Assert\NotBlank(allowNull=true)
-     * @Groups({"parliament:read", "parliament:pm-write"})
+     * @Groups({"council:read", "council:pm-write"})
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
     protected ?DateTimeImmutable $validatedAt = null;
@@ -436,7 +436,7 @@ class Parliament
      *     @Assert\Length(max=200),
      *     @VrokAssert\NoLineBreaks,
      * })
-     * @Groups({"parliament:read", "parliament:write"})
+     * @Groups({"council:read", "council:write"})
      * @ORM\Column(type="text", length=200, nullable=true)
      */
     private ?string $wikipediaUrl = null;
@@ -462,10 +462,10 @@ class Parliament
      *     @VrokAssert\NoLineBreaks,
      *     @Assert\Regex(
      *         pattern="/[a-zA-Z0-9]/",
-     *         message="validate.parliament.invalidZipArea"
+     *         message="validate.council.invalidZipArea"
      *     ),
      * })
-     * @Groups({"parliament:read", "parliament:write"})
+     * @Groups({"council:read", "council:write"})
      * @ORM\Column(type="text", length=20, nullable=true)
      */
     private ?string $zipArea = null;
@@ -486,7 +486,7 @@ class Parliament
 
     public function __construct()
     {
-        $this->factions = new ArrayCollection();
+        $this->fractions = new ArrayCollection();
         $this->projects = new ArrayCollection();
     }
 }

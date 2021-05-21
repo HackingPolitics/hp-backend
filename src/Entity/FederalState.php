@@ -106,42 +106,42 @@ class FederalState
 
     //endregion
 
-    //region Parliaments
+    //region Councils
     /**
-     * @var Collection|Parliament[]
+     * @var Collection|Council[]
      * @Groups({
      *     "federalState:read",
      * })
      * @MaxDepth(1)
-     * @ORM\OneToMany(targetEntity="Parliament", mappedBy="federalState", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="Council", mappedBy="federalState", cascade={"persist"})
      */
-    private $parliaments;
+    private $councils;
 
     /**
-     * @return Collection|Parliament[]
+     * @return Collection|Council[]
      */
-    public function getParliaments(): Collection
+    public function getCouncils(): Collection
     {
-        return $this->parliaments;
+        return $this->councils;
     }
 
-    public function addParliament(Parliament $parliament): self
+    public function addCouncil(Council $council): self
     {
-        if (!$this->parliaments->contains($parliament)) {
-            $this->parliaments[] = $parliament;
-            $parliament->setFederalState($this);
+        if (!$this->councils->contains($council)) {
+            $this->councils[] = $council;
+            $council->setFederalState($this);
         }
 
         return $this;
     }
 
-    public function removeParliament(Parliament $parliament): self
+    public function removeCouncil(Council $council): self
     {
-        if ($this->parliaments->contains($parliament)) {
-            $this->parliaments->removeElement($parliament);
+        if ($this->councils->contains($council)) {
+            $this->councils->removeElement($council);
             // set the owning side to null (unless already changed)
-            if ($parliament->getFederalState() === $this) {
-                $parliament->setFederalState(null);
+            if ($council->getFederalState() === $this) {
+                $council->setFederalState(null);
             }
         }
 
@@ -161,6 +161,6 @@ class FederalState
 
     public function __construct()
     {
-        $this->parliaments = new ArrayCollection();
+        $this->councils = new ArrayCollection();
     }
 }

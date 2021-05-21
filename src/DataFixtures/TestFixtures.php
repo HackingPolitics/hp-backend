@@ -6,11 +6,11 @@ namespace App\DataFixtures;
 
 use App\Entity\ActionLog;
 use App\Entity\Category;
-use App\Entity\Faction;
-use App\Entity\FactionDetails;
-use App\Entity\FactionInterest;
+use App\Entity\Fraction;
+use App\Entity\FractionDetails;
+use App\Entity\FractionInterest;
 use App\Entity\FederalState;
-use App\Entity\Parliament;
+use App\Entity\Council;
 use App\Entity\Project;
 use App\Entity\ProjectMembership;
 use App\Entity\User;
@@ -128,7 +128,7 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         'deletedAt' => '2019-12-12 12:12:12',
     ];
 
-    public const PARLIAMENT = [
+    public const COUNCIL = [
         'id'           => 1,
         'title'        => 'Stadtrat Stuttgart',
         'location'     => 'LH Stuttgart',
@@ -141,22 +141,22 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         'headOfAdministrationTitle' => 'Oberbürgermeister',
     ];
 
-    public const FACTION_GREEN = [
+    public const FRACTION_GREEN = [
         'id'          => 1,
         'name'        => 'Grün',
         'memberCount' => 1,
     ];
-    public const FACTION_RED = [
+    public const FRACTION_RED = [
         'id'          => 2,
         'name'        => 'Rot',
         'memberCount' => 2,
     ];
-    public const FACTION_BLACK = [
+    public const FRACTION_BLACK = [
         'id'          => 3,
         'name'        => 'Schwarz',
         'memberCount' => 3,
     ];
-    public const FACTION_YELLOW = [
+    public const FRACTION_YELLOW = [
         'id'          => 4,
         'name'        => 'Gelb',
         'memberCount' => 4,
@@ -231,25 +231,25 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         $manager->persist($pwValidation);
         //endregion
 
-        //region Parliament + Factions
-        $parliament = $this->createParliament(self::PARLIAMENT, $manager, $admin);
-        $parliament->setUpdatedBy($admin);
-        $manager->persist($parliament);
+        //region Council + Fractions
+        $council = $this->createCouncil(self::COUNCIL, $manager, $admin);
+        $council->setUpdatedBy($admin);
+        $manager->persist($council);
 
-        $greenFaction = $this->createFaction(self::FACTION_GREEN, $admin);
-        $parliament->addFaction($greenFaction);
-        $redFaction = $this->createFaction(self::FACTION_RED, $admin);
-        $parliament->addFaction($redFaction);
-        $blackFaction = $this->createFaction(self::FACTION_BLACK, $admin);
-        $parliament->addFaction($blackFaction);
-        $yellowFaction = $this->createFaction(self::FACTION_YELLOW, $admin);
-        $parliament->addFaction($yellowFaction);
+        $greenFraction = $this->createFraction(self::FRACTION_GREEN, $admin);
+        $council->addFraction($greenFraction);
+        $redFraction = $this->createFraction(self::FRACTION_RED, $admin);
+        $council->addFraction($redFraction);
+        $blackFraction = $this->createFraction(self::FRACTION_BLACK, $admin);
+        $council->addFraction($blackFraction);
+        $yellowFraction = $this->createFraction(self::FRACTION_YELLOW, $admin);
+        $council->addFraction($yellowFraction);
         //endregion
 
         //region Normal project
         $project = $this->createProject(self::PROJECT, $projectCoordinator,
             $projectCoordinator, $projectWriter, $projectObserver);
-        $parliament->addProject($project);
+        $council->addProject($project);
         $manager->persist($project);
 
         $catRepo = $manager->getRepository(Category::class);
@@ -260,31 +260,31 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         $cat3 = $catRepo->find(3);
         $project->addCategory($cat3);
 
-        $detailsGreen = new FactionDetails();
+        $detailsGreen = new FractionDetails();
         $detailsGreen->setContactEmail('green@zukunftsstadt.de');
         $detailsGreen->setContactName('Green');
         $detailsGreen->setContactPhone('123');
         $detailsGreen->setPossiblePartner(true);
-        $detailsGreen->setPossibleProponent(true);
+        $detailsGreen->setPossibleSponsor(true);
         $detailsGreen->setTeamContact($projectObserver);
         $detailsGreen->setUpdatedBy($projectWriter);
-        $greenFaction->addDetails($detailsGreen);
-        $project->addFactionDetails($detailsGreen);
+        $greenFraction->addDetails($detailsGreen);
+        $project->addFractionDetails($detailsGreen);
 
-        $detailsBlack = new FactionDetails();
+        $detailsBlack = new FractionDetails();
         $detailsBlack->setContactEmail('black@zukunftsstadt.de');
         $detailsBlack->setContactName('Black');
         $detailsBlack->setContactPhone('321');
         $detailsBlack->setPossiblePartner(true);
-        $blackFaction->addDetails($detailsBlack);
-        $project->addFactionDetails($detailsBlack);
+        $blackFraction->addDetails($detailsBlack);
+        $project->addFractionDetails($detailsBlack);
 
-        $interest1 = new FactionInterest();
+        $interest1 = new FractionInterest();
         $interest1->setDescription('interest1');
         $interest1->setUpdatedBy($admin);
         $detailsGreen->addInterest($interest1);
 
-        $interest2 = new FactionInterest();
+        $interest2 = new FractionInterest();
         $interest2->setDescription('interest2');
         $interest2->setUpdatedBy($admin);
         $detailsGreen->addInterest($interest2);
@@ -295,7 +295,7 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
          */
         $lockedProject = $this->createProject(self::LOCKED_PROJECT,
             $projectCoordinator, $projectCoordinator, $projectWriter);
-        $parliament->addProject($lockedProject);
+        $council->addProject($lockedProject);
         $manager->persist($lockedProject);
         /**
          * /Create locked project.
@@ -306,7 +306,7 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
          */
         $deletedProject = $this->createProject(self::DELETED_PROJECT,
             $projectWriter);
-        $parliament->addProject($deletedProject);
+        $council->addProject($deletedProject);
         $manager->persist($deletedProject);
         /*
          * /Create deleted project
@@ -421,74 +421,74 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         return $project;
     }
 
-    protected function createParliament(
+    protected function createCouncil(
         array $data,
         ObjectManager $manager,
         ?User $creator = null
-    ): Parliament {
-        $parliament = new Parliament();
+    ): Council {
+        $council = new Council();
 
         if (isset($data['title'])) {
-            $parliament->setTitle($data['title']);
+            $council->setTitle($data['title']);
         }
         if (isset($data['location'])) {
-            $parliament->setLocation($data['location']);
+            $council->setLocation($data['location']);
         }
         if (isset($data['zipArea'])) {
-            $parliament->setZipArea($data['zipArea']);
+            $council->setZipArea($data['zipArea']);
         }
         if (isset($data['headOfAdministration'])) {
-            $parliament->setHeadOfAdministration($data['headOfAdministration']);
+            $council->setHeadOfAdministration($data['headOfAdministration']);
         }
         if (isset($data['headOfAdministrationTitle'])) {
-            $parliament->setHeadOfAdministrationTitle($data['headOfAdministrationTitle']);
+            $council->setHeadOfAdministrationTitle($data['headOfAdministrationTitle']);
         }
         if (isset($data['url'])) {
-            $parliament->setUrl($data['url']);
+            $council->setUrl($data['url']);
         }
         if (isset($data['wikipediaUrl'])) {
-            $parliament->setWikipediaUrl($data['wikipediaUrl']);
+            $council->setWikipediaUrl($data['wikipediaUrl']);
         }
         if (isset($data['validatedAt'])) {
-            $parliament->setValidatedAt(new DateTimeImmutable($data['validatedAt'], new DateTimeZone('UTC')));
+            $council->setValidatedAt(new DateTimeImmutable($data['validatedAt'], new DateTimeZone('UTC')));
         }
 
         if (isset($data['federalState'])) {
             $fs = $manager->getRepository(FederalState::class)->findOneBy([
                 'name' => $data['federalState'],
             ]);
-            $parliament->setFederalState($fs);
+            $council->setFederalState($fs);
         }
 
         if ($creator) {
-            $parliament->setUpdatedBy($creator);
+            $council->setUpdatedBy($creator);
         }
 
-        return $parliament;
+        return $council;
     }
 
-    protected function createFaction(array $data, ?User $creator = null): Faction
+    protected function createFraction(array $data, ?User $creator = null): Fraction
     {
-        $faction = new Faction();
+        $fraction = new Fraction();
 
         if (isset($data['name'])) {
-            $faction->setName($data['name']);
+            $fraction->setName($data['name']);
         }
         if (isset($data['memberCount'])) {
-            $faction->setMemberCount($data['memberCount']);
+            $fraction->setMemberCount($data['memberCount']);
         }
         if (isset($data['url'])) {
-            $faction->setUrl($data['url']);
+            $fraction->setUrl($data['url']);
         }
         if (isset($data['active'])) {
-            $faction->setActive($data['active']);
+            $fraction->setActive($data['active']);
         }
 
         if ($creator) {
-            $faction->setUpdatedBy($creator);
+            $fraction->setUpdatedBy($creator);
         }
 
-        return $faction;
+        return $fraction;
     }
 
     protected function populateActionLog(ObjectManager $manager): void

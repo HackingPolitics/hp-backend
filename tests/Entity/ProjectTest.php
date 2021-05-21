@@ -6,8 +6,8 @@ namespace App\Tests\Entity;
 
 use App\DataFixtures\TestFixtures;
 use App\Entity\Category;
-use App\Entity\FactionDetails;
-use App\Entity\Parliament;
+use App\Entity\FractionDetails;
+use App\Entity\Council;
 use App\Entity\Project;
 use App\Entity\ProjectMembership;
 use App\Entity\User;
@@ -68,9 +68,9 @@ class ProjectTest extends KernelTestCase
         $user = $this->entityManager->getRepository(User::class)
             ->find(TestFixtures::PROJECT_WRITER['id']);
 
-        /** @var $parliament Parliament */
-        $parliament = $this->entityManager->getRepository(Parliament::class)
-            ->find(TestFixtures::PARLIAMENT['id']);
+        /** @var $council Council */
+        $council = $this->entityManager->getRepository(Council::class)
+            ->find(TestFixtures::COUNCIL['id']);
 
         $project = new Project();
         $project->setTitle('Testing Project');
@@ -78,7 +78,7 @@ class ProjectTest extends KernelTestCase
         $project->setTopic('short topic');
         $project->setImpact('short impact');
         $project->setCreatedBy($user);
-        $project->setParliament($parliament);
+        $project->setCouncil($council);
 
         $this->entityManager->persist($project);
         $this->entityManager->flush();
@@ -137,11 +137,11 @@ class ProjectTest extends KernelTestCase
         self::assertCount(3, $project->getMemberships());
         self::assertInstanceOf(ProjectMembership::class, $project->getMemberships()[0]);
 
-        self::assertInstanceOf(Parliament::class, $project->getParliament());
+        self::assertInstanceOf(Council::class, $project->getCouncil());
         self::assertInstanceOf(User::class, $project->getCreatedBy());
 
-        self::assertCount(2, $project->getFactionDetails());
-        self::assertInstanceOf(FactionDetails::class, $project->getFactionDetails()[0]);
+        self::assertCount(2, $project->getFractionDetails());
+        self::assertInstanceOf(FractionDetails::class, $project->getFractionDetails()[0]);
 
         self::assertCount(3, $project->getCategories());
         self::assertInstanceOf(Category::class, $project->getCategories()[0]);

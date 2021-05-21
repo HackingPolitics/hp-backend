@@ -2,24 +2,24 @@
 
 namespace App\Repository;
 
-use App\Entity\Parliament;
+use App\Entity\Council;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method Parliament|null find($id, $lockMode = null, $lockVersion = null)
- * @method Parliament|null findOneBy(array $criteria, array $orderBy = null)
- * @method Parliament[]    findAll()
- * @method Parliament[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Council|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Council|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Council[]    findAll()
+ * @method Council[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class ParliamentRepository extends ServiceEntityRepository
+class CouncilRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Parliament::class);
+        parent::__construct($registry, Council::class);
     }
 
-    public function findNonDeleted(int $id): ?Parliament
+    public function findNonDeleted(int $id): ?Council
     {
         return $this->findOneBy([
             'deletedAt' => null,
@@ -27,7 +27,7 @@ class ParliamentRepository extends ServiceEntityRepository
         ]);
     }
 
-    public function findOneNonDeletedBy(array $criteria): ?Parliament
+    public function findOneNonDeletedBy(array $criteria): ?Council
     {
         $criteria['deletedAt'] = null;
 

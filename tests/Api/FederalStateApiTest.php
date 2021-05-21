@@ -7,7 +7,7 @@ namespace App\Tests\Api;
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
 use App\DataFixtures\TestFixtures;
 use App\Entity\FederalState;
-use App\Entity\Parliament;
+use App\Entity\Council;
 use Doctrine\ORM\EntityManager;
 use Vrok\SymfonyAddons\PHPUnit\AuthenticatedClientTrait;
 use Vrok\SymfonyAddons\PHPUnit\RefreshDatabaseTrait;
@@ -90,7 +90,7 @@ class FederalStateApiTest extends ApiTestCase
             '@id'         => $iri,
             'name'        => 'Baden-Württemberg',
             'slug'        => 'baden-wurttemberg',
-            'parliaments' => [
+            'councils' => [
                 0 => [],
             ],
         ]);
@@ -276,8 +276,8 @@ class FederalStateApiTest extends ApiTestCase
 
     public function testDelete(): void
     {
-        /** @var Parliament $before */
-        $before = $this->entityManager->getRepository(Parliament::class)
+        /** @var Council $before */
+        $before = $this->entityManager->getRepository(Council::class)
             ->find(1);
         self::assertInstanceOf(FederalState::class, $before->getFederalState());
 
@@ -295,8 +295,8 @@ class FederalStateApiTest extends ApiTestCase
             ->find(1);
         self::assertNull($deleted);
 
-        /** @var Parliament $after */
-        $after = $this->entityManager->getRepository(Parliament::class)
+        /** @var Council $after */
+        $after = $this->entityManager->getRepository(Council::class)
             ->find(1);
         self::assertNull($after->getFederalState());
     }

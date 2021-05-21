@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Serializer;
 
 use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
-use App\Entity\FactionDetails;
+use App\Entity\FractionInterest;
 use App\Entity\ProjectMembership;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -13,11 +13,11 @@ use Symfony\Component\Serializer\Normalizer\ContextAwareDenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerAwareTrait;
 
-class FactionDetailsDenormalizer implements ContextAwareDenormalizerInterface, DenormalizerAwareInterface
+class FractionInterestDenormalizer implements ContextAwareDenormalizerInterface, DenormalizerAwareInterface
 {
     use DenormalizerAwareTrait;
 
-    private const ALREADY_CALLED = 'FACTION_DETAILS_DENORMALIZER_ALREADY_CALLED';
+    private const ALREADY_CALLED = 'FACTION_INTEREST_DENORMALIZER_ALREADY_CALLED';
 
     /**
      * @var TokenStorageInterface
@@ -39,38 +39,41 @@ class FactionDetailsDenormalizer implements ContextAwareDenormalizerInterface, D
             return false;
         }
 
-        return FactionDetails::class === $type
+        return FractionInterest::class === $type
             && isset($context[AbstractItemNormalizer::OBJECT_TO_POPULATE]);
     }
 
     /**
      * {@inheritdoc}
      *
-     * @param FactionDetails $data
+     * @param FractionInterest $data
      */
     public function denormalize($data, $type, $format = null, array $context = [])
     {
         $object = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE];
-        $project = $object->getProject();
+        $project = $object->getFractionDetails()
+            ? $object->getFractionDetails()->getProject()
+            : null;
+
         $token = $this->tokenStorage->getToken();
         if ($project && $token && $token->getUser() instanceof UserInterface) {
             $currentUser = $token->getUser();
 
             if (ProjectMembership::ROLE_COORDINATOR === $project->getUserRole($currentUser)) {
-                $context['groups'][] = 'factionDetails:coordinator-write';
+                $context['groups'][] = 'fractionInterest:coordinator-write';
 
                 // this denormalizer is never called for the creation of
-                // factionDetails so we can simply add this here without checking
+                // fractionInterests so we can simply add this here without checking
                 // the context for operation_type=item & item_operation_name=put
-                $context['groups'][] = 'factionDetails:coordinator-update';
+                $context['groups'][] = 'fractionInterest:coordinator-update';
             }
 
             // writers & coordinators
             if ($project->userCanWrite($currentUser)) {
-                $context['groups'][] = 'factionDetails:member-write';
+                $context['groups'][] = 'fractionInterest:member-write';
 
                 // same as before, no additional checks needed
-                $context['groups'][] = 'factionDetails:member-update';
+                $context['groups'][] = 'fractionInterest:member-update';
             }
         }
 
