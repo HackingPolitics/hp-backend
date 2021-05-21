@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Tests\Entity;
 
 use App\DataFixtures\InitialFixtures;
-use App\Entity\FederalState;
 use App\Entity\Council;
+use App\Entity\FederalState;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;

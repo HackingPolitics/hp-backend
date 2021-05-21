@@ -8,7 +8,6 @@ use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
 use App\DataFixtures\TestFixtures;
 use App\Entity\Problem;
 use App\Entity\Project;
-use App\Entity\User;
 use Doctrine\ORM\EntityManager;
 use Vrok\SymfonyAddons\PHPUnit\AuthenticatedClientTrait;
 use Vrok\SymfonyAddons\PHPUnit\RefreshDatabaseTrait;

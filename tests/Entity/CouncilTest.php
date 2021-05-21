@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Entity;
 
-use App\Entity\Fraction;
-use App\Entity\FederalState;
 use App\Entity\Council;
+use App\Entity\FederalState;
+use App\Entity\Fraction;
 use App\Entity\Project;
 use App\Entity\User;
 use Doctrine\ORM\EntityManager;

@@ -6,11 +6,11 @@ namespace App\DataFixtures;
 
 use App\Entity\ActionLog;
 use App\Entity\Category;
+use App\Entity\Council;
+use App\Entity\FederalState;
 use App\Entity\Fraction;
 use App\Entity\FractionDetails;
 use App\Entity\FractionInterest;
-use App\Entity\FederalState;
-use App\Entity\Council;
 use App\Entity\Partner;
 use App\Entity\Problem;
 use App\Entity\Project;
@@ -168,13 +168,13 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
     public const PARTNER_ONE = [
         'id'          => 1,
         'name'        => 'Partner1',
-        'contactName' => "P1",
+        'contactName' => 'P1',
         'role'        => 'Umsetzungspartner',
     ];
     public const PARTNER_TWO = [
         'id'          => 2,
         'name'        => 'Partner2',
-        'contactName' => "P2",
+        'contactName' => 'P2',
         'role'        => 'Wissenschaftliche Unterstützung',
     ];
 
@@ -523,7 +523,6 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
 
         return $fraction;
     }
-
 
     protected function createPartner(array $data): Partner
     {

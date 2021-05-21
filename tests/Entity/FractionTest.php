@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Tests\Entity;
 
 use App\DataFixtures\TestFixtures;
+use App\Entity\Council;
 use App\Entity\Fraction;
 use App\Entity\FractionDetails;
-use App\Entity\Council;
 use App\Entity\User;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;

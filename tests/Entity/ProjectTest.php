@@ -6,8 +6,8 @@ namespace App\Tests\Entity;
 
 use App\DataFixtures\TestFixtures;
 use App\Entity\Category;
-use App\Entity\FractionDetails;
 use App\Entity\Council;
+use App\Entity\FractionDetails;
 use App\Entity\Partner;
 use App\Entity\Problem;
 use App\Entity\Project;
@@ -153,6 +153,5 @@ class ProjectTest extends KernelTestCase
 
         self::assertCount(1, $project->getProblems());
         self::assertInstanceOf(Problem::class, $project->getProblems()[0]);
-
     }
 }

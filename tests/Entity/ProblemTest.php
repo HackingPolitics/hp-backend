@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Entity;
 
 use App\DataFixtures\TestFixtures;
-use App\Entity\Fraction;
 use App\Entity\Problem;
-use App\Entity\FractionInterest;
 use App\Entity\Project;
 use App\Entity\User;
 use Doctrine\ORM\EntityManager;
@@ -63,7 +61,7 @@ class ProblemTest extends KernelTestCase
             ->find(TestFixtures::PROJECT['id']);
 
         $problem = new Problem();
-        $problem->setDescription("new problem");
+        $problem->setDescription('new problem');
         $problem->setPriority(99);
         $problem->setProject($project);
         $this->entityManager->persist($problem);

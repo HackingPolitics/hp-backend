@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Entity;
 
 use App\DataFixtures\TestFixtures;
-use App\Entity\Fraction;
 use App\Entity\Partner;
-use App\Entity\FractionInterest;
 use App\Entity\Project;
 use App\Entity\User;
 use Doctrine\ORM\EntityManager;
@@ -63,7 +61,7 @@ class PartnerTest extends KernelTestCase
             ->find(TestFixtures::PROJECT['id']);
 
         $partner = new Partner();
-        $partner->setName("new partner");
+        $partner->setName('new partner');
         $partner->setContactName('Testing');
         $partner->setProject($project);
         $this->entityManager->persist($partner);

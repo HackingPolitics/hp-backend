@@ -6,8 +6,8 @@ namespace App\Tests\Api;
 
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
 use App\DataFixtures\TestFixtures;
-use App\Entity\Fraction;
 use App\Entity\Council;
+use App\Entity\Fraction;
 use Doctrine\ORM\EntityManager;
 use Vrok\SymfonyAddons\PHPUnit\AuthenticatedClientTrait;
 use Vrok\SymfonyAddons\PHPUnit\RefreshDatabaseTrait;
