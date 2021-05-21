@@ -11,6 +11,7 @@ use App\Entity\FractionDetails;
 use App\Entity\FractionInterest;
 use App\Entity\FederalState;
 use App\Entity\Council;
+use App\Entity\Partner;
 use App\Entity\Project;
 use App\Entity\ProjectMembership;
 use App\Entity\User;
@@ -163,6 +164,19 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         'active'      => false,
     ];
 
+    public const PARTNER_ONE = [
+        'id'          => 1,
+        'name'        => 'Partner1',
+        'contactName' => "P1",
+        'role'        => 'Umsetzungspartner',
+    ];
+    public const PARTNER_TWO = [
+        'id'          => 2,
+        'name'        => 'Partner2',
+        'contactName' => "P2",
+        'role'        => 'Wissenschaftliche Unterstützung',
+    ];
+
     private UserPasswordEncoderInterface $encoder;
 
     public function getDependencies(): array
@@ -288,6 +302,17 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         $interest2->setDescription('interest2');
         $interest2->setUpdatedBy($admin);
         $detailsGreen->addInterest($interest2);
+
+        $partner1 = $this->createPartner(self::PARTNER_ONE);
+        $partner1->setProject($project);
+        $partner1->setUpdatedBy($admin);
+        $partner1->setTeamContact($projectObserver);
+        $manager->persist($partner1);
+
+        $partner2 = $this->createPartner(self::PARTNER_TWO);
+        $partner2->setProject($project);
+        $partner2->setUpdatedBy($projectCoordinator);
+        $manager->persist($partner2);
         //endregion
 
         /**
@@ -489,6 +514,27 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         }
 
         return $fraction;
+    }
+
+
+    protected function createPartner(array $data): Partner
+    {
+        $partner = new Partner();
+
+        if (isset($data['name'])) {
+            $partner->setName($data['name']);
+        }
+        if (isset($data['contactName'])) {
+            $partner->setContactName($data['contactName']);
+        }
+        if (isset($data['url'])) {
+            $partner->setUrl($data['url']);
+        }
+        if (isset($data['role'])) {
+            $partner->setRole($data['role']);
+        }
+
+        return $partner;
     }
 
     protected function populateActionLog(ObjectManager $manager): void

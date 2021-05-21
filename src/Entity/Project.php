@@ -182,6 +182,30 @@ class Project
 
     //endregion
 
+    //region Council
+    /**
+     * @Assert\NotBlank
+     * @Groups({"project:read", "project:create", "user:register"})
+     * @MaxDepth(1)
+     * @ORM\ManyToOne(targetEntity="Council", inversedBy="projects")
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
+     */
+    private ?Council $council = null;
+
+    public function getCouncil(): ?Council
+    {
+        return $this->council;
+    }
+
+    public function setCouncil(?Council $council): self
+    {
+        $this->council = $council;
+
+        return $this;
+    }
+
+    //endregion
+
     //region CreatedAt
     /**
      * @Groups({"project:read"})
@@ -284,7 +308,7 @@ class Project
      * })
      * @ORM\OneToMany(targetEntity="FractionDetails", mappedBy="project", cascade={"persist"})
      */
-    private $fractionDetails;
+    private Collection $fractionDetails;
 
     /**
      * @return Collection|FractionDetails[]
@@ -481,24 +505,45 @@ class Project
 
     //endregion
 
-    //region Council
+    //region Partners
     /**
-     * @Assert\NotBlank
-     * @Groups({"project:read", "project:create", "user:register"})
-     * @MaxDepth(1)
-     * @ORM\ManyToOne(targetEntity="Council", inversedBy="projects")
-     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
+     * @var Collection|Partner[]
+     * @Groups({
+     *     "project:member-read",
+     *     "project:pm-read",
+     *     "project:admin-read",
+     * })
+     * @ORM\OneToMany(targetEntity="Partner", mappedBy="project", cascade={"persist"})
      */
-    private ?Council $council = null;
+    private Collection $partners;
 
-    public function getCouncil(): ?Council
+    /**
+     * @return Collection|Partner[]
+     */
+    public function getPartners(): Collection
     {
-        return $this->council;
+        return $this->partners;
     }
 
-    public function setCouncil(?Council $council): self
+    public function addPartners(Partner $partners): self
     {
-        $this->council = $council;
+        if (!$this->partners->contains($partners)) {
+            $this->partners[] = $partners;
+            $partners->setProject($this);
+        }
+
+        return $this;
+    }
+
+    public function removePartners(Partner $partners): self
+    {
+        if ($this->partners->contains($partners)) {
+            $this->partners->removeElement($partners);
+            // set the owning side to null (unless already changed)
+            if ($partners->getProject() === $this) {
+                $partners->setProject(null);
+            }
+        }
 
         return $this;
     }
@@ -621,5 +666,6 @@ class Project
         $this->categories = new ArrayCollection();
         $this->fractionDetails = new ArrayCollection();
         $this->memberships = new ArrayCollection();
+        $this->partners = new ArrayCollection();
     }
 }

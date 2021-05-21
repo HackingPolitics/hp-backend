@@ -8,6 +8,7 @@ use App\DataFixtures\TestFixtures;
 use App\Entity\Category;
 use App\Entity\FractionDetails;
 use App\Entity\Council;
+use App\Entity\Partner;
 use App\Entity\Project;
 use App\Entity\ProjectMembership;
 use App\Entity\User;
@@ -145,5 +146,8 @@ class ProjectTest extends KernelTestCase
 
         self::assertCount(3, $project->getCategories());
         self::assertInstanceOf(Category::class, $project->getCategories()[0]);
+
+        self::assertCount(2, $project->getPartners());
+        self::assertInstanceOf(Partner::class, $project->getPartners()[0]);
     }
 }

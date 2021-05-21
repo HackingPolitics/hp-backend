@@ -66,14 +66,9 @@ class FractionInterest
 
     //region Description
     /**
-     * HTML allowed.
-     *
      * @Assert\Sequentially({
      *     @Assert\NotBlank,
-     *     @Assert\Length(max=6000),
-     *     @Assert\Length(max=2000,
-     *         normalizer={NormalizerHelper::class, "stripHtml"}
-     *     ),
+     *     @Assert\Length(max=250),
      * })
      * @Groups({
      *     "fractionInterest:read",
@@ -81,7 +76,7 @@ class FractionInterest
      *     "fractionDetails:read",
      *     "project:read",
      * })
-     * @ORM\Column(type="text", length=6000, nullable=true)
+     * @ORM\Column(type="text", length=250, nullable=true)
      */
     private ?string $description = null;
 

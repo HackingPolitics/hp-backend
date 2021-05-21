@@ -75,6 +75,9 @@ class ProjectApiTest extends ApiTestCase
         // those properties should not be visible to anonymous
         self::assertArrayNotHasKey('locked', $collection['hydra:member'][0]);
         self::assertArrayNotHasKey('memberships', $collection['hydra:member'][0]);
+        self::assertArrayNotHasKey('partners', $collection['hydra:member'][0]);
+        self::assertArrayNotHasKey('fractionDetails', $collection['hydra:member'][0]);
+
         self::assertArrayNotHasKey('firstName', $collection['hydra:member'][0]['createdBy']);
         self::assertArrayNotHasKey('lastName', $collection['hydra:member'][0]['createdBy']);
 
@@ -345,10 +348,23 @@ class ProjectApiTest extends ApiTestCase
                     'createdBy'    => [
                         'id' => TestFixtures::PROJECT_COORDINATOR['id'],
                     ],
+                    'fractionDetails' => [
+                        0 => [
+                            'interests' => [
+                                0 => [],
+                                1 => [],
+                            ],
+                        ],
+                        1 => [],
+                    ],
                     'memberships'  => [
                         0 => [],
                         1 => [],
                         2 => [],
+                    ],
+                    'partners' => [
+                        0 => [],
+                        1 => [],
                     ],
                 ],
             ],
@@ -357,7 +373,16 @@ class ProjectApiTest extends ApiTestCase
         $collection = $response->toArray();
 
         // user details invisible
-        self::assertArrayNotHasKey('user', $collection['hydra:member'][0]['memberships'][0]);
+        self::assertArrayNotHasKey('user',
+            $collection['hydra:member'][0]['memberships'][0]);
+        self::assertArrayNotHasKey('updatedBy',
+            $collection['hydra:member'][0]['fractionDetails'][0]);
+        self::assertArrayNotHasKey('updatedBy',
+            $collection['hydra:member'][0]['fractionDetails'][0]['interests'][0]);
+        self::assertArrayNotHasKey('teamContact',
+            $collection['hydra:member'][0]['partners'][0]);
+        self::assertArrayNotHasKey('updatedBy',
+            $collection['hydra:member'][0]['partners'][0]);
     }
 
     /**
@@ -546,11 +571,13 @@ class ProjectApiTest extends ApiTestCase
         self::assertArrayNotHasKey('locked', $projectData);
         self::assertArrayNotHasKey('memberships', $projectData);
         self::assertArrayNotHasKey('fractionDetails', $projectData);
-        self::assertArrayNotHasKey('projects', $projectData['categories'][0]);
+        self::assertArrayNotHasKey('partners', $projectData);
 
         // @todo und weitere...
         self::assertArrayNotHasKey('arguments', $projectData);
         self::assertArrayNotHasKey('counterArguments', $projectData);
+
+        self::assertArrayNotHasKey('projects', $projectData['categories'][0]);
 
         self::assertArrayNotHasKey('firstName', $projectData['createdBy']);
         self::assertArrayNotHasKey('lastName', $projectData['createdBy']);
@@ -647,10 +674,10 @@ class ProjectApiTest extends ApiTestCase
                 1 => [],
                 2 => [],
             ],
-            'council'        => [
+            'council'      => [
                 'id' => TestFixtures::COUNCIL['id'],
             ],
-            'title'         => TestFixtures::PROJECT['title'],
+            'title'        => TestFixtures::PROJECT['title'],
         ]);
 
         self::assertArrayNotHasKey('updatedBy', $projectData);
@@ -721,6 +748,14 @@ class ProjectApiTest extends ApiTestCase
                 ],
                 2 => [
                     'user' => [],
+                ],
+            ],
+            'partners' => [
+                0 => [
+                    'updatedBy' => [],
+                ],
+                1 => [
+                    'updatedBy' => [],
                 ],
             ],
         ]);
@@ -847,7 +882,7 @@ class ProjectApiTest extends ApiTestCase
         $response = $client->request('POST', '/projects', ['json' => [
             'title'      => 'test project',
             'topic'      => 'new topic',
-            'council' => $iri,
+            'council'    => $iri,
             'motivation' => 'my motivation',
             'skills'     => 'my project skills',
         ]]);
@@ -876,7 +911,7 @@ class ProjectApiTest extends ApiTestCase
             'createdBy'             => [
                 'id' => TestFixtures::ADMIN['id'],
             ],
-            'council'            => [
+            'council'               => [
                 'id' => TestFixtures::COUNCIL['id'],
             ],
             'slug'                  => 'test-project',
