@@ -550,6 +550,51 @@ class Project
 
     //endregion
 
+    //region Problems
+    /**
+     * @var Collection|Problem[]
+     * @Groups({
+     *     "project:member-read",
+     *     "project:pm-read",
+     *     "project:admin-read",
+     * })
+     * @ORM\OneToMany(targetEntity="Problem", mappedBy="project", cascade={"persist"})
+     */
+    private Collection $problems;
+
+    /**
+     * @return Collection|Problem[]
+     */
+    public function getProblems(): Collection
+    {
+        return $this->problems;
+    }
+
+    public function addProblems(Problem $problems): self
+    {
+        if (!$this->problems->contains($problems)) {
+            $this->problems[] = $problems;
+            $problems->setProject($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProblems(Problem $problems): self
+    {
+        if ($this->problems->contains($problems)) {
+            $this->problems->removeElement($problems);
+            // set the owning side to null (unless already changed)
+            if ($problems->getProject() === $this) {
+                $problems->setProject(null);
+            }
+        }
+
+        return $this;
+    }
+
+    //endregion
+
     //region Slug
     /**
      * @Groups({"elastica", "project:read", "user:read"})
@@ -667,5 +712,6 @@ class Project
         $this->fractionDetails = new ArrayCollection();
         $this->memberships = new ArrayCollection();
         $this->partners = new ArrayCollection();
+        $this->problems = new ArrayCollection();
     }
 }

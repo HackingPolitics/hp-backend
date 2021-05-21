@@ -77,6 +77,7 @@ class ProjectApiTest extends ApiTestCase
         self::assertArrayNotHasKey('memberships', $collection['hydra:member'][0]);
         self::assertArrayNotHasKey('partners', $collection['hydra:member'][0]);
         self::assertArrayNotHasKey('fractionDetails', $collection['hydra:member'][0]);
+        self::assertArrayNotHasKey('problems', $collection['hydra:member'][0]);
 
         self::assertArrayNotHasKey('firstName', $collection['hydra:member'][0]['createdBy']);
         self::assertArrayNotHasKey('lastName', $collection['hydra:member'][0]['createdBy']);
@@ -366,6 +367,9 @@ class ProjectApiTest extends ApiTestCase
                         0 => [],
                         1 => [],
                     ],
+                    'problems' => [
+                        0 => [],
+                    ],
                 ],
             ],
         ]);
@@ -383,6 +387,8 @@ class ProjectApiTest extends ApiTestCase
             $collection['hydra:member'][0]['partners'][0]);
         self::assertArrayNotHasKey('updatedBy',
             $collection['hydra:member'][0]['partners'][0]);
+        self::assertArrayNotHasKey('updatedBy',
+            $collection['hydra:member'][0]['problems'][0]);
     }
 
     /**
@@ -572,6 +578,7 @@ class ProjectApiTest extends ApiTestCase
         self::assertArrayNotHasKey('memberships', $projectData);
         self::assertArrayNotHasKey('fractionDetails', $projectData);
         self::assertArrayNotHasKey('partners', $projectData);
+        self::assertArrayNotHasKey('problems', $projectData);
 
         // @todo und weitere...
         self::assertArrayNotHasKey('arguments', $projectData);
@@ -652,6 +659,9 @@ class ProjectApiTest extends ApiTestCase
                 1 => ['id' => 2],
                 2 => ['id' => 3],
             ],
+            'council'      => [
+                'id' => TestFixtures::COUNCIL['id'],
+            ],
             'createdBy'    => [
                 'id' => TestFixtures::PROJECT_COORDINATOR['id'],
             ],
@@ -674,8 +684,12 @@ class ProjectApiTest extends ApiTestCase
                 1 => [],
                 2 => [],
             ],
-            'council'      => [
-                'id' => TestFixtures::COUNCIL['id'],
+            'partners'  => [
+                0 => [],
+                1 => [],
+            ],
+            'problems'  => [
+                0 => [],
             ],
             'title'        => TestFixtures::PROJECT['title'],
         ]);
@@ -689,6 +703,12 @@ class ProjectApiTest extends ApiTestCase
             $projectData['fractionDetails'][0]);
         self::assertArrayNotHasKey('updatedBy',
             $projectData['fractionDetails'][0]['interests'][0]);
+        self::assertArrayNotHasKey('updatedBy',
+            $projectData['partners'][0]);
+        self::assertArrayNotHasKey('teamContact',
+            $projectData['partners'][0]);
+        self::assertArrayNotHasKey('updatedBy',
+            $projectData['problems'][0]);
         // @todo weitere (Arg, Gegenarg + deren updatedBy)
 
         self::assertArrayNotHasKey('firstName', $projectData['createdBy']);
@@ -756,6 +776,12 @@ class ProjectApiTest extends ApiTestCase
                 ],
                 1 => [
                     'updatedBy' => [],
+                ],
+            ],
+            'problems' => [
+                0 => [
+                    'description' => 'problem 1',
+                    'updatedBy'   => [],
                 ],
             ],
         ]);

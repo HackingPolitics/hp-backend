@@ -12,6 +12,7 @@ use App\Entity\FractionInterest;
 use App\Entity\FederalState;
 use App\Entity\Council;
 use App\Entity\Partner;
+use App\Entity\Problem;
 use App\Entity\Project;
 use App\Entity\ProjectMembership;
 use App\Entity\User;
@@ -313,6 +314,13 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         $partner2->setProject($project);
         $partner2->setUpdatedBy($projectCoordinator);
         $manager->persist($partner2);
+
+        $problem1 = new Problem();
+        $problem1->setDescription('problem 1');
+        $problem1->setUpdatedBy($processManager);
+        $problem1->setProject($project);
+        $problem1->setPriority(77);
+        $manager->persist($problem1);
         //endregion
 
         /**

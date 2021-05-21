@@ -8,8 +8,6 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\Traits\AutoincrementId;
 use App\Entity\Traits\UpdatedAtFunctions;
 use DateTimeImmutable;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -330,9 +328,4 @@ class Partner
     }
 
     //endregion
-
-    public function __construct()
-    {
-        $this->interests = new ArrayCollection();
-    }
 }

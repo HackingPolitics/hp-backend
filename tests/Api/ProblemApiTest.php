@@ -6,7 +6,7 @@ namespace App\Tests\Api;
 
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
 use App\DataFixtures\TestFixtures;
-use App\Entity\Partner;
+use App\Entity\Problem;
 use App\Entity\Project;
 use App\Entity\User;
 use Doctrine\ORM\EntityManager;
@@ -14,9 +14,9 @@ use Vrok\SymfonyAddons\PHPUnit\AuthenticatedClientTrait;
 use Vrok\SymfonyAddons\PHPUnit\RefreshDatabaseTrait;
 
 /**
- * @group PartnerApi
+ * @group ProblemApi
  */
-class PartnerApiTest extends ApiTestCase
+class ProblemApiTest extends ApiTestCase
 {
     use AuthenticatedClientTrait;
     use RefreshDatabaseTrait;
@@ -55,7 +55,7 @@ class PartnerApiTest extends ApiTestCase
     {
         static::createAuthenticatedClient([
             'email' => TestFixtures::ADMIN['email'],
-        ])->request('GET', '/partners');
+        ])->request('GET', '/problems');
 
         self::assertResponseStatusCodeSame(405);
         self::assertResponseHeaderSame('content-type',
@@ -65,17 +65,17 @@ class PartnerApiTest extends ApiTestCase
             '@context'          => '/contexts/Error',
             '@type'             => 'hydra:Error',
             'hydra:title'       => 'An error occurred',
-            'hydra:description' => 'No route found for "GET /partners": Method Not Allowed (Allow: POST)',
+            'hydra:description' => 'No route found for "GET /problems": Method Not Allowed (Allow: POST)',
         ]);
     }
 
-    public function testGetPartnerAsAdmin(): void
+    public function testGetProblemAsAdmin(): void
     {
         $client = static::createAuthenticatedClient([
             'email' => TestFixtures::ADMIN['email'],
         ]);
 
-        $iri = $this->findIriBy(Partner::class, ['id' => 1]);
+        $iri = $this->findIriBy(Problem::class, ['id' => 1]);
 
         $client->request('GET', $iri);
 
@@ -85,26 +85,23 @@ class PartnerApiTest extends ApiTestCase
 
         self::assertJsonContains([
             '@id'         => $iri,
-            'contactName' => 'P1',
+            'description' => 'problem 1',
             'project'     => [
                 'id' => 1,
             ],
         ]);
     }
 
-    public function testCreatePartner(): void
+    public function testCreateProblem(): void
     {
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
-        $userIri = $this->findIriBy(User::class,
-            ['id' => TestFixtures::PROJECT_OBSERVER['id']]);
 
         static::createAuthenticatedClient([
             'email' => TestFixtures::PROJECT_WRITER['email'],
-        ])->request('POST', '/partners', ['json' => [
-            'name'        => 'P3',
+        ])->request('POST', '/problems', ['json' => [
+            'description' => 'new problem',
             'project'     => $projectIri,
-            'teamContact' => $userIri,
         ]]);
 
         self::assertResponseStatusCodeSame(201);
@@ -112,11 +109,10 @@ class PartnerApiTest extends ApiTestCase
             'application/ld+json; charset=utf-8');
 
         self::assertJsonContains([
-            '@context'    => '/contexts/Partner',
-            '@type'       => 'Partner',
-            'name'        => 'P3',
+            '@context'    => '/contexts/Problem',
+            '@type'       => 'Problem',
+            'description' => 'new problem',
             'project'     => ['@id' => $projectIri],
-            'teamContact' => ['@id' => $userIri],
             'updatedBy'   => [
                 'id' => TestFixtures::PROJECT_WRITER['id'],
             ],
@@ -128,9 +124,9 @@ class PartnerApiTest extends ApiTestCase
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
 
-        static::createClient()->request('POST', '/partners', ['json' => [
-            'name'    => 'P3',
-            'project' => $projectIri,
+        static::createClient()->request('POST', '/problems', ['json' => [
+            'description' => 'new problem',
+            'project'     => $projectIri,
         ]]);
 
         self::assertResponseStatusCodeSame(401);
@@ -150,9 +146,9 @@ class PartnerApiTest extends ApiTestCase
 
         static::createAuthenticatedClient([
             'email' => TestFixtures::PROJECT_OBSERVER['email'],
-        ])->request('POST', '/partners', ['json' => [
-            'name'    => 'P3',
-            'project' => $projectIri,
+        ])->request('POST', '/problems', ['json' => [
+            'description' => 'new problem',
+            'project'     => $projectIri,
         ]]);
 
         self::assertResponseStatusCodeSame(403);
@@ -167,14 +163,14 @@ class PartnerApiTest extends ApiTestCase
         ]);
     }
 
-    public function testCreateWithoutNameFails(): void
+    public function testCreateWithoutDescriptionFails(): void
     {
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
 
         static::createAuthenticatedClient([
             'email' => TestFixtures::PROCESS_MANAGER['email'],
-        ])->request('POST', '/partners', ['json' => [
+        ])->request('POST', '/problems', ['json' => [
             'project' => $projectIri,
         ]]);
 
@@ -186,7 +182,7 @@ class PartnerApiTest extends ApiTestCase
             '@context'          => '/contexts/ConstraintViolationList',
             '@type'             => 'ConstraintViolationList',
             'hydra:title'       => 'An error occurred',
-            'hydra:description' => 'name: validate.general.notBlank',
+            'hydra:description' => 'description: validate.general.notBlank',
         ]);
     }
 
@@ -194,8 +190,8 @@ class PartnerApiTest extends ApiTestCase
     {
         static::createAuthenticatedClient([
             'email' => TestFixtures::PROCESS_MANAGER['email'],
-        ])->request('POST', '/partners', ['json' => [
-            'name' => 'P3',
+        ])->request('POST', '/problems', ['json' => [
+            'description' => 'new problem',
         ]]);
 
         self::assertResponseStatusCodeSame(422);
@@ -210,45 +206,22 @@ class PartnerApiTest extends ApiTestCase
         ]);
     }
 
-    public function testCreateDuplicateFails(): void
-    {
-        $projectIri = $this->findIriBy(Project::class,
-            ['id' => TestFixtures::PROJECT['id']]);
-
-        static::createAuthenticatedClient([
-            'email' => TestFixtures::PROCESS_MANAGER['email'],
-        ])->request('POST', '/partners', ['json' => [
-            'name'    => TestFixtures::PARTNER_ONE['name'],
-            'project' => $projectIri,
-        ]]);
-
-        self::assertResponseStatusCodeSame(422);
-        self::assertResponseHeaderSame('content-type',
-            'application/ld+json; charset=utf-8');
-
-        self::assertJsonContains([
-            '@context'          => '/contexts/ConstraintViolationList',
-            '@type'             => 'ConstraintViolationList',
-            'hydra:title'       => 'An error occurred',
-            'hydra:description' => 'name: validate.partner.duplicateName',
-        ]);
-    }
-
-    public function testUpdatePartner(): void
+    public function testUpdateProblem(): void
     {
         $client = static::createAuthenticatedClient([
             'email' => TestFixtures::PROJECT_COORDINATOR['email'],
         ]);
 
-        $iri = $this->findIriBy(Partner::class, ['id' => 1]);
+        $iri = $this->findIriBy(Problem::class, ['id' => 1]);
         $client->request('PUT', $iri, ['json' => [
-            'contactPhone' => '555-123',
+            'priority' => 33,
         ]]);
 
         self::assertResponseIsSuccessful();
         self::assertJsonContains([
             '@id'          => $iri,
-            'contactPhone' => '555-123',
+            'description'  => 'problem 1',
+            'priority'     => 33,
             'updatedBy'    => [
                 'id' => TestFixtures::PROJECT_COORDINATOR['id'],
             ],
@@ -258,9 +231,9 @@ class PartnerApiTest extends ApiTestCase
     public function testUpdateFailsUnauthenticated(): void
     {
         $client = static::createClient();
-        $iri = $this->findIriBy(Partner::class, ['id' => 1]);
+        $iri = $this->findIriBy(Problem::class, ['id' => 1]);
         $client->request('PUT', $iri, ['json' => [
-            'contactName' => 'Test #1',
+            'description' => 'new problem',
         ]]);
 
         self::assertResponseStatusCodeSame(401);
@@ -279,9 +252,9 @@ class PartnerApiTest extends ApiTestCase
             'email' => TestFixtures::PROJECT_OBSERVER['email'],
         ]);
 
-        $iri = $this->findIriBy(Partner::class, ['id' => 1]);
+        $iri = $this->findIriBy(Problem::class, ['id' => 1]);
         $client->request('PUT', $iri, ['json' => [
-            'contactName' => 'Test #1',
+            'description' => 'new problem',
         ]]);
 
         self::assertResponseStatusCodeSame(403);
@@ -306,20 +279,20 @@ class PartnerApiTest extends ApiTestCase
             ['id' => TestFixtures::PROJECT['id']]);
         $newProjectIRI = $this->findIriBy(Project::class,
             ['id' => TestFixtures::LOCKED_PROJECT['id']]);
-        $iri = $this->findIriBy(Partner::class,
+        $iri = $this->findIriBy(Problem::class,
             ['id' => 1]);
 
         $client->request('PUT', $iri, ['json' => [
-            'contactName' => 'name name',
+            'description' => 'new problem',
             'project'     => $newProjectIRI,
         ]]);
 
         self::assertResponseIsSuccessful();
 
-        // contactName got updated but project didn't
+        // description got updated but project didn't
         self::assertJsonContains([
-            'contactName'  => 'name name',
-            'project'      => [
+            'description' => 'new problem',
+            'project'     => [
                 '@id' => $projectIRI,
             ],
         ]);
@@ -330,32 +303,32 @@ class PartnerApiTest extends ApiTestCase
         /** @var Project $before */
         $before = $this->entityManager->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
-        self::assertCount(2, $before->getPartners());
+        self::assertCount(1, $before->getProblems());
 
         $client = static::createAuthenticatedClient([
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
 
-        $iri = $this->findIriBy(Partner::class, ['id' => 1]);
+        $iri = $this->findIriBy(Problem::class, ['id' => 1]);
         $client->request('DELETE', $iri);
 
         static::assertResponseStatusCodeSame(204);
 
-        /** @var Partner $deleted */
-        $deleted = $this->entityManager->getRepository(Partner::class)
+        /** @var Problem $deleted */
+        $deleted = $this->entityManager->getRepository(Problem::class)
             ->find(1);
         self::assertNull($deleted);
 
         /** @var Project $after */
         $after = $this->entityManager->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
-        self::assertCount(1, $after->getPartners());
+        self::assertCount(0, $after->getProblems());
     }
 
     public function testDeleteFailsUnauthenticated(): void
     {
         $client = static::createClient();
-        $iri = $this->findIriBy(Partner::class, ['id' => 1]);
+        $iri = $this->findIriBy(Problem::class, ['id' => 1]);
         $client->request('DELETE', $iri);
 
         self::assertResponseStatusCodeSame(401);
@@ -374,7 +347,7 @@ class PartnerApiTest extends ApiTestCase
             'email' => TestFixtures::PROJECT_OBSERVER['email'],
         ]);
 
-        $iri = $this->findIriBy(Partner::class, ['id' => 1]);
+        $iri = $this->findIriBy(Problem::class, ['id' => 1]);
         $client->request('DELETE', $iri);
 
         self::assertResponseStatusCodeSame(403);

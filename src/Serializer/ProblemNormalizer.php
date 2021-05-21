@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Serializer;
 
-use App\Entity\FractionInterest;
+use App\Entity\Problem;
 use App\Entity\ProjectMembership;
 use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -13,11 +13,11 @@ use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
 
-class FractionInterestNormalizer implements ContextAwareNormalizerInterface, NormalizerAwareInterface
+class ProblemNormalizer implements ContextAwareNormalizerInterface, NormalizerAwareInterface
 {
     use NormalizerAwareTrait;
 
-    private const ALREADY_CALLED = 'FRACTION_INTEREST_NORMALIZER_ALREADY_CALLED';
+    private const ALREADY_CALLED = 'PROBLEM_NORMALIZER_ALREADY_CALLED';
 
     private TokenStorageInterface $tokenStorage;
 
@@ -29,7 +29,7 @@ class FractionInterestNormalizer implements ContextAwareNormalizerInterface, Nor
     /**
      * {@inheritdoc}
      *
-     * @param FractionInterest $object
+     * @param Problem $object
      */
     public function normalize($object, $format = null, array $context = [])
     {
@@ -44,25 +44,23 @@ class FractionInterestNormalizer implements ContextAwareNormalizerInterface, Nor
                 $isPM = true;
             }
 
-            $project = $object->getFractionDetails()
-                ? $object->getFractionDetails()->getProject()
-                : null;
+            $project = $object->getProject();
             if ($project) {
                 if ($project->userCanRead($currentUser)) {
-                    $context['groups'][] = 'fractionInterest:member-read';
+                    $context['groups'][] = 'problem:member-read';
                 }
 
                 $role = $project->getUserRole($currentUser);
                 if (ProjectMembership::ROLE_COORDINATOR === $role) {
-                    $context['groups'][] = 'fractionInterest:coordinator-read';
+                    $context['groups'][] = 'problem:coordinator-read';
                 }
 
                 if (ProjectMembership::ROLE_OBSERVER === $role) {
-                    $context['groups'][] = 'fractionInterest:observer-read';
+                    $context['groups'][] = 'problem:observer-read';
                 }
 
                 if (ProjectMembership::ROLE_WRITER === $role) {
-                    $context['groups'][] = 'fractionInterest:writer-read';
+                    $context['groups'][] = 'problem:writer-read';
                 }
             }
         }
@@ -93,6 +91,6 @@ class FractionInterestNormalizer implements ContextAwareNormalizerInterface, Nor
             return false;
         }
 
-        return $data instanceof FractionInterest;
+        return $data instanceof Problem;
     }
 }

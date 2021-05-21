@@ -16,10 +16,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Vrok\DoctrineAddons\Entity\NormalizerHelper;
 
 /**
- * FractionInterest.
+ * Problem.
  *
- * Collection cannot be queried, fractionInterest can only be retrieved via the
- * FractionDetails relations.
+ * Collection cannot be queried, problems can only be retrieved via the
+ * Project relations.
  * Item GET is required for API Platform to work, thus restricted to admins,
  * should not be used.
  *
@@ -31,7 +31,7 @@ use Vrok\DoctrineAddons\Entity\NormalizerHelper;
  *     collectionOperations={
  *         "post"={
  *             "security_post_denormalize" = "is_granted('CREATE', object)",
- *             "validation_groups"={"Default", "fractionInterest:create"},
+ *             "validation_groups"={"Default", "problem:create"},
  *         },
  *     },
  *     itemOperations={
@@ -40,26 +40,26 @@ use Vrok\DoctrineAddons\Entity\NormalizerHelper;
  *         },
  *         "put"={
  *             "security"="is_granted('EDIT', object)",
- *             "validation_groups"={"Default", "fractionInterest:write"},
+ *             "validation_groups"={"Default", "problem:write"},
  *         },
  *         "delete"={
  *              "security"="is_granted('DELETE', object)",
  *         },
  *     },
  *     normalizationContext={
- *         "groups"={"default:read", "fractionInterest:read"},
+ *         "groups"={"default:read", "problem:read"},
  *         "enable_max_depth"=true,
  *         "swagger_definition_name"="Read"
  *     },
  *     denormalizationContext={
- *         "groups"={"default:write", "fractionInterest:write"},
+ *         "groups"={"default:write", "problem:write"},
  *         "swagger_definition_name"="Write"
  *     }
  * )
  *
- * @ORM\Entity(repositoryClass="App\Repository\FractionInterestRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\ProblemRepository")
  */
-class FractionInterest
+class Problem
 {
     use AutoincrementId;
     use UpdatedAtFunctions;
@@ -68,15 +68,14 @@ class FractionInterest
     /**
      * @Assert\Sequentially({
      *     @Assert\NotBlank,
-     *     @Assert\Length(max=250),
+     *     @Assert\Length(max=1000),
      * })
      * @Groups({
-     *     "fractionInterest:read",
-     *     "fractionInterest:write",
-     *     "fractionDetails:read",
+     *     "problem:read",
+     *     "problem:write",
      *     "project:read",
      * })
-     * @ORM\Column(type="text", length=250, nullable=false)
+     * @ORM\Column(type="text", length=1000, nullable=false)
      */
     private ?string $description = null;
 
@@ -94,26 +93,54 @@ class FractionInterest
 
     //endregion
 
-    //region FractionDetails
+    //region Priority
+    /**
+     * @Groups({
+     *     "problem:read",
+     *     "problem:write",
+     *     "project:read",
+     * })
+     * @ORM\Column(type="smallint", nullable=true, options={"default":0})
+     *
+     * Can be less than 0.
+     */
+    private int $priority = 0;
+
+    public function getPriority(): int
+    {
+        return $this->priority;
+    }
+
+    public function setPriority(int $priority): self
+    {
+        $this->priority = $priority;
+
+        return $this;
+    }
+
+    //endregion
+
+    //region Project
     /**
      * @Assert\NotBlank
      * @Groups({
-     *     "fractionInterest:read",
-     *     "fractionInterest:create",
+     *     "problem:read",
+     *     "problem:create",
      * })
-     * @ORM\ManyToOne(targetEntity="FractionDetails", inversedBy="interests")
+     * @MaxDepth(1)
+     * @ORM\ManyToOne(targetEntity="Project", inversedBy="problem")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
-    private ?FractionDetails $fractionDetails = null;
+    private ?Project $project = null;
 
-    public function getFractionDetails(): ?FractionDetails
+    public function getProject(): ?Project
     {
-        return $this->fractionDetails;
+        return $this->project;
     }
 
-    public function setFractionDetails(?FractionDetails $fraction): self
+    public function setProject(?Project $project): self
     {
-        $this->fractionDetails = $fraction;
+        $this->project = $project;
 
         return $this;
     }
@@ -123,7 +150,7 @@ class FractionInterest
     //region UpdatedAt
     /**
      * @Assert\NotBlank(allowNull=true)
-     * @Groups({"fractionInterest:read", "fractionDetails:read", "project:read"})
+     * @Groups({"problem:read", "project:read"})
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
@@ -133,14 +160,10 @@ class FractionInterest
     //region UpdatedBy
     /**
      * @Groups({
-     *     "fractionInterest:writer-read",
-     *     "fractionInterest:coordinator-read",
-     *     "fractionInterest:pm-read",
-     *     "fractionInterest:admin-read",
-     *     "fractionDetails:writer-read",
-     *     "fractionDetails:coordinator-read",
-     *     "fractionDetails:pm-read",
-     *     "fractionDetails:admin-read",
+     *     "problem:writer-read",
+     *     "problem:coordinator-read",
+     *     "problem:pm-read",
+     *     "problem:admin-read",
      *     "project:writer-read",
      *     "project:coordinator-read",
      *     "project:pm-read",

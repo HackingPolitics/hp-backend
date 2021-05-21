@@ -9,6 +9,7 @@ use App\Entity\Category;
 use App\Entity\FractionDetails;
 use App\Entity\Council;
 use App\Entity\Partner;
+use App\Entity\Problem;
 use App\Entity\Project;
 use App\Entity\ProjectMembership;
 use App\Entity\User;
@@ -149,5 +150,9 @@ class ProjectTest extends KernelTestCase
 
         self::assertCount(2, $project->getPartners());
         self::assertInstanceOf(Partner::class, $project->getPartners()[0]);
+
+        self::assertCount(1, $project->getProblems());
+        self::assertInstanceOf(Problem::class, $project->getProblems()[0]);
+
     }
 }
