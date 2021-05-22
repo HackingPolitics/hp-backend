@@ -14,6 +14,7 @@ use App\Entity\ProjectMembership;
 use App\Entity\User;
 use App\Message\ProjectReportedMessage;
 use DateTimeImmutable;
+use DateTimeZone;
 use Vrok\SymfonyAddons\PHPUnit\AuthenticatedClientTrait;
 use Vrok\SymfonyAddons\PHPUnit\RefreshDatabaseTrait;
 
@@ -1221,6 +1222,8 @@ class ProjectApiTest extends ApiTestCase
             'email' => TestFixtures::PROJECT_WRITER['email'],
         ]);
 
+        $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
+
         $iri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
         $client->request('PUT', $iri, ['json' => [
@@ -1234,6 +1237,13 @@ class ProjectApiTest extends ApiTestCase
             'topic'                 => 'new topic',
             'impact'                => 'another impact',
         ]);
+
+        /** @var Project $found */
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $found = $em->getRepository(Project::class)
+            ->find(TestFixtures::PROJECT['id']);
+
+        self::assertTrue($now < $found->getUpdatedAt());
     }
 
     public function testUpdateCategories(): void

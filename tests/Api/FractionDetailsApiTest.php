@@ -10,6 +10,8 @@ use App\Entity\Fraction;
 use App\Entity\FractionDetails;
 use App\Entity\Project;
 use App\Entity\User;
+use DateTimeImmutable;
+use DateTimeZone;
 use Doctrine\ORM\EntityManager;
 use Vrok\SymfonyAddons\PHPUnit\AuthenticatedClientTrait;
 use Vrok\SymfonyAddons\PHPUnit\RefreshDatabaseTrait;
@@ -95,7 +97,7 @@ class FractionDetailsApiTest extends ApiTestCase
         ]);
     }
 
-    public function testCreateFractionDetails(): void
+    public function testCreate(): void
     {
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
@@ -103,6 +105,8 @@ class FractionDetailsApiTest extends ApiTestCase
             ['id' => TestFixtures::FRACTION_RED['id']]);
         $userIri = $this->findIriBy(User::class,
             ['id' => TestFixtures::PROJECT_OBSERVER['id']]);
+
+        $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
 
         static::createAuthenticatedClient([
             'email' => TestFixtures::PROJECT_WRITER['email'],
@@ -118,7 +122,7 @@ class FractionDetailsApiTest extends ApiTestCase
             'application/ld+json; charset=utf-8');
 
         // @todo kommt nicht mit den validatoren klar
-        //self::assertMatchesResourceItemJsonSchema(FractionDetails::class);
+        self::assertMatchesResourceItemJsonSchema(FractionDetails::class);
 
         self::assertJsonContains([
             '@context'    => '/contexts/FractionDetails',
@@ -131,6 +135,14 @@ class FractionDetailsApiTest extends ApiTestCase
                 'id' => TestFixtures::PROJECT_WRITER['id'],
             ],
         ]);
+
+        /** @var Project $found */
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $found = $em->getRepository(Project::class)
+            ->find(TestFixtures::PROJECT['id']);
+
+        // creation of a new sub-resource should update the timestamp of the parent
+        self::assertTrue($now < $found->getUpdatedAt());
     }
 
     public function testCreateFailsUnauthenticated(): void
@@ -253,11 +265,13 @@ class FractionDetailsApiTest extends ApiTestCase
         ]);
     }
 
-    public function testUpdateFractionDetails(): void
+    public function testUpdate(): void
     {
         $client = static::createAuthenticatedClient([
             'email' => TestFixtures::PROJECT_COORDINATOR['email'],
         ]);
+
+        $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
 
         $iri = $this->findIriBy(FractionDetails::class, ['id' => 1]);
         $client->request('PUT', $iri, ['json' => [
@@ -272,6 +286,14 @@ class FractionDetailsApiTest extends ApiTestCase
                 'id' => TestFixtures::PROJECT_COORDINATOR['id'],
             ],
         ]);
+
+        /** @var Project $found */
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $found = $em->getRepository(Project::class)
+            ->find(TestFixtures::PROJECT['id']);
+
+        // updating a sub-resource should update the timestamp of the parent
+        self::assertTrue($now < $found->getUpdatedAt());
     }
 
     public function testUpdateFailsUnauthenticated(): void
@@ -384,6 +406,8 @@ class FractionDetailsApiTest extends ApiTestCase
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
 
+        $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
+
         $iri = $this->findIriBy(FractionDetails::class, ['id' => 1]);
         $client->request('DELETE', $iri);
 
@@ -398,6 +422,9 @@ class FractionDetailsApiTest extends ApiTestCase
         $after = $this->entityManager->getRepository(Fraction::class)
             ->find(TestFixtures::FRACTION_GREEN['id']);
         self::assertCount(0, $after->getDetails());
+
+        // deletion of a new sub-resource should update the timestamp of the parent
+        self::assertTrue($now < $after->getUpdatedAt());
     }
 
     public function testDeleteFailsUnauthenticated(): void

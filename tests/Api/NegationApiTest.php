@@ -8,6 +8,9 @@ use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
 use App\DataFixtures\TestFixtures;
 use App\Entity\CounterArgument;
 use App\Entity\Negation;
+use App\Entity\Project;
+use DateTimeImmutable;
+use DateTimeZone;
 use Doctrine\ORM\EntityManager;
 use Vrok\SymfonyAddons\PHPUnit\AuthenticatedClientTrait;
 use Vrok\SymfonyAddons\PHPUnit\RefreshDatabaseTrait;
@@ -90,10 +93,12 @@ class NegationApiTest extends ApiTestCase
         ]);
     }
 
-    public function testCreateNegation(): void
+    public function testCreate(): void
     {
         $caIri = $this->findIriBy(CounterArgument::class,
             ['id' => 1]);
+
+        $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
 
         static::createAuthenticatedClient([
             'email' => TestFixtures::PROJECT_WRITER['email'],
@@ -117,6 +122,14 @@ class NegationApiTest extends ApiTestCase
                 'id' => TestFixtures::PROJECT_WRITER['id'],
             ],
         ]);
+
+        /** @var Project $found */
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $found = $em->getRepository(Project::class)
+            ->find(TestFixtures::PROJECT['id']);
+
+        // creation of a new sub-resource should update the timestamp of the parent
+        self::assertTrue($now < $found->getUpdatedAt());
     }
 
     public function testCreateFailsUnauthenticated(): void
@@ -206,11 +219,13 @@ class NegationApiTest extends ApiTestCase
         ]);
     }
 
-    public function testUpdateNegation(): void
+    public function testUpdate(): void
     {
         $client = static::createAuthenticatedClient([
             'email' => TestFixtures::PROJECT_COORDINATOR['email'],
         ]);
+
+        $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
 
         $iri = $this->findIriBy(Negation::class, ['id' => 1]);
         $client->request('PUT', $iri, ['json' => [
@@ -225,6 +240,14 @@ class NegationApiTest extends ApiTestCase
                 'id' => TestFixtures::PROJECT_COORDINATOR['id'],
             ],
         ]);
+
+        /** @var Project $found */
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $found = $em->getRepository(Project::class)
+            ->find(TestFixtures::PROJECT['id']);
+
+        // updating a sub-resource should update the timestamp of the parent
+        self::assertTrue($now < $found->getUpdatedAt());
     }
 
     public function testUpdateFailsUnauthenticated(): void
@@ -307,6 +330,8 @@ class NegationApiTest extends ApiTestCase
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
 
+        $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
+
         $iri = $this->findIriBy(Negation::class, ['id' => 1]);
         $client->request('DELETE', $iri);
 
@@ -321,6 +346,9 @@ class NegationApiTest extends ApiTestCase
         $after = $this->entityManager->getRepository(CounterArgument::class)
             ->find(1);
         self::assertCount(0, $after->getNegations());
+
+        // deletion of a new sub-resource should update the timestamp of the parent
+        self::assertTrue($now < $after->getProject()->getUpdatedAt());
     }
 
     public function testDeleteFailsUnauthenticated(): void

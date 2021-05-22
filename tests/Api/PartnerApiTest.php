@@ -9,6 +9,8 @@ use App\DataFixtures\TestFixtures;
 use App\Entity\Partner;
 use App\Entity\Project;
 use App\Entity\User;
+use DateTimeImmutable;
+use DateTimeZone;
 use Doctrine\ORM\EntityManager;
 use Vrok\SymfonyAddons\PHPUnit\AuthenticatedClientTrait;
 use Vrok\SymfonyAddons\PHPUnit\RefreshDatabaseTrait;
@@ -50,6 +52,7 @@ class PartnerApiTest extends ApiTestCase
 
     /**
      * Test that no collection of details is available, not even for admins.
+     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
      */
     public function testCollectionNotAvailable(): void
     {
@@ -92,12 +95,14 @@ class PartnerApiTest extends ApiTestCase
         ]);
     }
 
-    public function testCreatePartner(): void
+    public function testCreate(): void
     {
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
         $userIri = $this->findIriBy(User::class,
             ['id' => TestFixtures::PROJECT_OBSERVER['id']]);
+
+        $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
 
         static::createAuthenticatedClient([
             'email' => TestFixtures::PROJECT_WRITER['email'],
@@ -121,6 +126,14 @@ class PartnerApiTest extends ApiTestCase
                 'id' => TestFixtures::PROJECT_WRITER['id'],
             ],
         ]);
+
+        /** @var Project $found */
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $found = $em->getRepository(Project::class)
+            ->find(TestFixtures::PROJECT['id']);
+
+        // creation of a new sub-resource should update the timestamp of the parent
+        self::assertTrue($now < $found->getUpdatedAt());
     }
 
     public function testCreateFailsUnauthenticated(): void
@@ -234,11 +247,13 @@ class PartnerApiTest extends ApiTestCase
         ]);
     }
 
-    public function testUpdatePartner(): void
+    public function testUpdate(): void
     {
         $client = static::createAuthenticatedClient([
             'email' => TestFixtures::PROJECT_COORDINATOR['email'],
         ]);
+
+        $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
 
         $iri = $this->findIriBy(Partner::class, ['id' => 1]);
         $client->request('PUT', $iri, ['json' => [
@@ -253,6 +268,14 @@ class PartnerApiTest extends ApiTestCase
                 'id' => TestFixtures::PROJECT_COORDINATOR['id'],
             ],
         ]);
+
+        /** @var Project $found */
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $found = $em->getRepository(Project::class)
+            ->find(TestFixtures::PROJECT['id']);
+
+        // updating a sub-resource should update the timestamp of the parent
+        self::assertTrue($now < $found->getUpdatedAt());
     }
 
     public function testUpdateFailsUnauthenticated(): void
@@ -336,6 +359,8 @@ class PartnerApiTest extends ApiTestCase
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
 
+        $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
+
         $iri = $this->findIriBy(Partner::class, ['id' => 1]);
         $client->request('DELETE', $iri);
 
@@ -350,6 +375,9 @@ class PartnerApiTest extends ApiTestCase
         $after = $this->entityManager->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
         self::assertCount(1, $after->getPartners());
+
+        // deletion of a new sub-resource should update the timestamp of the parent
+        self::assertTrue($now < $after->getUpdatedAt());
     }
 
     public function testDeleteFailsUnauthenticated(): void
