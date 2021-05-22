@@ -218,10 +218,10 @@ class CounterArgumentApiTest extends ApiTestCase
 
         self::assertResponseIsSuccessful();
         self::assertJsonContains([
-            '@id'          => $iri,
-            'description'  => 'counter-argument 1',
-            'priority'     => 33,
-            'updatedBy'    => [
+            '@id'         => $iri,
+            'description' => 'counter-argument 1',
+            'priority'    => 33,
+            'updatedBy'   => [
                 'id' => TestFixtures::PROJECT_COORDINATOR['id'],
             ],
         ]);

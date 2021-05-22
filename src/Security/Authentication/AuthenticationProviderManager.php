@@ -12,7 +12,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
 /**
- * There is no event we could listen to that is triggered after the credentials
+ * There is no event we could listen to, that is triggered after the credentials
  * were extracted from the request and before the UserProviders are called.
  * So we have to hack into the process by decorating this ProviderManager,
  * which is called by the UsernamePasswordJsonAuthenticationListener with the

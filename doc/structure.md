@@ -12,13 +12,9 @@
   Transactions im ORM). Wir erwarten nicht extrem viele Daten (Millionen von
   Zeilen), auch keine hohe Anzahl von Schreibzugriffen und nutzen lieber die
   hohe Select-Performance der SQL-DBs.
-  Um nicht übermässig viele Joins verwenden zu müssen werden dynamische Felder
-  wie bspw. Angaben zum Förderantrag als JSON in einem Feld gespeichert, diese
-  müssen auch nicht für die Suche indiziert  werden. Die API gibt sowieso immer
-  komplette Dokumente zurück, um die Verarbeitung der einzelnen Felder kümmert
-  sich der Client. Wir schauen einmal wie weit
-  wir damit kommen und können später noch MongoDB für solche Dokumente
-  hinzufügen.
+  Um nicht übermässig viele Joins verwenden zu müssen können dynamische Felder
+  als JSON in einem Feld gespeichert werden, wenn diese nicht für die Suche
+  indiziert werden müssen.
 * Wir verwenden den Symfony Serializer statt JMS da ApiPlatform diesen nicht untersützt
   (@see https://github.com/api-platform/api-platform/issues/753)
 

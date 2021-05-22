@@ -52,7 +52,6 @@ class JWTEventSubscriber implements EventSubscriberInterface, ServiceSubscriberI
             }
         }
 
-        $payload['groupID'] = 13; // @todo remove, debug only
         $event->setData($payload);
     }
 
