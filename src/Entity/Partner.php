@@ -180,7 +180,7 @@ class Partner
      *     "partner:create",
      * })
      * @MaxDepth(1)
-     * @ORM\ManyToOne(targetEntity="Project", inversedBy="partner")
+     * @ORM\ManyToOne(targetEntity="Project", inversedBy="partners")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private ?Project $project = null;

@@ -16,9 +16,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Vrok\DoctrineAddons\Entity\NormalizerHelper;
 
 /**
- * Problem.
+ * Negation.
  *
- * Collection cannot be queried, problems can only be retrieved via the
+ * Collection cannot be queried, negations can only be retrieved via the
  * Project relations.
  * Item GET is required for API Platform to work, thus restricted to admins,
  * should not be used.
@@ -31,7 +31,7 @@ use Vrok\DoctrineAddons\Entity\NormalizerHelper;
  *     collectionOperations={
  *         "post"={
  *             "security_post_denormalize" = "is_granted('CREATE', object)",
- *             "validation_groups"={"Default", "problem:create"},
+ *             "validation_groups"={"Default", "negation:create"},
  *         },
  *     },
  *     itemOperations={
@@ -40,26 +40,26 @@ use Vrok\DoctrineAddons\Entity\NormalizerHelper;
  *         },
  *         "put"={
  *             "security"="is_granted('EDIT', object)",
- *             "validation_groups"={"Default", "problem:write"},
+ *             "validation_groups"={"Default", "negation:write"},
  *         },
  *         "delete"={
  *              "security"="is_granted('DELETE', object)",
  *         },
  *     },
  *     normalizationContext={
- *         "groups"={"default:read", "problem:read"},
+ *         "groups"={"default:read", "negation:read"},
  *         "enable_max_depth"=true,
  *         "swagger_definition_name"="Read"
  *     },
  *     denormalizationContext={
- *         "groups"={"default:write", "problem:write"},
+ *         "groups"={"default:write", "negation:write"},
  *         "swagger_definition_name"="Write"
  *     }
  * )
  *
- * @ORM\Entity(repositoryClass="App\Repository\ProblemRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\NegationRepository")
  */
-class Problem
+class Negation
 {
     use AutoincrementId;
     use UpdatedAtFunctions;
@@ -71,8 +71,9 @@ class Problem
      *     @Assert\Length(max=1000),
      * })
      * @Groups({
-     *     "problem:read",
-     *     "problem:write",
+     *     "negation:read",
+     *     "negation:write",
+     *     "counterArgument:read",
      *     "project:read",
      * })
      * @ORM\Column(type="text", length=1000, nullable=false)
@@ -96,8 +97,9 @@ class Problem
     //region Priority
     /**
      * @Groups({
-     *     "problem:read",
-     *     "problem:write",
+     *     "negation:read",
+     *     "negation:write",
+     *     "counterArgument:read",
      *     "project:read",
      * })
      * @ORM\Column(type="smallint", nullable=true, options={"default":0})
@@ -120,27 +122,27 @@ class Problem
 
     //endregion
 
-    //region Project
+    //region CounterArgument
     /**
      * @Assert\NotBlank
      * @Groups({
-     *     "problem:read",
-     *     "problem:create",
+     *     "negation:read",
+     *     "negation:create",
      * })
      * @MaxDepth(1)
-     * @ORM\ManyToOne(targetEntity="Project", inversedBy="problems")
+     * @ORM\ManyToOne(targetEntity="CounterArgument", inversedBy="negations")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
-    private ?Project $project = null;
+    private ?CounterArgument $counterArgument = null;
 
-    public function getProject(): ?Project
+    public function getCounterArgument(): ?CounterArgument
     {
-        return $this->project;
+        return $this->counterArgument;
     }
 
-    public function setProject(?Project $project): self
+    public function setCounterArgument(?CounterArgument $counterArgument): self
     {
-        $this->project = $project;
+        $this->counterArgument = $counterArgument;
 
         return $this;
     }
@@ -150,7 +152,11 @@ class Problem
     //region UpdatedAt
     /**
      * @Assert\NotBlank(allowNull=true)
-     * @Groups({"problem:read", "project:read"})
+     * @Groups({
+     *     "negation:read",
+     *     "counterArgument:read",
+     *     "project:read"
+     * })
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
@@ -160,10 +166,14 @@ class Problem
     //region UpdatedBy
     /**
      * @Groups({
-     *     "problem:writer-read",
-     *     "problem:coordinator-read",
-     *     "problem:pm-read",
-     *     "problem:admin-read",
+     *     "negation:writer-read",
+     *     "negation:coordinator-read",
+     *     "negation:pm-read",
+     *     "negation:admin-read",
+     *     "counterArgument:writer-read",
+     *     "counterArgument:coordinator-read",
+     *     "counterArgument:pm-read",
+     *     "counterArgument:admin-read",
      *     "project:writer-read",
      *     "project:coordinator-read",
      *     "project:pm-read",

@@ -124,6 +124,96 @@ class Project
     public const STATE_PUBLIC = 'public';
     public const STATE_PRIVATE = 'private';
 
+    //region ActionMandates
+    /**
+     * @var Collection|ActionMandate[]
+     * @Groups({
+     *     "project:member-read",
+     *     "project:pm-read",
+     *     "project:admin-read",
+     * })
+     * @ORM\OneToMany(targetEntity="ActionMandate", mappedBy="project", cascade={"persist"})
+     */
+    private Collection $actionMandates;
+
+    /**
+     * @return Collection|ActionMandate[]
+     */
+    public function getActionMandates(): Collection
+    {
+        return $this->actionMandates;
+    }
+
+    public function addActionMandate(ActionMandate $actionMandate): self
+    {
+        if (!$this->actionMandates->contains($actionMandate)) {
+            $this->actionMandates[] = $actionMandate;
+            $actionMandate->setProject($this);
+        }
+
+        return $this;
+    }
+
+    public function removeActionMandate(ActionMandate $actionMandate): self
+    {
+        if ($this->actionMandates->contains($actionMandate)) {
+            $this->actionMandates->removeElement($actionMandate);
+            // set the owning side to null (unless already changed)
+            if ($actionMandate->getProject() === $this) {
+                $actionMandate->setProject(null);
+            }
+        }
+
+        return $this;
+    }
+
+    //endregion
+    
+    //region Arguments
+    /**
+     * @var Collection|Argument[]
+     * @Groups({
+     *     "project:member-read",
+     *     "project:pm-read",
+     *     "project:admin-read",
+     * })
+     * @ORM\OneToMany(targetEntity="Argument", mappedBy="project", cascade={"persist"})
+     */
+    private Collection $arguments;
+
+    /**
+     * @return Collection|Argument[]
+     */
+    public function getArguments(): Collection
+    {
+        return $this->arguments;
+    }
+
+    public function addArgument(Argument $argument): self
+    {
+        if (!$this->arguments->contains($argument)) {
+            $this->arguments[] = $argument;
+            $argument->setProject($this);
+        }
+
+        return $this;
+    }
+
+    public function removeArgument(Argument $argument): self
+    {
+        if ($this->arguments->contains($argument)) {
+            $this->arguments->removeElement($argument);
+            // set the owning side to null (unless already changed)
+            if ($argument->getProject() === $this) {
+                $argument->setProject(null);
+            }
+        }
+
+        return $this;
+    }
+
+    //endregion
+
     //region Categories
     /**
      * @var Collection|Category[]
@@ -206,6 +296,51 @@ class Project
 
     //endregion
 
+    //region CounterArguments
+    /**
+     * @var Collection|CounterArgument[]
+     * @Groups({
+     *     "project:member-read",
+     *     "project:pm-read",
+     *     "project:admin-read",
+     * })
+     * @ORM\OneToMany(targetEntity="CounterArgument", mappedBy="project", cascade={"persist"})
+     */
+    private Collection $counterArguments;
+
+    /**
+     * @return Collection|CounterArgument[]
+     */
+    public function getCounterArguments(): Collection
+    {
+        return $this->counterArguments;
+    }
+
+    public function addCounterArgument(CounterArgument $counterArgument): self
+    {
+        if (!$this->counterArguments->contains($counterArgument)) {
+            $this->counterArguments[] = $counterArgument;
+            $counterArgument->setProject($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCounterArgument(CounterArgument $counterArgument): self
+    {
+        if ($this->counterArguments->contains($counterArgument)) {
+            $this->counterArguments->removeElement($counterArgument);
+            // set the owning side to null (unless already changed)
+            if ($counterArgument->getProject() === $this) {
+                $counterArgument->setProject(null);
+            }
+        }
+
+        return $this;
+    }
+
+    //endregion
+    
     //region CreatedAt
     /**
      * @Groups({"project:read"})
@@ -525,23 +660,23 @@ class Project
         return $this->partners;
     }
 
-    public function addPartners(Partner $partners): self
+    public function addPartner(Partner $partner): self
     {
-        if (!$this->partners->contains($partners)) {
-            $this->partners[] = $partners;
-            $partners->setProject($this);
+        if (!$this->partners->contains($partner)) {
+            $this->partners[] = $partner;
+            $partner->setProject($this);
         }
 
         return $this;
     }
 
-    public function removePartners(Partner $partners): self
+    public function removePartner(Partner $partner): self
     {
-        if ($this->partners->contains($partners)) {
-            $this->partners->removeElement($partners);
+        if ($this->partners->contains($partner)) {
+            $this->partners->removeElement($partner);
             // set the owning side to null (unless already changed)
-            if ($partners->getProject() === $this) {
-                $partners->setProject(null);
+            if ($partner->getProject() === $this) {
+                $partner->setProject(null);
             }
         }
 
@@ -570,23 +705,23 @@ class Project
         return $this->problems;
     }
 
-    public function addProblems(Problem $problems): self
+    public function addProblem(Problem $problem): self
     {
-        if (!$this->problems->contains($problems)) {
-            $this->problems[] = $problems;
-            $problems->setProject($this);
+        if (!$this->problems->contains($problem)) {
+            $this->problems[] = $problem;
+            $problem->setProject($this);
         }
 
         return $this;
     }
 
-    public function removeProblems(Problem $problems): self
+    public function removeProblem(Problem $problem): self
     {
-        if ($this->problems->contains($problems)) {
-            $this->problems->removeElement($problems);
+        if ($this->problems->contains($problem)) {
+            $this->problems->removeElement($problem);
             // set the owning side to null (unless already changed)
-            if ($problems->getProject() === $this) {
-                $problems->setProject(null);
+            if ($problem->getProject() === $this) {
+                $problem->setProject(null);
             }
         }
 
@@ -708,6 +843,9 @@ class Project
 
     public function __construct()
     {
+        $this->actionMandates = new ArrayCollection();
+        $this->arguments = new ArrayCollection();
+        $this->counterArguments = new ArrayCollection();
         $this->categories = new ArrayCollection();
         $this->fractionDetails = new ArrayCollection();
         $this->memberships = new ArrayCollection();

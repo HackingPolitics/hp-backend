@@ -16,9 +16,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Vrok\DoctrineAddons\Entity\NormalizerHelper;
 
 /**
- * Problem.
+ * ActionMandate.
  *
- * Collection cannot be queried, problems can only be retrieved via the
+ * Collection cannot be queried, actionMandates can only be retrieved via the
  * Project relations.
  * Item GET is required for API Platform to work, thus restricted to admins,
  * should not be used.
@@ -31,7 +31,7 @@ use Vrok\DoctrineAddons\Entity\NormalizerHelper;
  *     collectionOperations={
  *         "post"={
  *             "security_post_denormalize" = "is_granted('CREATE', object)",
- *             "validation_groups"={"Default", "problem:create"},
+ *             "validation_groups"={"Default", "actionMandate:create"},
  *         },
  *     },
  *     itemOperations={
@@ -40,26 +40,26 @@ use Vrok\DoctrineAddons\Entity\NormalizerHelper;
  *         },
  *         "put"={
  *             "security"="is_granted('EDIT', object)",
- *             "validation_groups"={"Default", "problem:write"},
+ *             "validation_groups"={"Default", "actionMandate:write"},
  *         },
  *         "delete"={
  *              "security"="is_granted('DELETE', object)",
  *         },
  *     },
  *     normalizationContext={
- *         "groups"={"default:read", "problem:read"},
+ *         "groups"={"default:read", "actionMandate:read"},
  *         "enable_max_depth"=true,
  *         "swagger_definition_name"="Read"
  *     },
  *     denormalizationContext={
- *         "groups"={"default:write", "problem:write"},
+ *         "groups"={"default:write", "actionMandate:write"},
  *         "swagger_definition_name"="Write"
  *     }
  * )
  *
- * @ORM\Entity(repositoryClass="App\Repository\ProblemRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\ActionMandateRepository")
  */
-class Problem
+class ActionMandate
 {
     use AutoincrementId;
     use UpdatedAtFunctions;
@@ -71,8 +71,8 @@ class Problem
      *     @Assert\Length(max=1000),
      * })
      * @Groups({
-     *     "problem:read",
-     *     "problem:write",
+     *     "actionMandate:read",
+     *     "actionMandate:write",
      *     "project:read",
      * })
      * @ORM\Column(type="text", length=1000, nullable=false)
@@ -96,8 +96,8 @@ class Problem
     //region Priority
     /**
      * @Groups({
-     *     "problem:read",
-     *     "problem:write",
+     *     "actionMandate:read",
+     *     "actionMandate:write",
      *     "project:read",
      * })
      * @ORM\Column(type="smallint", nullable=true, options={"default":0})
@@ -124,11 +124,11 @@ class Problem
     /**
      * @Assert\NotBlank
      * @Groups({
-     *     "problem:read",
-     *     "problem:create",
+     *     "actionMandate:read",
+     *     "actionMandate:create",
      * })
      * @MaxDepth(1)
-     * @ORM\ManyToOne(targetEntity="Project", inversedBy="problems")
+     * @ORM\ManyToOne(targetEntity="Project", inversedBy="actionMandates")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private ?Project $project = null;
@@ -150,7 +150,7 @@ class Problem
     //region UpdatedAt
     /**
      * @Assert\NotBlank(allowNull=true)
-     * @Groups({"problem:read", "project:read"})
+     * @Groups({"actionMandate:read", "project:read"})
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
@@ -160,10 +160,10 @@ class Problem
     //region UpdatedBy
     /**
      * @Groups({
-     *     "problem:writer-read",
-     *     "problem:coordinator-read",
-     *     "problem:pm-read",
-     *     "problem:admin-read",
+     *     "actionMandate:writer-read",
+     *     "actionMandate:coordinator-read",
+     *     "actionMandate:pm-read",
+     *     "actionMandate:admin-read",
      *     "project:writer-read",
      *     "project:coordinator-read",
      *     "project:pm-read",

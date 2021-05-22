@@ -5,14 +5,18 @@ declare(strict_types=1);
 namespace App\Tests\Entity;
 
 use App\DataFixtures\TestFixtures;
+use App\Entity\ActionMandate;
+use App\Entity\Argument;
 use App\Entity\Category;
 use App\Entity\Council;
+use App\Entity\CounterArgument;
 use App\Entity\FractionDetails;
 use App\Entity\Partner;
 use App\Entity\Problem;
 use App\Entity\Project;
 use App\Entity\ProjectMembership;
 use App\Entity\User;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -101,7 +105,7 @@ class ProjectTest extends KernelTestCase
         self::assertSame($user->getId(), $found->getCreatedBy()->getId());
 
         // timestampable listener works
-        self::assertInstanceOf(\DateTimeImmutable::class,
+        self::assertInstanceOf(DateTimeImmutable::class,
             $found->getCreatedAt());
 
         self::assertSame(Project::STATE_PRIVATE, $found->getState());
@@ -153,5 +157,14 @@ class ProjectTest extends KernelTestCase
 
         self::assertCount(1, $project->getProblems());
         self::assertInstanceOf(Problem::class, $project->getProblems()[0]);
+
+        self::assertCount(1, $project->getArguments());
+        self::assertInstanceOf(Argument::class, $project->getArguments()[0]);
+
+        self::assertCount(1, $project->getCounterArguments());
+        self::assertInstanceOf(CounterArgument::class, $project->getCounterArguments()[0]);
+
+        self::assertCount(1, $project->getActionMandates());
+        self::assertInstanceOf(ActionMandate::class, $project->getActionMandates()[0]);
     }
 }

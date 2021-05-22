@@ -78,6 +78,9 @@ class ProjectApiTest extends ApiTestCase
         self::assertArrayNotHasKey('partners', $collection['hydra:member'][0]);
         self::assertArrayNotHasKey('fractionDetails', $collection['hydra:member'][0]);
         self::assertArrayNotHasKey('problems', $collection['hydra:member'][0]);
+        self::assertArrayNotHasKey('arguments', $collection['hydra:member'][0]);
+        self::assertArrayNotHasKey('counterArguments', $collection['hydra:member'][0]);
+        self::assertArrayNotHasKey('actionMandates', $collection['hydra:member'][0]);
 
         self::assertArrayNotHasKey('firstName', $collection['hydra:member'][0]['createdBy']);
         self::assertArrayNotHasKey('lastName', $collection['hydra:member'][0]['createdBy']);
@@ -345,9 +348,18 @@ class ProjectApiTest extends ApiTestCase
             'hydra:totalItems' => 1,
             'hydra:member'     => [
                 0 => [
-                    'id' => TestFixtures::PROJECT['id'],
-                    'createdBy'    => [
+                    'id'              => TestFixtures::PROJECT['id'],
+                    'actionMandates'       => [
+                        0 => [],
+                    ],
+                    'arguments'       => [
+                        0 => [],
+                    ],
+                    'createdBy'       => [
                         'id' => TestFixtures::PROJECT_COORDINATOR['id'],
+                    ],
+                    'counterArguments'       => [
+                        0 => [],
                     ],
                     'fractionDetails' => [
                         0 => [
@@ -358,16 +370,16 @@ class ProjectApiTest extends ApiTestCase
                         ],
                         1 => [],
                     ],
-                    'memberships'  => [
+                    'memberships'     => [
                         0 => [],
                         1 => [],
                         2 => [],
                     ],
-                    'partners' => [
+                    'partners'        => [
                         0 => [],
                         1 => [],
                     ],
-                    'problems' => [
+                    'problems'        => [
                         0 => [],
                     ],
                 ],
@@ -389,6 +401,12 @@ class ProjectApiTest extends ApiTestCase
             $collection['hydra:member'][0]['partners'][0]);
         self::assertArrayNotHasKey('updatedBy',
             $collection['hydra:member'][0]['problems'][0]);
+        self::assertArrayNotHasKey('updatedBy',
+            $collection['hydra:member'][0]['arguments'][0]);
+        self::assertArrayNotHasKey('updatedBy',
+            $collection['hydra:member'][0]['counterArguments'][0]);
+        self::assertArrayNotHasKey('updatedBy',
+            $collection['hydra:member'][0]['actionMandates'][0]);
     }
 
     /**
@@ -579,10 +597,10 @@ class ProjectApiTest extends ApiTestCase
         self::assertArrayNotHasKey('fractionDetails', $projectData);
         self::assertArrayNotHasKey('partners', $projectData);
         self::assertArrayNotHasKey('problems', $projectData);
-
-        // @todo und weitere...
         self::assertArrayNotHasKey('arguments', $projectData);
         self::assertArrayNotHasKey('counterArguments', $projectData);
+        self::assertArrayNotHasKey('actionMandates', $projectData);
+        // @todo und weitere...
 
         self::assertArrayNotHasKey('projects', $projectData['categories'][0]);
 
@@ -654,6 +672,12 @@ class ProjectApiTest extends ApiTestCase
         self::assertJsonContains([
             '@id'          => $iri,
             'id'           => TestFixtures::PROJECT['id'],
+            'actionMandates'  => [
+                0 => [],
+            ],
+            'arguments'  => [
+                0 => [],
+            ],
             'categories'   => [
                 0 => ['id' => 1],
                 1 => ['id' => 2],
@@ -661,6 +685,9 @@ class ProjectApiTest extends ApiTestCase
             ],
             'council'      => [
                 'id' => TestFixtures::COUNCIL['id'],
+            ],
+            'counterArguments'  => [
+                0 => [],
             ],
             'createdBy'    => [
                 'id' => TestFixtures::PROJECT_COORDINATOR['id'],
@@ -709,7 +736,12 @@ class ProjectApiTest extends ApiTestCase
             $projectData['partners'][0]);
         self::assertArrayNotHasKey('updatedBy',
             $projectData['problems'][0]);
-        // @todo weitere (Arg, Gegenarg + deren updatedBy)
+        self::assertArrayNotHasKey('updatedBy',
+            $projectData['arguments'][0]);
+        self::assertArrayNotHasKey('updatedBy',
+            $projectData['counterArguments'][0]);
+        self::assertArrayNotHasKey('updatedBy',
+            $projectData['actionMandates'][0]);
 
         self::assertArrayNotHasKey('firstName', $projectData['createdBy']);
         self::assertArrayNotHasKey('lastName', $projectData['createdBy']);
@@ -728,12 +760,33 @@ class ProjectApiTest extends ApiTestCase
         self::assertMatchesResourceItemJsonSchema(Project::class);
 
         self::assertJsonContains([
-            '@id'            => $iri,
-            'id'             => TestFixtures::PROJECT['id'],
-            'categories'     => [
+            '@id'              => $iri,
+            'id'               => TestFixtures::PROJECT['id'],
+            'actionMandates'        => [
+                0 => [
+                    'description' => 'action-mandate 1',
+                    'updatedBy'   => [],
+                ],
+            ],
+            'arguments'        => [
+                0 => [
+                    'description' => 'argument 1',
+                    'updatedBy'   => [],
+                ],
+            ],
+            'categories'       => [
                 0 => ['id' => 1],
                 1 => ['id' => 2],
                 2 => ['id' => 3],
+            ],
+            'council'          => [
+                'id' => TestFixtures::COUNCIL['id'],
+            ],
+            'counterArguments' => [
+                0 => [
+                    'description' => 'counter-argument 1',
+                    'updatedBy'   => [],
+                ],
             ],
             'createdBy'      => [
                 'id' => TestFixtures::PROJECT_COORDINATOR['id'],
@@ -753,9 +806,6 @@ class ProjectApiTest extends ApiTestCase
                     ],
                     'updatedBy'   => [],
                 ],
-            ],
-            'council'        => [
-                'id' => TestFixtures::COUNCIL['id'],
             ],
             'locked'        => false,
             'title'         => TestFixtures::PROJECT['title'],

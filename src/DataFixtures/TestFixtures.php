@@ -5,12 +5,16 @@ declare(strict_types=1);
 namespace App\DataFixtures;
 
 use App\Entity\ActionLog;
+use App\Entity\ActionMandate;
+use App\Entity\Argument;
 use App\Entity\Category;
 use App\Entity\Council;
+use App\Entity\CounterArgument;
 use App\Entity\FederalState;
 use App\Entity\Fraction;
 use App\Entity\FractionDetails;
 use App\Entity\FractionInterest;
+use App\Entity\Negation;
 use App\Entity\Partner;
 use App\Entity\Problem;
 use App\Entity\Project;
@@ -305,22 +309,43 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         $detailsGreen->addInterest($interest2);
 
         $partner1 = $this->createPartner(self::PARTNER_ONE);
-        $partner1->setProject($project);
         $partner1->setUpdatedBy($admin);
         $partner1->setTeamContact($projectObserver);
-        $manager->persist($partner1);
+        $project->addPartner($partner1);
 
         $partner2 = $this->createPartner(self::PARTNER_TWO);
-        $partner2->setProject($project);
         $partner2->setUpdatedBy($projectCoordinator);
-        $manager->persist($partner2);
+        $project->addPartner($partner2);
 
         $problem1 = new Problem();
         $problem1->setDescription('problem 1');
         $problem1->setUpdatedBy($processManager);
-        $problem1->setProject($project);
         $problem1->setPriority(77);
-        $manager->persist($problem1);
+        $project->addProblem($problem1);
+
+        $argument1 = new Argument();
+        $argument1->setDescription('argument 1');
+        $argument1->setUpdatedBy($processManager);
+        $argument1->setPriority(77);
+        $project->addArgument($argument1);
+
+        $counterArgument1 = new CounterArgument();
+        $counterArgument1->setDescription('counter-argument 1');
+        $counterArgument1->setUpdatedBy($processManager);
+        $counterArgument1->setPriority(77);
+        $project->addCounterArgument($counterArgument1);
+
+        $negation1 = new Negation();
+        $negation1->setDescription('negation 1');
+        $negation1->setPriority(77);
+        $negation1->setUpdatedBy($processManager);
+        $counterArgument1->addNegation($negation1);
+
+        $actionMandate1 = new ActionMandate();
+        $actionMandate1->setDescription('action-mandate 1');
+        $actionMandate1->setUpdatedBy($processManager);
+        $actionMandate1->setPriority(77);
+        $project->addActionMandate($actionMandate1);
         //endregion
 
         /**
