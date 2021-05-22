@@ -57,25 +57,21 @@ jobs:
         if: (startsWith(matrix.php, '8.0'))
         run: |
           composer config platform.php 7.4.99
-      - name: Update project dependencies
-        run: composer update --no-interaction --no-progress --ansi
-      - name: Require Symfony Uid
-        run: composer require symfony/uid --dev --no-interaction --no-progress --ansi
-      - name: Install PHPUnit
-        run: vendor/bin/simple-phpunit --version
+      - name: Install project dependencies
+        run: composer install --no-interaction --no-progress --ansi
       - name: Clear test app cache
         if: (!startsWith(matrix.php, '8.0'))
-        run: tests/Fixtures/app/console cache:clear --ansi
+        run: bin/console cache:clear --ansi
       - name: Clear test app cache (php 8.0)
         if: (startsWith(matrix.php, '8.0'))
-        run: rm -Rf tests/Fixtures/app/var/cache/*
+        run: rm -Rf var/cache/*
       - name: Run PHPUnit tests
         run: |
           mkdir -p build/logs/phpunit
           if [ "$COVERAGE" = '1' ]; then
-            vendor/bin/simple-phpunit --coverage-clover build/logs/phpunit/clover.xml --log-junit build/logs/phpunit/junit.xml
+            vendor/bin/phpunit --coverage-clover build/logs/phpunit/clover.xml --log-junit build/logs/phpunit/junit.xml
           else
-            vendor/bin/simple-phpunit --log-junit build/logs/phpunit/junit.xml
+            vendor/bin/phpunit --log-junit build/logs/phpunit/junit.xml
           fi
       - name: Upload test artifacts
         if: always()
