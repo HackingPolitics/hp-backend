@@ -11,9 +11,10 @@ jobs:
       matrix:
         php:
           - '7.4'
-          - '8.0'
+          # currently unsupported
+          #- '8.0'
         include:
-          - php: '8.0'
+          - php: '7.4'
             coverage: true
       fail-fast: false
     services:
@@ -60,11 +61,7 @@ jobs:
       - name: Install project dependencies
         run: composer install --no-interaction --no-progress --ansi
       - name: Clear test app cache
-        if: (!startsWith(matrix.php, '8.0'))
-        run: bin/console cache:clear --ansi
-      - name: Clear test app cache (php 8.0)
-        if: (startsWith(matrix.php, '8.0'))
-        run: rm -Rf var/cache/*
+        run: chmod o+x bin/console; bin/console cache:clear --ansi
       - name: Run PHPUnit tests
         run: |
           mkdir -p build/logs/phpunit
