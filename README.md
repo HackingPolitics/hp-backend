@@ -12,6 +12,9 @@ By
 [Philipp Munzert](https://github.com/philmuze) ([@philmuze](https://twitter.com/philmuze)),
 [Frieder Jacobi](https://github.com/f-jacobi)
 
+![CI Status](https://github.com/HackingPolitics/hp-backend/actions/workflows/ci.yaml/badge.svg)
+[![Coverage Status](https://coveralls.io/repos/github/HackingPolitics/hp-backend/badge.svg?branch=main)](https://coveralls.io/github/HackingPolitics/hp-backend?branch=main)
+
 PHP backend providing the REST API for the HPO platform.  
 It uses Symfony / API Platform to provide a JSON-LD/Hydra based API to expose all functionality, usable by any client.
 

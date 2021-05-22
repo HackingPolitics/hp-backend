@@ -75,20 +75,12 @@ jobs:
           name: phpunit-logs-php${{ matrix.php }}
           path: build/logs/phpunit
         continue-on-error: true
-      - name: Upload coverage results to Codecov
-        if: matrix.coverage
-        uses: codecov/codecov-action@v1
-        with:
-          name: phpunit-php${{ matrix.php }}
-          flags: phpunit
-          fail_ci_if_error: true
-        continue-on-error: true
       - name: Upload coverage results to Coveralls
         if: matrix.coverage
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          composer global require --prefer-dist --no-interaction --no-progress --ansi cedx/coveralls
+          composer global require --prefer-dist --no-interaction --no-progress --ansi php-coveralls/php-coveralls
           export PATH="$PATH:$HOME/.composer/vendor/bin"
           coveralls build/logs/phpunit/clover.xml
         continue-on-error: true
