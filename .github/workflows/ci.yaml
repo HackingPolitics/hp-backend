@@ -61,7 +61,7 @@ jobs:
       - name: Install project dependencies
         run: composer install --no-interaction --no-progress --ansi
       - name: Clear test app cache
-        run: chmod -R o+rx bin; bin/console cache:clear --ansi
+        run: composer auto-scripts --ansi
       - name: Run PHPUnit tests
         run: |
           mkdir -p build/logs/phpunit
