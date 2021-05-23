@@ -31,7 +31,9 @@ class NegationEventSubscriber implements EventSubscriberInterface
 
     public function onApiPreCreate(ApiNegationPreCreateEvent $event): void
     {
-        $project = $event->negation->getProject();
+        $project = $event->negation->getCounterArgument()
+            ? $event->negation->getCounterArgument()->getProject()
+            : null;
         if (!$project) {
             throw new \RuntimeException('New negations need a project!');
         }
@@ -41,7 +43,9 @@ class NegationEventSubscriber implements EventSubscriberInterface
 
     public function onApiPreUpdate(ApiNegationPreUpdateEvent $event): void
     {
-        $project = $event->negation->getProject();
+        $project = $event->negation->getCounterArgument()
+            ? $event->negation->getCounterArgument()->getProject()
+            : null;
         if ($project) {
             $project->setUpdatedAt(new \DateTimeImmutable());
         }
@@ -49,7 +53,9 @@ class NegationEventSubscriber implements EventSubscriberInterface
 
     public function onApiPreDelete(ApiNegationPreDeleteEvent $event): void
     {
-        $project = $event->negation->getProject();
+        $project = $event->negation->getCounterArgument()
+            ? $event->negation->getCounterArgument()->getProject()
+            : null;
         if ($project) {
             $project->setUpdatedAt(new \DateTimeImmutable());
         }
