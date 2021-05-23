@@ -330,6 +330,7 @@ class ProblemApiTest extends ApiTestCase
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
 
+        sleep(1);
         $iri = $this->findIriBy(Problem::class, ['id' => 1]);
         $client->request('DELETE', $iri);
 

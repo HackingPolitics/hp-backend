@@ -330,6 +330,7 @@ class CounterArgumentApiTest extends ApiTestCase
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
 
+        sleep(1);
         $iri = $this->findIriBy(CounterArgument::class, ['id' => 1]);
         $client->request('DELETE', $iri);
 

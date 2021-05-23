@@ -16,6 +16,7 @@ use App\Entity\Partner;
 use App\Entity\Problem;
 use App\Entity\Project;
 use App\Entity\ProjectMembership;
+use App\Entity\Proposal;
 use App\Entity\User;
 use App\Event\Api\ApiActionMandatePreCreateEvent;
 use App\Event\Api\ApiActionMandatePreDeleteEvent;
@@ -51,6 +52,9 @@ use App\Event\Api\ApiProjectPostUpdateEvent;
 use App\Event\Api\ApiProjectPreCreateEvent;
 use App\Event\Api\ApiProjectPreDeleteEvent;
 use App\Event\Api\ApiProjectPreUpdateEvent;
+use App\Event\Api\ApiProposalPreCreateEvent;
+use App\Event\Api\ApiProposalPreDeleteEvent;
+use App\Event\Api\ApiProposalPreUpdateEvent;
 use App\Event\Api\ApiUserPostDeleteEvent;
 use App\Event\Api\ApiUserPreDeleteEvent;
 use App\Event\EntityPostWriteEvent;
@@ -134,6 +138,9 @@ class WriteEventSubscriber implements EventSubscriberInterface
                 case Project::class:
                     $eventClass = ApiProjectPreUpdateEvent::class;
                     break;
+                case Proposal::class:
+                    $eventClass = ApiProposalPreUpdateEvent::class;
+                    break;
             }
         }
 
@@ -168,6 +175,9 @@ class WriteEventSubscriber implements EventSubscriberInterface
                     break;
                 case ProjectMembership::class:
                     $eventClass = ApiProjectMembershipPreDeleteEvent::class;
+                    break;
+                case Proposal::class:
+                    $eventClass = ApiProposalPreDeleteEvent::class;
                     break;
                 case User::class:
                     $eventClass = ApiUserPreDeleteEvent::class;
@@ -206,6 +216,9 @@ class WriteEventSubscriber implements EventSubscriberInterface
                     break;
                 case ProjectMembership::class:
                     $eventClass = ApiProjectMembershipPreCreateEvent::class;
+                    break;
+                case Proposal::class:
+                    $eventClass = ApiProposalPreCreateEvent::class;
                     break;
             }
         }

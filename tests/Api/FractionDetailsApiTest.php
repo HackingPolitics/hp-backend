@@ -403,6 +403,7 @@ class FractionDetailsApiTest extends ApiTestCase
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
 
+        sleep(1);
         $iri = $this->findIriBy(FractionDetails::class, ['id' => 1]);
         $client->request('DELETE', $iri);
 

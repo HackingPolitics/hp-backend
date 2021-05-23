@@ -19,6 +19,7 @@ use App\Entity\Partner;
 use App\Entity\Problem;
 use App\Entity\Project;
 use App\Entity\ProjectMembership;
+use App\Entity\Proposal;
 use App\Entity\User;
 use App\Entity\Validation;
 use DateInterval;
@@ -132,6 +133,16 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         'id'        => 3,
         'title'     => 'Deleted Project',
         'deletedAt' => '2019-12-12 12:12:12',
+    ];
+
+    public const PROPOSAL_1 = [
+        'id'            => 1,
+        'title'         => 'proposal title',
+        'introduction'  => 'proposal introduction',
+        'comment'       => 'proposal comment',
+        'actionMandate' => 'proposal action-mandate',
+        'reasoning'     => 'proposal reasoning',
+        'sponsor'       => 'interfraktionell',
     ];
 
     public const COUNCIL = [
@@ -317,11 +328,11 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         $partner2->setUpdatedBy($projectCoordinator);
         $project->addPartner($partner2);
 
-        $problem1 = new Problem();
-        $problem1->setDescription('problem 1');
-        $problem1->setUpdatedBy($processManager);
-        $problem1->setPriority(77);
-        $project->addProblem($problem1);
+        $actionMandate1 = new ActionMandate();
+        $actionMandate1->setDescription('action-mandate 1');
+        $actionMandate1->setUpdatedBy($processManager);
+        $actionMandate1->setPriority(77);
+        $project->addActionMandate($actionMandate1);
 
         $argument1 = new Argument();
         $argument1->setDescription('argument 1');
@@ -341,11 +352,15 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         $negation1->setUpdatedBy($processManager);
         $counterArgument1->addNegation($negation1);
 
-        $actionMandate1 = new ActionMandate();
-        $actionMandate1->setDescription('action-mandate 1');
-        $actionMandate1->setUpdatedBy($processManager);
-        $actionMandate1->setPriority(77);
-        $project->addActionMandate($actionMandate1);
+        $problem1 = new Problem();
+        $problem1->setDescription('problem 1');
+        $problem1->setUpdatedBy($processManager);
+        $problem1->setPriority(77);
+        $project->addProblem($problem1);
+
+        $proposal = $this->createProposal(self::PROPOSAL_1);
+        $proposal->setUpdatedBy($processManager);
+        $project->addProposal($proposal);
         //endregion
 
         /**
@@ -567,6 +582,35 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         }
 
         return $partner;
+    }
+
+    protected function createProposal(array $data): Proposal
+    {
+        $proposal = new Proposal();
+
+        if (isset($data['title'])) {
+            $proposal->setTitle($data['title']);
+        }
+        if (isset($data['introduction'])) {
+            $proposal->setIntroduction($data['introduction']);
+        }
+        if (isset($data['actionMandate'])) {
+            $proposal->setActionMandate($data['actionMandate']);
+        }
+        if (isset($data['reasoning'])) {
+            $proposal->setReasoning($data['reasoning']);
+        }
+        if (isset($data['comment'])) {
+            $proposal->setComment($data['comment']);
+        }
+        if (isset($data['url'])) {
+            $proposal->setUrl($data['url']);
+        }
+        if (isset($data['sponsor'])) {
+            $proposal->setSponsor($data['sponsor']);
+        }
+
+        return $proposal;
     }
 
     protected function populateActionLog(ObjectManager $manager): void
