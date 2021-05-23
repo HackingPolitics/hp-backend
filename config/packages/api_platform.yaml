@@ -29,5 +29,6 @@ api_platform:
 #        public: true
 
     # Mercure integration, remove if unwanted
-#    mercure:
+    mercure:
+        enabled: false
 #        hub_url: '%env(MERCURE_SUBSCRIBE_URL)%'
