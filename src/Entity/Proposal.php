@@ -10,6 +10,7 @@ use App\Entity\Traits\UpdatedAtFunctions;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -59,6 +60,10 @@ use Vrok\SymfonyAddons\Validator\Constraints as VrokAssert;
  * )
  *
  * @ORM\Entity(repositoryClass="App\Repository\ProposalRepository")
+ * @ORM\Table(uniqueConstraints={
+ *     @ORM\UniqueConstraint(name="title_project", columns={"title", "project_id"})
+ * })
+ * @UniqueEntity(fields={"title", "project"}, message="validate.proposal.duplicateTitle")
  */
 class Proposal
 {

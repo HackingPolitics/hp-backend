@@ -57,7 +57,7 @@ class ProposalVoter extends Voter
                 if (!$user->hasRole(User::ROLE_PROCESS_MANAGER)) {
                     return false;
                 }
-
+$l = $subject->getProject()->isLocked();
                 return !$subject->getProject() || $subject->getProject()->isLocked();
         }
 

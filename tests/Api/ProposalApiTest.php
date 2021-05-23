@@ -6,7 +6,7 @@ namespace App\Tests\Api;
 
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
 use App\DataFixtures\TestFixtures;
-use App\Entity\ActionMandate;
+use App\Entity\Proposal;
 use App\Entity\Project;
 use DateTimeImmutable;
 use DateTimeZone;
@@ -15,9 +15,9 @@ use Vrok\SymfonyAddons\PHPUnit\AuthenticatedClientTrait;
 use Vrok\SymfonyAddons\PHPUnit\RefreshDatabaseTrait;
 
 /**
- * @group ActionMandateApi
+ * @group ProposalApi
  */
-class ActionMandateApiTest extends ApiTestCase
+class ProposalApiTest extends ApiTestCase
 {
     use AuthenticatedClientTrait;
     use RefreshDatabaseTrait;
@@ -36,12 +36,14 @@ class ActionMandateApiTest extends ApiTestCase
 
     /**
      * Test that no collection of details is available, not even for admins.
+     *
+     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
      */
     public function testCollectionNotAvailable(): void
     {
         static::createAuthenticatedClient([
             'email' => TestFixtures::ADMIN['email'],
-        ])->request('GET', '/action_mandates');
+        ])->request('GET', '/proposals');
 
         self::assertResponseStatusCodeSame(405);
         self::assertResponseHeaderSame('content-type',
@@ -51,17 +53,17 @@ class ActionMandateApiTest extends ApiTestCase
             '@context'          => '/contexts/Error',
             '@type'             => 'hydra:Error',
             'hydra:title'       => 'An error occurred',
-            'hydra:description' => 'No route found for "GET /action_mandates": Method Not Allowed (Allow: POST)',
+            'hydra:description' => 'No route found for "GET /proposals": Method Not Allowed (Allow: POST)',
         ]);
     }
 
-    public function testGetActionMandateAsAdmin(): void
+    public function testGetProposalAsAdmin(): void
     {
         $client = static::createAuthenticatedClient([
             'email' => TestFixtures::ADMIN['email'],
         ]);
 
-        $iri = $this->findIriBy(ActionMandate::class, ['id' => 1]);
+        $iri = $this->findIriBy(Proposal::class, ['id' => 1]);
 
         $client->request('GET', $iri);
 
@@ -70,9 +72,9 @@ class ActionMandateApiTest extends ApiTestCase
             'application/ld+json; charset=utf-8');
 
         self::assertJsonContains([
-            '@id'         => $iri,
-            'description' => 'action-mandate 1',
-            'project'     => [
+            '@id'     => $iri,
+            'title'   => 'proposal title',
+            'project' => [
                 'id' => 1,
             ],
         ]);
@@ -84,11 +86,13 @@ class ActionMandateApiTest extends ApiTestCase
             ['id' => TestFixtures::PROJECT['id']]);
 
         $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
+        sleep(1);
 
         static::createAuthenticatedClient([
             'email' => TestFixtures::PROJECT_WRITER['email'],
-        ])->request('POST', '/action_mandates', ['json' => [
-            'description' => 'new actionMandate',
+        ])->request('POST', '/proposals', ['json' => [
+            'title'       => 'new proposal',
+            'sponsor'     => 'Green',
             'project'     => $projectIri,
         ]]);
 
@@ -97,9 +101,10 @@ class ActionMandateApiTest extends ApiTestCase
             'application/ld+json; charset=utf-8');
 
         self::assertJsonContains([
-            '@context'    => '/contexts/ActionMandate',
-            '@type'       => 'ActionMandate',
-            'description' => 'new actionMandate',
+            '@context'    => '/contexts/Proposal',
+            '@type'       => 'Proposal',
+            'title'       => 'new proposal',
+            'sponsor'     => 'Green',
             'project'     => ['@id' => $projectIri],
             'updatedBy'   => [
                 'id' => TestFixtures::PROJECT_WRITER['id'],
@@ -120,9 +125,10 @@ class ActionMandateApiTest extends ApiTestCase
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
 
-        static::createClient()->request('POST', '/action_mandates', ['json' => [
-            'description' => 'new actionMandate',
-            'project'     => $projectIri,
+        static::createClient()->request('POST', '/proposals', ['json' => [
+            'title'   => 'new proposal',
+            'sponsor' => 'Green',
+            'project' => $projectIri,
         ]]);
 
         self::assertResponseStatusCodeSame(401);
@@ -142,9 +148,10 @@ class ActionMandateApiTest extends ApiTestCase
 
         static::createAuthenticatedClient([
             'email' => TestFixtures::PROJECT_OBSERVER['email'],
-        ])->request('POST', '/action_mandates', ['json' => [
-            'description' => 'new actionMandate',
-            'project'     => $projectIri,
+        ])->request('POST', '/proposals', ['json' => [
+            'title'   => 'new proposal',
+            'sponsor' => 'Green',
+            'project' => $projectIri,
         ]]);
 
         self::assertResponseStatusCodeSame(403);
@@ -159,15 +166,16 @@ class ActionMandateApiTest extends ApiTestCase
         ]);
     }
 
-    public function testCreateWithoutDescriptionFails(): void
+    public function testCreateWithoutTitleFails(): void
     {
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
 
         static::createAuthenticatedClient([
             'email' => TestFixtures::PROCESS_MANAGER['email'],
-        ])->request('POST', '/action_mandates', ['json' => [
+        ])->request('POST', '/proposals', ['json' => [
             'project' => $projectIri,
+            'sponsor' => 'Green',
         ]]);
 
         self::assertResponseStatusCodeSame(422);
@@ -178,7 +186,31 @@ class ActionMandateApiTest extends ApiTestCase
             '@context'          => '/contexts/ConstraintViolationList',
             '@type'             => 'ConstraintViolationList',
             'hydra:title'       => 'An error occurred',
-            'hydra:description' => 'description: validate.general.notBlank',
+            'hydra:description' => 'title: validate.general.notBlank',
+        ]);
+    }
+
+    public function testCreateWithoutSponsorFails(): void
+    {
+        $projectIri = $this->findIriBy(Project::class,
+            ['id' => TestFixtures::PROJECT['id']]);
+
+        static::createAuthenticatedClient([
+            'email' => TestFixtures::PROCESS_MANAGER['email'],
+        ])->request('POST', '/proposals', ['json' => [
+            'project' => $projectIri,
+            'title'   => 'new proposal',
+        ]]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertResponseHeaderSame('content-type',
+            'application/ld+json; charset=utf-8');
+
+        self::assertJsonContains([
+            '@context'          => '/contexts/ConstraintViolationList',
+            '@type'             => 'ConstraintViolationList',
+            'hydra:title'       => 'An error occurred',
+            'hydra:description' => 'sponsor: validate.general.notBlank',
         ]);
     }
 
@@ -186,8 +218,9 @@ class ActionMandateApiTest extends ApiTestCase
     {
         static::createAuthenticatedClient([
             'email' => TestFixtures::PROCESS_MANAGER['email'],
-        ])->request('POST', '/action_mandates', ['json' => [
-            'description' => 'new actionMandate',
+        ])->request('POST', '/proposals', ['json' => [
+            'title'   => 'new proposal',
+            'sponsor' => 'Green',
         ]]);
 
         self::assertResponseStatusCodeSame(422);
@@ -202,6 +235,31 @@ class ActionMandateApiTest extends ApiTestCase
         ]);
     }
 
+    public function testCreateDuplicateFails(): void
+    {
+        $projectIri = $this->findIriBy(Project::class,
+            ['id' => TestFixtures::PROJECT['id']]);
+
+        static::createAuthenticatedClient([
+            'email' => TestFixtures::PROCESS_MANAGER['email'],
+        ])->request('POST', '/proposals', ['json' => [
+            'title'   => TestFixtures::PROPOSAL_1['title'],
+            'sponsor' => 'Red',
+            'project' => $projectIri,
+        ]]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertResponseHeaderSame('content-type',
+            'application/ld+json; charset=utf-8');
+
+        self::assertJsonContains([
+            '@context'          => '/contexts/ConstraintViolationList',
+            '@type'             => 'ConstraintViolationList',
+            'hydra:title'       => 'An error occurred',
+            'hydra:description' => 'title: validate.proposal.duplicateTitle',
+        ]);
+    }
+
     public function testUpdate(): void
     {
         $client = static::createAuthenticatedClient([
@@ -209,18 +267,18 @@ class ActionMandateApiTest extends ApiTestCase
         ]);
 
         $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
+        sleep(1);
 
-        $iri = $this->findIriBy(ActionMandate::class, ['id' => 1]);
+        $iri = $this->findIriBy(Proposal::class, ['id' => 1]);
         $client->request('PUT', $iri, ['json' => [
-            'priority' => 33,
+            'comment' => 'new comment',
         ]]);
 
         self::assertResponseIsSuccessful();
         self::assertJsonContains([
-            '@id'          => $iri,
-            'description'  => 'action-mandate 1',
-            'priority'     => 33,
-            'updatedBy'    => [
+            '@id'       => $iri,
+            'comment'   => 'new comment',
+            'updatedBy' => [
                 'id' => TestFixtures::PROJECT_COORDINATOR['id'],
             ],
         ]);
@@ -237,9 +295,9 @@ class ActionMandateApiTest extends ApiTestCase
     public function testUpdateFailsUnauthenticated(): void
     {
         $client = static::createClient();
-        $iri = $this->findIriBy(ActionMandate::class, ['id' => 1]);
+        $iri = $this->findIriBy(Proposal::class, ['id' => 1]);
         $client->request('PUT', $iri, ['json' => [
-            'description' => 'new actionMandate',
+            'comment' => 'new comment',
         ]]);
 
         self::assertResponseStatusCodeSame(401);
@@ -258,9 +316,9 @@ class ActionMandateApiTest extends ApiTestCase
             'email' => TestFixtures::PROJECT_OBSERVER['email'],
         ]);
 
-        $iri = $this->findIriBy(ActionMandate::class, ['id' => 1]);
+        $iri = $this->findIriBy(Proposal::class, ['id' => 1]);
         $client->request('PUT', $iri, ['json' => [
-            'description' => 'new actionMandate',
+            'comment' => 'new comment',
         ]]);
 
         self::assertResponseStatusCodeSame(403);
@@ -285,60 +343,96 @@ class ActionMandateApiTest extends ApiTestCase
             ['id' => TestFixtures::PROJECT['id']]);
         $newProjectIRI = $this->findIriBy(Project::class,
             ['id' => TestFixtures::LOCKED_PROJECT['id']]);
-        $iri = $this->findIriBy(ActionMandate::class,
+        $iri = $this->findIriBy(Proposal::class,
             ['id' => 1]);
 
         $client->request('PUT', $iri, ['json' => [
-            'description' => 'new actionMandate',
-            'project'     => $newProjectIRI,
+            'comment' => 'new comment',
+            'project' => $newProjectIRI,
         ]]);
 
         self::assertResponseIsSuccessful();
 
-        // description got updated but project didn't
+        // comment got updated but project didn't
         self::assertJsonContains([
-            'description' => 'new actionMandate',
-            'project'     => [
+            'comment' => 'new comment',
+            'project' => [
                 '@id' => $projectIRI,
             ],
         ]);
     }
 
-    public function testDelete(): void
+    public function testDeleteFromLockedProject(): void
     {
-        /** @var Project $before */
-        $before = $this->entityManager->getRepository(Project::class)
-            ->find(TestFixtures::PROJECT['id']);
-        self::assertCount(1, $before->getActionMandates());
-
         $client = static::createAuthenticatedClient([
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
 
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+
+        /** @var Project $before */
+        $before = $em->getRepository(Project::class)
+            ->find(TestFixtures::PROJECT['id']);
+        self::assertCount(1, $before->getProposals());
+        $before->setLocked(true);
+        $em->flush();
+        $em->clear();
+
         sleep(1);
-        $iri = $this->findIriBy(ActionMandate::class, ['id' => 1]);
+        $iri = $this->findIriBy(Proposal::class, ['id' => 1]);
         $client->request('DELETE', $iri);
 
         static::assertResponseStatusCodeSame(204);
 
-        /** @var ActionMandate $deleted */
-        $deleted = $this->entityManager->getRepository(ActionMandate::class)
+        /** @var Proposal $deleted */
+        $deleted = $em->getRepository(Proposal::class)
             ->find(1);
         self::assertNull($deleted);
 
         /** @var Project $after */
-        $after = $this->entityManager->getRepository(Project::class)
+        $after = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
-        self::assertCount(0, $after->getActionMandates());
+        self::assertCount(0, $after->getProposals());
 
         // deletion of a new sub-resource should update the timestamp of the parent
         self::assertTrue($before->getUpdatedAt() < $after->getUpdatedAt());
     }
 
+    public function testDeleteFromActiveProjectFails(): void
+    {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROCESS_MANAGER['email'],
+        ]);
+
+        $iri = $this->findIriBy(Proposal::class, ['id' => 1]);
+        $client->request('DELETE', $iri);
+
+        self::assertResponseStatusCodeSame(403);
+        self::assertResponseHeaderSame('content-type',
+            'application/ld+json; charset=utf-8');
+
+        self::assertJsonContains([
+            '@context'          => '/contexts/Error',
+            '@type'             => 'hydra:Error',
+            'hydra:title'       => 'An error occurred',
+            'hydra:description' => 'Access Denied.',
+        ]);
+    }
+
     public function testDeleteFailsUnauthenticated(): void
     {
         $client = static::createClient();
-        $iri = $this->findIriBy(ActionMandate::class, ['id' => 1]);
+
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        /** @var Project $before */
+        $before = $em->getRepository(Project::class)
+            ->find(TestFixtures::PROJECT['id']);
+        $before->setLocked(true);
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em->flush();
+        $em->clear();
+
+        $iri = $this->findIriBy(Proposal::class, ['id' => 1]);
         $client->request('DELETE', $iri);
 
         self::assertResponseStatusCodeSame(401);
@@ -357,7 +451,16 @@ class ActionMandateApiTest extends ApiTestCase
             'email' => TestFixtures::PROJECT_OBSERVER['email'],
         ]);
 
-        $iri = $this->findIriBy(ActionMandate::class, ['id' => 1]);
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        /** @var Project $before */
+        $before = $em->getRepository(Project::class)
+            ->find(TestFixtures::PROJECT['id']);
+        $before->setLocked(true);
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em->flush();
+        $em->clear();
+
+        $iri = $this->findIriBy(Proposal::class, ['id' => 1]);
         $client->request('DELETE', $iri);
 
         self::assertResponseStatusCodeSame(403);

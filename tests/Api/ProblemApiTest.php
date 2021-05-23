@@ -29,21 +29,6 @@ class ProblemApiTest extends ApiTestCase
         static::$fixtureGroups = ['initial', 'test'];
     }
 
-    protected function setUp(): void
-    {
-        $kernel = self::bootKernel();
-
-        $this->entityManager = $kernel->getContainer()
-            ->get('doctrine')
-            ->getManager();
-    }
-
-    public function tearDown(): void
-    {
-        parent::tearDown();
-        $this->entityManager = null;
-    }
-
     public static function tearDownAfterClass(): void
     {
         self::fixtureCleanup();
