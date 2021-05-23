@@ -12,10 +12,10 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 abstract class CounterArgumentEvent extends Event
 {
-    public CounterArgument $application;
+    public CounterArgument $counterArgument;
 
     public function __construct(CounterArgument $counterArgument)
     {
-        $this->application = $counterArgument;
+        $this->counterArgument = $counterArgument;
     }
 }

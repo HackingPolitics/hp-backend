@@ -12,10 +12,10 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 abstract class PartnerEvent extends Event
 {
-    public Partner $application;
+    public Partner $partner;
 
     public function __construct(Partner $partner)
     {
-        $this->application = $partner;
+        $this->partner = $partner;
     }
 }

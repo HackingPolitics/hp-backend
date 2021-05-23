@@ -67,6 +67,12 @@ class CouncilApiTest extends ApiTestCase
 
         $collection = $response->toArray();
         self::assertCount(1, $collection['hydra:member']);
+
+        // those properties should not be visible to anonymous
+        self::assertArrayNotHasKey('projects',
+            $collection['hydra:member'][0]);
+        self::assertArrayNotHasKey('details',
+            $collection['hydra:member'][0]['fractions'][0]);
     }
 
     public function testGetCouncil(): void
@@ -75,7 +81,7 @@ class CouncilApiTest extends ApiTestCase
 
         $iri = $this->findIriBy(Council::class, ['id' => 1]);
 
-        $client->request('GET', $iri);
+        $response = $client->request('GET', $iri);
 
         self::assertResponseIsSuccessful();
         self::assertResponseHeaderSame('content-type',
@@ -99,6 +105,12 @@ class CouncilApiTest extends ApiTestCase
                 'id' => TestFixtures::ADMIN['id'],
             ],
         ]);
+
+        $council = $response->toArray();
+
+        // those properties should not be visible to anonymous
+        self::assertArrayNotHasKey('projects', $council);
+        self::assertArrayNotHasKey('details', $council['fractions'][0]);
     }
 
     public function testCreateCouncil(): void

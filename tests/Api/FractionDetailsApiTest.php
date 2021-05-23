@@ -112,7 +112,7 @@ class FractionDetailsApiTest extends ApiTestCase
             'email' => TestFixtures::PROJECT_WRITER['email'],
         ])->request('POST', '/fraction_details', ['json' => [
             'contactName' => 'Red',
-            'fraction'     => $fractionIri,
+            'fraction'    => $fractionIri,
             'project'     => $projectIri,
             'teamContact' => $userIri,
         ]]);
@@ -121,14 +121,11 @@ class FractionDetailsApiTest extends ApiTestCase
         self::assertResponseHeaderSame('content-type',
             'application/ld+json; charset=utf-8');
 
-        // @todo kommt nicht mit den validatoren klar
-        self::assertMatchesResourceItemJsonSchema(FractionDetails::class);
-
         self::assertJsonContains([
             '@context'    => '/contexts/FractionDetails',
             '@type'       => 'FractionDetails',
             'contactName' => 'Red',
-            'fraction'     => ['@id' => $fractionIri],
+            'fraction'    => ['@id' => $fractionIri],
             'project'     => ['@id' => $projectIri],
             'teamContact' => ['@id' => $userIri],
             'updatedBy'   => [
@@ -381,7 +378,7 @@ class FractionDetailsApiTest extends ApiTestCase
 
         $client->request('PUT', $iri, ['json' => [
             'contactName' => 'name name',
-            'fraction'     => $newFractionIRI,
+            'fraction'    => $newFractionIRI,
         ]]);
 
         self::assertResponseIsSuccessful();
@@ -389,7 +386,7 @@ class FractionDetailsApiTest extends ApiTestCase
         // contactName got updated but fraction didn't
         self::assertJsonContains([
             'contactName'  => 'name name',
-            'fraction'      => [
+            'fraction'     => [
                 '@id' => $fractionIRI,
             ],
         ]);
@@ -405,8 +402,6 @@ class FractionDetailsApiTest extends ApiTestCase
         $client = static::createAuthenticatedClient([
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
-
-        $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
 
         $iri = $this->findIriBy(FractionDetails::class, ['id' => 1]);
         $client->request('DELETE', $iri);
@@ -424,7 +419,7 @@ class FractionDetailsApiTest extends ApiTestCase
         self::assertCount(0, $after->getDetails());
 
         // deletion of a new sub-resource should update the timestamp of the parent
-        self::assertTrue($now < $after->getUpdatedAt());
+        self::assertTrue($before->getUpdatedAt() < $after->getUpdatedAt());
     }
 
     public function testDeleteFailsUnauthenticated(): void

@@ -12,10 +12,10 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 abstract class ArgumentEvent extends Event
 {
-    public Argument $application;
+    public Argument $argument;
 
     public function __construct(Argument $argument)
     {
-        $this->application = $argument;
+        $this->argument = $argument;
     }
 }

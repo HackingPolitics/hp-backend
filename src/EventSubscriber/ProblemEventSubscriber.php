@@ -31,9 +31,9 @@ class ProblemEventSubscriber implements EventSubscriberInterface
 
     public function onApiPreCreate(ApiProblemPreCreateEvent $event): void
     {
-        $project = $event->application->getProject();
+        $project = $event->problem->getProject();
         if (!$project) {
-            throw new \RuntimeException("New problems need a project!");
+            throw new \RuntimeException('New problems need a project!');
         }
 
         $project->setUpdatedAt(new \DateTimeImmutable());
@@ -41,7 +41,7 @@ class ProblemEventSubscriber implements EventSubscriberInterface
 
     public function onApiPreUpdate(ApiProblemPreUpdateEvent $event): void
     {
-        $project = $event->application->getProject();
+        $project = $event->problem->getProject();
         if ($project) {
             $project->setUpdatedAt(new \DateTimeImmutable());
         }
@@ -49,7 +49,7 @@ class ProblemEventSubscriber implements EventSubscriberInterface
 
     public function onApiPreDelete(ApiProblemPreDeleteEvent $event): void
     {
-        $project = $event->application->getProject();
+        $project = $event->problem->getProject();
         if ($project) {
             $project->setUpdatedAt(new \DateTimeImmutable());
         }

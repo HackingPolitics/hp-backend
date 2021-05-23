@@ -52,6 +52,7 @@ class PartnerApiTest extends ApiTestCase
 
     /**
      * Test that no collection of details is available, not even for admins.
+     *
      * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
      */
     public function testCollectionNotAvailable(): void
@@ -359,8 +360,6 @@ class PartnerApiTest extends ApiTestCase
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
 
-        $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
-
         $iri = $this->findIriBy(Partner::class, ['id' => 1]);
         $client->request('DELETE', $iri);
 
@@ -377,7 +376,7 @@ class PartnerApiTest extends ApiTestCase
         self::assertCount(1, $after->getPartners());
 
         // deletion of a new sub-resource should update the timestamp of the parent
-        self::assertTrue($now < $after->getUpdatedAt());
+        self::assertTrue($before->getUpdatedAt() < $after->getUpdatedAt());
     }
 
     public function testDeleteFailsUnauthenticated(): void

@@ -12,10 +12,10 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 abstract class FractionDetailsEvent extends Event
 {
-    public FractionDetails $application;
+    public FractionDetails $fractionDetails;
 
     public function __construct(FractionDetails $fractionDetails)
     {
-        $this->application = $fractionDetails;
+        $this->fractionDetails = $fractionDetails;
     }
 }

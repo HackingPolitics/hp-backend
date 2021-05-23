@@ -31,9 +31,9 @@ class ActionMandateEventSubscriber implements EventSubscriberInterface
 
     public function onApiPreCreate(ApiActionMandatePreCreateEvent $event): void
     {
-        $project = $event->application->getProject();
+        $project = $event->actionMandate->getProject();
         if (!$project) {
-            throw new \RuntimeException("New actionMandates need a project!");
+            throw new \RuntimeException('New actionMandates need a project!');
         }
 
         $project->setUpdatedAt(new \DateTimeImmutable());
@@ -41,7 +41,7 @@ class ActionMandateEventSubscriber implements EventSubscriberInterface
 
     public function onApiPreUpdate(ApiActionMandatePreUpdateEvent $event): void
     {
-        $project = $event->application->getProject();
+        $project = $event->actionMandate->getProject();
         if ($project) {
             $project->setUpdatedAt(new \DateTimeImmutable());
         }
@@ -49,7 +49,7 @@ class ActionMandateEventSubscriber implements EventSubscriberInterface
 
     public function onApiPreDelete(ApiActionMandatePreDeleteEvent $event): void
     {
-        $project = $event->application->getProject();
+        $project = $event->actionMandate->getProject();
         if ($project) {
             $project->setUpdatedAt(new \DateTimeImmutable());
         }

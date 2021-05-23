@@ -330,8 +330,6 @@ class ActionMandateApiTest extends ApiTestCase
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
 
-        $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
-
         $iri = $this->findIriBy(ActionMandate::class, ['id' => 1]);
         $client->request('DELETE', $iri);
 
@@ -348,7 +346,7 @@ class ActionMandateApiTest extends ApiTestCase
         self::assertCount(0, $after->getActionMandates());
 
         // deletion of a new sub-resource should update the timestamp of the parent
-        self::assertTrue($now < $after->getUpdatedAt());
+        self::assertTrue($before->getUpdatedAt() < $after->getUpdatedAt());
     }
 
     public function testDeleteFailsUnauthenticated(): void

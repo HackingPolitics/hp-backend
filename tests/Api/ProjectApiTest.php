@@ -1227,23 +1227,22 @@ class ProjectApiTest extends ApiTestCase
         $iri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
         $client->request('PUT', $iri, ['json' => [
-            'topic'                 => 'new topic',
-            'impact'                => 'another impact',
+            'topic'  => 'new topic',
+            'impact' => 'another impact',
         ]]);
 
         self::assertResponseIsSuccessful();
         self::assertJsonContains([
-            '@id'                   => $iri,
-            'topic'                 => 'new topic',
-            'impact'                => 'another impact',
+            '@id'    => $iri,
+            'topic'  => 'new topic',
+            'impact' => 'another impact',
         ]);
 
         /** @var Project $found */
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();
         $found = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
-
-        self::assertTrue($now < $found->getUpdatedAt());
+        self::assertTrue($now->getTimestamp() < $found->getUpdatedAt()->getTimestamp());
     }
 
     public function testUpdateCategories(): void

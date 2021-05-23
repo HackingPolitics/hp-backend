@@ -12,10 +12,10 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 abstract class NegationEvent extends Event
 {
-    public Negation $application;
+    public Negation $negation;
 
     public function __construct(Negation $negation)
     {
-        $this->application = $negation;
+        $this->negation = $negation;
     }
 }

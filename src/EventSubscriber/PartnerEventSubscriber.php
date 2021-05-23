@@ -31,9 +31,9 @@ class PartnerEventSubscriber implements EventSubscriberInterface
 
     public function onApiPreCreate(ApiPartnerPreCreateEvent $event): void
     {
-        $project = $event->application->getProject();
+        $project = $event->partner->getProject();
         if (!$project) {
-            throw new \RuntimeException("New partners need a project!");
+            throw new \RuntimeException('New partners need a project!');
         }
 
         $project->setUpdatedAt(new \DateTimeImmutable());
@@ -41,7 +41,7 @@ class PartnerEventSubscriber implements EventSubscriberInterface
 
     public function onApiPreUpdate(ApiPartnerPreUpdateEvent $event): void
     {
-        $project = $event->application->getProject();
+        $project = $event->partner->getProject();
         if ($project) {
             $project->setUpdatedAt(new \DateTimeImmutable());
         }
@@ -49,7 +49,7 @@ class PartnerEventSubscriber implements EventSubscriberInterface
 
     public function onApiPreDelete(ApiPartnerPreDeleteEvent $event): void
     {
-        $project = $event->application->getProject();
+        $project = $event->partner->getProject();
         if ($project) {
             $project->setUpdatedAt(new \DateTimeImmutable());
         }

@@ -31,9 +31,9 @@ class FractionInterestEventSubscriber implements EventSubscriberInterface
 
     public function onApiPreCreate(ApiFractionInterestPreCreateEvent $event): void
     {
-        $project = $event->application->getProject();
+        $project = $event->fractionInterest->getProject();
         if (!$project) {
-            throw new \RuntimeException("New fractionInterests need a project!");
+            throw new \RuntimeException('New fractionInterests need a project!');
         }
 
         $project->setUpdatedAt(new \DateTimeImmutable());
@@ -41,7 +41,7 @@ class FractionInterestEventSubscriber implements EventSubscriberInterface
 
     public function onApiPreUpdate(ApiFractionInterestPreUpdateEvent $event): void
     {
-        $project = $event->application->getProject();
+        $project = $event->fractionInterest->getProject();
         if ($project) {
             $project->setUpdatedAt(new \DateTimeImmutable());
         }
@@ -49,7 +49,7 @@ class FractionInterestEventSubscriber implements EventSubscriberInterface
 
     public function onApiPreDelete(ApiFractionInterestPreDeleteEvent $event): void
     {
-        $project = $event->application->getProject();
+        $project = $event->fractionInterest->getProject();
         if ($project) {
             $project->setUpdatedAt(new \DateTimeImmutable());
         }

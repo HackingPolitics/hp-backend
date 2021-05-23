@@ -168,7 +168,7 @@ class Project
     }
 
     //endregion
-    
+
     //region Arguments
     /**
      * @var Collection|Argument[]
@@ -340,7 +340,7 @@ class Project
     }
 
     //endregion
-    
+
     //region CreatedAt
     /**
      * @Groups({"project:read"})

@@ -1,6 +1,4 @@
 # Anstehend
 
-* project updatedat setzen bei bearbeitung der sub-resourcen
-* data-protection.md überarbeiten
-  * ggf. weitere Logs im Code einbauen
+* proposal hinzufügen mit sub-entities
 * setup.md überarbeiten

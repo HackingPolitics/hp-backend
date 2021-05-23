@@ -133,6 +133,7 @@ class User implements UserInterface
 {
     use AutoincrementId;
     use CreatedAtFunctions;
+
     public const ROLE_ADMIN           = 'ROLE_ADMIN';
     public const ROLE_PROCESS_MANAGER = 'ROLE_PROCESS_MANAGER';
     public const ROLE_USER            = 'ROLE_USER';

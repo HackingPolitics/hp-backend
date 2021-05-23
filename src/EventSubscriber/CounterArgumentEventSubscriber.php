@@ -31,9 +31,9 @@ class CounterArgumentEventSubscriber implements EventSubscriberInterface
 
     public function onApiPreCreate(ApiCounterArgumentPreCreateEvent $event): void
     {
-        $project = $event->application->getProject();
+        $project = $event->counterArgument->getProject();
         if (!$project) {
-            throw new \RuntimeException("New counterArguments need a project!");
+            throw new \RuntimeException('New counterArguments need a project!');
         }
 
         $project->setUpdatedAt(new \DateTimeImmutable());
@@ -41,7 +41,7 @@ class CounterArgumentEventSubscriber implements EventSubscriberInterface
 
     public function onApiPreUpdate(ApiCounterArgumentPreUpdateEvent $event): void
     {
-        $project = $event->application->getProject();
+        $project = $event->counterArgument->getProject();
         if ($project) {
             $project->setUpdatedAt(new \DateTimeImmutable());
         }
@@ -49,7 +49,7 @@ class CounterArgumentEventSubscriber implements EventSubscriberInterface
 
     public function onApiPreDelete(ApiCounterArgumentPreDeleteEvent $event): void
     {
-        $project = $event->application->getProject();
+        $project = $event->counterArgument->getProject();
         if ($project) {
             $project->setUpdatedAt(new \DateTimeImmutable());
         }

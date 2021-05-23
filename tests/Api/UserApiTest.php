@@ -979,15 +979,15 @@ class UserApiTest extends ApiTestCase
             ['id' => TestFixtures::COUNCIL['id']]);
 
         $client->request('POST', '/users/register', ['json' => [
-            'username'      => 'Tester',
-            'email'         => 'new@zukunftsstadt.de',
-            'firstName'     => 'Peter',
-            'password'      => '-*?*#+ with letters',
-            'validationUrl' => 'https://vrok.de/?token={{token}}&id={{id}}&type={{type}}',
+            'username'        => 'Tester',
+            'email'           => 'new@zukunftsstadt.de',
+            'firstName'       => 'Peter',
+            'password'        => '-*?*#+ with letters',
+            'validationUrl'   => 'https://vrok.de/?token={{token}}&id={{id}}&type={{type}}',
             'createdProjects' => [
                 [
                     'motivation' => 'I wanna do something',
-                    'council' => $iri,
+                    'council'    => $iri,
                     'title'      => 'new project title',
                     'topic'      => 'new topic',
                     'skills'     => 'I can do it',
@@ -1020,11 +1020,17 @@ class UserApiTest extends ApiTestCase
         ]);
 
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();
-        $ideaLogs = $em->getRepository(ActionLog::class)
+        $userLogs = $em->getRepository(ActionLog::class)
+            ->findBy(['action' => ActionLog::REGISTERED_USER]);
+        self::assertCount(1, $userLogs);
+        self::assertSame('Tester', $userLogs[0]->username);
+        self::assertGreaterThan($before, $userLogs[0]->timestamp);
+
+        $projectLogs = $em->getRepository(ActionLog::class)
             ->findBy(['action' => ActionLog::CREATED_PROJECT]);
-        self::assertCount(1, $ideaLogs);
-        self::assertSame('Tester', $ideaLogs[0]->username);
-        self::assertGreaterThan($before, $ideaLogs[0]->timestamp);
+        self::assertCount(1, $projectLogs);
+        self::assertSame('Tester', $projectLogs[0]->username);
+        self::assertGreaterThan($before, $projectLogs[0]->timestamp);
     }
 
     public function testRegistrationWithDuplicateEmailFails(): void

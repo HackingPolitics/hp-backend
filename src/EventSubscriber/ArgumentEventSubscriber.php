@@ -31,9 +31,9 @@ class ArgumentEventSubscriber implements EventSubscriberInterface
 
     public function onApiPreCreate(ApiArgumentPreCreateEvent $event): void
     {
-        $project = $event->application->getProject();
+        $project = $event->argument->getProject();
         if (!$project) {
-            throw new \RuntimeException("New arguments need a project!");
+            throw new \RuntimeException('New arguments need a project!');
         }
 
         $project->setUpdatedAt(new \DateTimeImmutable());
@@ -41,7 +41,7 @@ class ArgumentEventSubscriber implements EventSubscriberInterface
 
     public function onApiPreUpdate(ApiArgumentPreUpdateEvent $event): void
     {
-        $project = $event->application->getProject();
+        $project = $event->argument->getProject();
         if ($project) {
             $project->setUpdatedAt(new \DateTimeImmutable());
         }
@@ -49,7 +49,7 @@ class ArgumentEventSubscriber implements EventSubscriberInterface
 
     public function onApiPreDelete(ApiArgumentPreDeleteEvent $event): void
     {
-        $project = $event->application->getProject();
+        $project = $event->argument->getProject();
         if ($project) {
             $project->setUpdatedAt(new \DateTimeImmutable());
         }

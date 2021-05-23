@@ -12,10 +12,10 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 abstract class ActionMandateEvent extends Event
 {
-    public ActionMandate $application;
+    public ActionMandate $actionMandate;
 
     public function __construct(ActionMandate $actionMandate)
     {
-        $this->application = $actionMandate;
+        $this->actionMandate = $actionMandate;
     }
 }

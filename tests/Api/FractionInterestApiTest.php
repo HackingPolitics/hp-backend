@@ -331,8 +331,6 @@ class FractionInterestApiTest extends ApiTestCase
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
 
-        $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
-
         $iri = $this->findIriBy(FractionInterest::class, ['id' => 1]);
         $client->request('DELETE', $iri);
 
@@ -349,7 +347,7 @@ class FractionInterestApiTest extends ApiTestCase
         self::assertCount(1, $after->getInterests());
 
         // deletion of a new sub-resource should update the timestamp of the parent
-        self::assertTrue($now < $after->getProject()->getUpdatedAt());
+        self::assertTrue($before->getUpdatedAt() < $after->getUpdatedAt());
     }
 
     public function testDeleteFailsUnauthenticated(): void
