@@ -36,6 +36,11 @@ class UserApiTest extends ApiTestCase
         static::$fixtureGroups = ['initial', 'test'];
     }
 
+    public static function tearDownAfterClass(): void
+    {
+        self::fixtureCleanup();
+    }
+
     public function testGetCollection(): void
     {
         $response = static::createAuthenticatedClient([

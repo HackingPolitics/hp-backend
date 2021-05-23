@@ -28,6 +28,11 @@ class ValidationApiTest extends ApiTestCase
         static::$fixtureGroups = ['initial', 'test'];
     }
 
+    public static function tearDownAfterClass(): void
+    {
+        self::fixtureCleanup();
+    }
+
     public function testGetCollectionNotAvailable(): void
     {
         static::createAuthenticatedClient([

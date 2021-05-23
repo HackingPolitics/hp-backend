@@ -27,6 +27,11 @@ class AuthApiTest extends ApiTestCase
         static::$fixtureGroups = ['initial', 'test'];
     }
 
+    public static function tearDownAfterClass(): void
+    {
+        self::fixtureCleanup();
+    }
+
     public function testAuthRequiresPassword(): void
     {
         static::createClient()->request('POST', '/authentication_token', [

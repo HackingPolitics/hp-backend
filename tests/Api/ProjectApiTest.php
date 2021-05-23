@@ -31,6 +31,11 @@ class ProjectApiTest extends ApiTestCase
         static::$fixtureGroups = ['initial', 'test'];
     }
 
+    public static function tearDownAfterClass(): void
+    {
+        self::fixtureCleanup();
+    }
+
     /**
      * Test what anonymous users see.
      */
@@ -1223,6 +1228,7 @@ class ProjectApiTest extends ApiTestCase
         ]);
 
         $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
+        sleep(1);
 
         $iri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);

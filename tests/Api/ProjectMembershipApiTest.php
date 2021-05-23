@@ -31,6 +31,11 @@ class ProjectMembershipApiTest extends ApiTestCase
         static::$fixtureGroups = ['initial', 'test'];
     }
 
+    public static function tearDownAfterClass(): void
+    {
+        self::fixtureCleanup();
+    }
+
     protected function getOwner(): Project
     {
         return $this->getEntityManager()->getRepository(User::class)
