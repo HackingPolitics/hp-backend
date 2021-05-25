@@ -82,15 +82,16 @@ class ProposalApiTest extends ApiTestCase
 
     public function testCreate(): void
     {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROJECT_WRITER['email'],
+        ]);
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
 
         $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
         sleep(1);
 
-        static::createAuthenticatedClient([
-            'email' => TestFixtures::PROJECT_WRITER['email'],
-        ])->request('POST', '/proposals', ['json' => [
+        $client->request('POST', '/proposals', ['json' => [
             'title'       => 'new proposal',
             'sponsor'     => 'Green',
             'project'     => $projectIri,
@@ -122,10 +123,11 @@ class ProposalApiTest extends ApiTestCase
 
     public function testCreateFailsUnauthenticated(): void
     {
+        $client = static::createClient();
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
 
-        static::createClient()->request('POST', '/proposals', ['json' => [
+        $client->request('POST', '/proposals', ['json' => [
             'title'   => 'new proposal',
             'sponsor' => 'Green',
             'project' => $projectIri,
@@ -143,12 +145,13 @@ class ProposalApiTest extends ApiTestCase
 
     public function testCreateFailsWithoutPrivilege(): void
     {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROJECT_OBSERVER['email'],
+        ]);
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
 
-        static::createAuthenticatedClient([
-            'email' => TestFixtures::PROJECT_OBSERVER['email'],
-        ])->request('POST', '/proposals', ['json' => [
+        $client->request('POST', '/proposals', ['json' => [
             'title'   => 'new proposal',
             'sponsor' => 'Green',
             'project' => $projectIri,
@@ -168,12 +171,13 @@ class ProposalApiTest extends ApiTestCase
 
     public function testCreateWithoutTitleFails(): void
     {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROCESS_MANAGER['email'],
+        ]);
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
 
-        static::createAuthenticatedClient([
-            'email' => TestFixtures::PROCESS_MANAGER['email'],
-        ])->request('POST', '/proposals', ['json' => [
+        $client->request('POST', '/proposals', ['json' => [
             'project' => $projectIri,
             'sponsor' => 'Green',
         ]]);
@@ -192,12 +196,13 @@ class ProposalApiTest extends ApiTestCase
 
     public function testCreateWithoutSponsorFails(): void
     {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROCESS_MANAGER['email'],
+        ]);
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
 
-        static::createAuthenticatedClient([
-            'email' => TestFixtures::PROCESS_MANAGER['email'],
-        ])->request('POST', '/proposals', ['json' => [
+        $client->request('POST', '/proposals', ['json' => [
             'project' => $projectIri,
             'title'   => 'new proposal',
         ]]);
@@ -237,12 +242,13 @@ class ProposalApiTest extends ApiTestCase
 
     public function testCreateDuplicateFails(): void
     {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROCESS_MANAGER['email'],
+        ]);
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
 
-        static::createAuthenticatedClient([
-            'email' => TestFixtures::PROCESS_MANAGER['email'],
-        ])->request('POST', '/proposals', ['json' => [
+        $client->request('POST', '/proposals', ['json' => [
             'title'   => TestFixtures::PROPOSAL_1['title'],
             'sponsor' => 'Red',
             'project' => $projectIri,

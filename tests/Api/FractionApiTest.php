@@ -83,11 +83,13 @@ class FractionApiTest extends ApiTestCase
 
     public function testCreateFraction(): void
     {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROCESS_MANAGER['email'],
+        ]);
+
         $councilIri = $this->findIriBy(Council::class, ['id' => 1]);
 
-        static::createAuthenticatedClient([
-            'email' => TestFixtures::PROCESS_MANAGER['email'],
-        ])->request('POST', '/fractions', ['json' => [
+        $client->request('POST', '/fractions', ['json' => [
             'name'        => 'Grau',
             'council'  => $councilIri,
             'memberCount' => 14,
@@ -115,9 +117,10 @@ class FractionApiTest extends ApiTestCase
 
     public function testCreateFailsUnauthenticated(): void
     {
+        $client = static::createClient();
         $councilIri = $this->findIriBy(Council::class, ['id' => 1]);
 
-        static::createClient()->request('POST', '/fractions', ['json' => [
+        $client->request('POST', '/fractions', ['json' => [
             'name'        => 'Grau',
             'council'  => $councilIri,
         ]]);
@@ -134,11 +137,12 @@ class FractionApiTest extends ApiTestCase
 
     public function testCreateFailsWithoutPrivilege(): void
     {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROJECT_COORDINATOR['email'],
+        ]);
         $councilIri = $this->findIriBy(Council::class, ['id' => 1]);
 
-        static::createAuthenticatedClient([
-            'email' => TestFixtures::PROJECT_COORDINATOR['email'],
-        ])->request('POST', '/fractions', ['json' => [
+        $client->request('POST', '/fractions', ['json' => [
             'name'        => 'Grau',
             'council'  => $councilIri,
         ]]);
@@ -157,11 +161,12 @@ class FractionApiTest extends ApiTestCase
 
     public function testCreateWithoutNameFails(): void
     {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROCESS_MANAGER['email'],
+        ]);
         $councilIri = $this->findIriBy(Council::class, ['id' => 1]);
 
-        static::createAuthenticatedClient([
-            'email' => TestFixtures::PROCESS_MANAGER['email'],
-        ])->request('POST', '/fractions', ['json' => [
+        $client->request('POST', '/fractions', ['json' => [
             'memberCount' => 11,
             'council'  => $councilIri,
         ]]);
@@ -180,11 +185,12 @@ class FractionApiTest extends ApiTestCase
 
     public function testCreateWithDuplicateNameFails(): void
     {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROCESS_MANAGER['email'],
+        ]);
         $councilIri = $this->findIriBy(Council::class, ['id' => 1]);
 
-        static::createAuthenticatedClient([
-            'email' => TestFixtures::PROCESS_MANAGER['email'],
-        ])->request('POST', '/fractions', ['json' => [
+        $client->request('POST', '/fractions', ['json' => [
             'name'        => TestFixtures::FRACTION_GREEN['name'],
             'memberCount' => 1,
             'council'  => $councilIri,
@@ -290,14 +296,15 @@ class FractionApiTest extends ApiTestCase
 
     public function testDelete(): void
     {
-        /** @var Council $before */
-        $before = $this->entityManager->getRepository(Council::class)
-            ->find(1);
-        self::assertCount(4, $before->getFractions());
-
         $client = static::createAuthenticatedClient([
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
+
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        /** @var Council $before */
+        $before = $em->getRepository(Council::class)
+            ->find(1);
+        self::assertCount(4, $before->getFractions());
 
         $iri = $this->findIriBy(Fraction::class, ['id' => 1]);
         $client->request('DELETE', $iri);
@@ -305,12 +312,12 @@ class FractionApiTest extends ApiTestCase
         static::assertResponseStatusCodeSame(204);
 
         /** @var Fraction $deleted */
-        $deleted = $this->entityManager->getRepository(Fraction::class)
+        $deleted = $em->getRepository(Fraction::class)
             ->find(1);
         self::assertNull($deleted);
 
         /** @var Council $after */
-        $after = $this->entityManager->getRepository(Council::class)
+        $after = $em->getRepository(Council::class)
             ->find(1);
         self::assertCount(3, $after->getFractions());
     }

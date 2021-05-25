@@ -261,27 +261,30 @@ class FederalStateApiTest extends ApiTestCase
 
     public function testDelete(): void
     {
-        /** @var Council $before */
-        $before = $this->entityManager->getRepository(Council::class)
-            ->find(1);
-        self::assertInstanceOf(FederalState::class, $before->getFederalState());
-
         $client = static::createAuthenticatedClient([
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
 
-        $iri = $this->findIriBy(FederalState::class, ['id' => 1]);
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+
+        /** @var Council $before */
+        $before = $em->getRepository(Council::class)
+            ->find(1);
+        self::assertInstanceOf(FederalState::class, $before->getFederalState());
+
+        $iri = $this->findIriBy(FederalState::class,
+            ['id' => $before->getFederalState()->getId()]);
         $client->request('DELETE', $iri);
 
         static::assertResponseStatusCodeSame(204);
+        $em->clear();
 
-        $deleted = static::$container->get('doctrine')
-            ->getRepository(FederalState::class)
+        $deleted = $em->getRepository(FederalState::class)
             ->find(1);
         self::assertNull($deleted);
 
         /** @var Council $after */
-        $after = $this->entityManager->getRepository(Council::class)
+        $after = $em->getRepository(Council::class)
             ->find(1);
         self::assertNull($after->getFederalState());
     }

@@ -83,6 +83,9 @@ class PartnerApiTest extends ApiTestCase
 
     public function testCreate(): void
     {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROJECT_WRITER['email'],
+        ]);
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
         $userIri = $this->findIriBy(User::class,
@@ -90,9 +93,7 @@ class PartnerApiTest extends ApiTestCase
 
         $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
 
-        static::createAuthenticatedClient([
-            'email' => TestFixtures::PROJECT_WRITER['email'],
-        ])->request('POST', '/partners', ['json' => [
+        $client->request('POST', '/partners', ['json' => [
             'name'        => 'P3',
             'project'     => $projectIri,
             'teamContact' => $userIri,
@@ -124,10 +125,11 @@ class PartnerApiTest extends ApiTestCase
 
     public function testCreateFailsUnauthenticated(): void
     {
+        $client = static::createClient();
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
 
-        static::createClient()->request('POST', '/partners', ['json' => [
+        $client->request('POST', '/partners', ['json' => [
             'name'    => 'P3',
             'project' => $projectIri,
         ]]);
@@ -144,12 +146,13 @@ class PartnerApiTest extends ApiTestCase
 
     public function testCreateFailsWithoutPrivilege(): void
     {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROJECT_OBSERVER['email'],
+        ]);
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
 
-        static::createAuthenticatedClient([
-            'email' => TestFixtures::PROJECT_OBSERVER['email'],
-        ])->request('POST', '/partners', ['json' => [
+        $client->request('POST', '/partners', ['json' => [
             'name'    => 'P3',
             'project' => $projectIri,
         ]]);
@@ -168,12 +171,13 @@ class PartnerApiTest extends ApiTestCase
 
     public function testCreateWithoutNameFails(): void
     {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROCESS_MANAGER['email'],
+        ]);
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
 
-        static::createAuthenticatedClient([
-            'email' => TestFixtures::PROCESS_MANAGER['email'],
-        ])->request('POST', '/partners', ['json' => [
+        $client->request('POST', '/partners', ['json' => [
             'project' => $projectIri,
         ]]);
 
@@ -211,12 +215,13 @@ class PartnerApiTest extends ApiTestCase
 
     public function testCreateDuplicateFails(): void
     {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROCESS_MANAGER['email'],
+        ]);
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
 
-        static::createAuthenticatedClient([
-            'email' => TestFixtures::PROCESS_MANAGER['email'],
-        ])->request('POST', '/partners', ['json' => [
+        $client->request('POST', '/partners', ['json' => [
             'name'    => TestFixtures::PARTNER_ONE['name'],
             'project' => $projectIri,
         ]]);
@@ -336,28 +341,30 @@ class PartnerApiTest extends ApiTestCase
 
     public function testDelete(): void
     {
-        /** @var Project $before */
-        $before = $this->entityManager->getRepository(Project::class)
-            ->find(TestFixtures::PROJECT['id']);
-        self::assertCount(2, $before->getPartners());
-
         $client = static::createAuthenticatedClient([
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
 
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        /** @var Project $before */
+        $before = $em->getRepository(Project::class)
+            ->find(TestFixtures::PROJECT['id']);
+        self::assertCount(2, $before->getPartners());
         sleep(1);
+        $em->clear();
+
         $iri = $this->findIriBy(Partner::class, ['id' => 1]);
         $client->request('DELETE', $iri);
 
         static::assertResponseStatusCodeSame(204);
 
         /** @var Partner $deleted */
-        $deleted = $this->entityManager->getRepository(Partner::class)
+        $deleted = $em->getRepository(Partner::class)
             ->find(1);
         self::assertNull($deleted);
 
         /** @var Project $after */
-        $after = $this->entityManager->getRepository(Project::class)
+        $after = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
         self::assertCount(1, $after->getPartners());
 

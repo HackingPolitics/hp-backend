@@ -100,11 +100,12 @@ class CouncilApiTest extends ApiTestCase
 
     public function testCreateCouncil(): void
     {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROCESS_MANAGER['email'],
+        ]);
         $stateIri = $this->findIriBy(FederalState::class, ['id' => 3]);
 
-        static::createAuthenticatedClient([
-            'email' => TestFixtures::PROCESS_MANAGER['email'],
-        ])->request('POST', '/councils', ['json' => [
+        $client->request('POST', '/councils', ['json' => [
             'title'                     => 'Musterland',
             'federalState'              => $stateIri,
             'headOfAdministrationTitle' => 'OBM',
@@ -113,9 +114,6 @@ class CouncilApiTest extends ApiTestCase
         self::assertResponseStatusCodeSame(201);
         self::assertResponseHeaderSame('content-type',
             'application/ld+json; charset=utf-8');
-
-        // @todo kommt nicht mit den validatoren klar, bspw: location: Must be at least 2 characters long
-        //self::assertMatchesResourceItemJsonSchema(Council::class);
 
         self::assertJsonContains([
             '@context'                  => '/contexts/Council',
@@ -280,8 +278,9 @@ class CouncilApiTest extends ApiTestCase
         $council = new Council();
         $council->setTitle('just for fun');
         $council->setHeadOfAdministrationTitle('OBM');
-        $this->entityManager->persist($council);
-        $this->entityManager->flush();
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em->persist($council);
+        $em->flush();
 
         $iri = $this->findIriBy(Council::class, ['id' => 2]);
         $client->request('PUT', $iri, ['json' => [
@@ -302,14 +301,16 @@ class CouncilApiTest extends ApiTestCase
 
     public function testDelete(): void
     {
-        /** @var FederalState $before */
-        $before = $this->entityManager->getRepository(FederalState::class)
-            ->find(1);
-        self::assertCount(1, $before->getCouncils());
 
         $client = static::createAuthenticatedClient([
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
+
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        /** @var FederalState $before */
+        $before = $em->getRepository(FederalState::class)
+            ->find(1);
+        self::assertCount(1, $before->getCouncils());
 
         $iri = $this->findIriBy(Council::class, ['id' => 1]);
         $client->request('DELETE', $iri);
@@ -317,13 +318,13 @@ class CouncilApiTest extends ApiTestCase
         static::assertResponseStatusCodeSame(204);
 
         /** @var Council $deleted */
-        $deleted = $this->entityManager->getRepository(Council::class)
+        $deleted = $em->getRepository(Council::class)
             ->find(1);
         self::assertNotNull($deleted);
         self::assertNotNull($deleted->getDeletedAt());
 
         /** @var FederalState $after */
-        $after = $this->entityManager->getRepository(FederalState::class)
+        $after = $em->getRepository(FederalState::class)
             ->find(1);
         self::assertCount(1, $after->getCouncils());
     }

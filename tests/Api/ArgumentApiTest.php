@@ -80,14 +80,15 @@ class ArgumentApiTest extends ApiTestCase
 
     public function testCreate(): void
     {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROJECT_WRITER['email'],
+        ]);
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
 
         $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
 
-        static::createAuthenticatedClient([
-            'email' => TestFixtures::PROJECT_WRITER['email'],
-        ])->request('POST', '/arguments', ['json' => [
+        $client->request('POST', '/arguments', ['json' => [
             'description' => 'new argument',
             'project'     => $projectIri,
         ]]);
@@ -117,10 +118,11 @@ class ArgumentApiTest extends ApiTestCase
 
     public function testCreateFailsUnauthenticated(): void
     {
+        $client = static::createClient();
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
 
-        static::createClient()->request('POST', '/arguments', ['json' => [
+        $client->request('POST', '/arguments', ['json' => [
             'description' => 'new argument',
             'project'     => $projectIri,
         ]]);
@@ -137,12 +139,13 @@ class ArgumentApiTest extends ApiTestCase
 
     public function testCreateFailsWithoutPrivilege(): void
     {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROJECT_OBSERVER['email'],
+        ]);
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
 
-        static::createAuthenticatedClient([
-            'email' => TestFixtures::PROJECT_OBSERVER['email'],
-        ])->request('POST', '/arguments', ['json' => [
+        $client->request('POST', '/arguments', ['json' => [
             'description' => 'new argument',
             'project'     => $projectIri,
         ]]);
@@ -161,12 +164,13 @@ class ArgumentApiTest extends ApiTestCase
 
     public function testCreateWithoutDescriptionFails(): void
     {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROCESS_MANAGER['email'],
+        ]);
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
 
-        static::createAuthenticatedClient([
-            'email' => TestFixtures::PROCESS_MANAGER['email'],
-        ])->request('POST', '/arguments', ['json' => [
+        $client->request('POST', '/arguments', ['json' => [
             'project' => $projectIri,
         ]]);
 
@@ -306,28 +310,31 @@ class ArgumentApiTest extends ApiTestCase
 
     public function testDelete(): void
     {
-        /** @var Project $before */
-        $before = $this->entityManager->getRepository(Project::class)
-            ->find(TestFixtures::PROJECT['id']);
-        self::assertCount(1, $before->getArguments());
 
         $client = static::createAuthenticatedClient([
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
 
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        /** @var Project $before */
+        $before = $em->getRepository(Project::class)
+            ->find(TestFixtures::PROJECT['id']);
+        self::assertCount(1, $before->getArguments());
         sleep(1);
+        $em->clear();
+
         $iri = $this->findIriBy(Argument::class, ['id' => 1]);
         $client->request('DELETE', $iri);
 
         static::assertResponseStatusCodeSame(204);
 
         /** @var Argument $deleted */
-        $deleted = $this->entityManager->getRepository(Argument::class)
+        $deleted = $em->getRepository(Argument::class)
             ->find(1);
         self::assertNull($deleted);
 
         /** @var Project $after */
-        $after = $this->entityManager->getRepository(Project::class)
+        $after = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
         self::assertCount(0, $after->getArguments());
 

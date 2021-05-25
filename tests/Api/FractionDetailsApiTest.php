@@ -13,6 +13,7 @@ use App\Entity\User;
 use DateTimeImmutable;
 use DateTimeZone;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Vrok\SymfonyAddons\PHPUnit\AuthenticatedClientTrait;
 use Vrok\SymfonyAddons\PHPUnit\RefreshDatabaseTrait;
 
@@ -84,6 +85,9 @@ class FractionDetailsApiTest extends ApiTestCase
 
     public function testCreate(): void
     {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROJECT_WRITER['email'],
+        ]);
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
         $fractionIri = $this->findIriBy(Fraction::class,
@@ -93,9 +97,7 @@ class FractionDetailsApiTest extends ApiTestCase
 
         $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
 
-        static::createAuthenticatedClient([
-            'email' => TestFixtures::PROJECT_WRITER['email'],
-        ])->request('POST', '/fraction_details', ['json' => [
+        $client->request('POST', '/fraction_details', ['json' => [
             'contactName' => 'Red',
             'fraction'    => $fractionIri,
             'project'     => $projectIri,
@@ -129,12 +131,13 @@ class FractionDetailsApiTest extends ApiTestCase
 
     public function testCreateFailsUnauthenticated(): void
     {
+        $client = static::createClient();
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
         $fractionIri = $this->findIriBy(Fraction::class,
             ['id' => TestFixtures::FRACTION_RED['id']]);
 
-        static::createClient()->request('POST', '/fraction_details', ['json' => [
+        $client->request('POST', '/fraction_details', ['json' => [
             'fraction' => $fractionIri,
             'project' => $projectIri,
         ]]);
@@ -151,14 +154,15 @@ class FractionDetailsApiTest extends ApiTestCase
 
     public function testCreateFailsWithoutPrivilege(): void
     {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROJECT_OBSERVER['email'],
+        ]);
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
         $fractionIri = $this->findIriBy(Fraction::class,
             ['id' => TestFixtures::FRACTION_RED['id']]);
 
-        static::createAuthenticatedClient([
-            'email' => TestFixtures::PROJECT_OBSERVER['email'],
-        ])->request('POST', '/fraction_details', ['json' => [
+        $client->request('POST', '/fraction_details', ['json' => [
             'fraction'     => $fractionIri,
             'project'     => $projectIri,
         ]]);
@@ -177,12 +181,13 @@ class FractionDetailsApiTest extends ApiTestCase
 
     public function testCreateWithoutFractionFails(): void
     {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROCESS_MANAGER['email'],
+        ]);
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
 
-        static::createAuthenticatedClient([
-            'email' => TestFixtures::PROCESS_MANAGER['email'],
-        ])->request('POST', '/fraction_details', ['json' => [
+        $client->request('POST', '/fraction_details', ['json' => [
             'project' => $projectIri,
         ]]);
 
@@ -200,12 +205,13 @@ class FractionDetailsApiTest extends ApiTestCase
 
     public function testCreateWithoutProjectFails(): void
     {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROCESS_MANAGER['email'],
+        ]);
         $fractionIri = $this->findIriBy(Fraction::class,
             ['id' => TestFixtures::FRACTION_RED['id']]);
 
-        static::createAuthenticatedClient([
-            'email' => TestFixtures::PROCESS_MANAGER['email'],
-        ])->request('POST', '/fraction_details', ['json' => [
+        $client->request('POST', '/fraction_details', ['json' => [
             'fraction' => $fractionIri,
         ]]);
 
@@ -223,14 +229,15 @@ class FractionDetailsApiTest extends ApiTestCase
 
     public function testCreateDuplicateFails(): void
     {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROCESS_MANAGER['email'],
+        ]);
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
         $fractionIri = $this->findIriBy(Fraction::class,
             ['id' => TestFixtures::FRACTION_GREEN['id']]);
 
-        static::createAuthenticatedClient([
-            'email' => TestFixtures::PROCESS_MANAGER['email'],
-        ])->request('POST', '/fraction_details', ['json' => [
+        $client->request('POST', '/fraction_details', ['json' => [
             'fraction'     => $fractionIri,
             'project'     => $projectIri,
         ]]);
@@ -379,33 +386,39 @@ class FractionDetailsApiTest extends ApiTestCase
 
     public function testDelete(): void
     {
-        /** @var Fraction $before */
-        $before = $this->entityManager->getRepository(Fraction::class)
-            ->find(TestFixtures::FRACTION_GREEN['id']);
-        self::assertCount(1, $before->getDetails());
-
         $client = static::createAuthenticatedClient([
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
 
+        /** @var EntityManagerInterface $em */
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        /** @var Fraction $before */
+        $before = $em->getRepository(Fraction::class)
+            ->find(TestFixtures::FRACTION_GREEN['id']);
+        self::assertCount(1, $before->getDetails());
+
+        $now = new DateTimeImmutable();
         sleep(1);
+
         $iri = $this->findIriBy(FractionDetails::class, ['id' => 1]);
         $client->request('DELETE', $iri);
 
         static::assertResponseStatusCodeSame(204);
 
         /** @var FractionDetails $deleted */
-        $deleted = $this->entityManager->getRepository(FractionDetails::class)
+        $deleted = $em->getRepository(FractionDetails::class)
             ->find(1);
         self::assertNull($deleted);
 
         /** @var Fraction $after */
-        $after = $this->entityManager->getRepository(Fraction::class)
+        $after = $em->getRepository(Fraction::class)
             ->find(TestFixtures::FRACTION_GREEN['id']);
         self::assertCount(0, $after->getDetails());
 
         // deletion of a new sub-resource should update the timestamp of the parent
-        self::assertTrue($before->getUpdatedAt() < $after->getUpdatedAt());
+        $project = $em->getRepository(Project::class)
+            ->find(TestFixtures::PROJECT['id']);
+        self::assertTrue($now < $project->getUpdatedAt());
     }
 
     public function testDeleteFailsUnauthenticated(): void

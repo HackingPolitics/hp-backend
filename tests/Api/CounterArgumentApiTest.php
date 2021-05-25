@@ -80,14 +80,15 @@ class CounterArgumentApiTest extends ApiTestCase
 
     public function testCreate(): void
     {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROJECT_WRITER['email'],
+        ]);
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
 
         $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
 
-        static::createAuthenticatedClient([
-            'email' => TestFixtures::PROJECT_WRITER['email'],
-        ])->request('POST', '/counter_arguments', ['json' => [
+        $client->request('POST', '/counter_arguments', ['json' => [
             'description' => 'new counterArgument',
             'project'     => $projectIri,
         ]]);
@@ -117,10 +118,11 @@ class CounterArgumentApiTest extends ApiTestCase
 
     public function testCreateFailsUnauthenticated(): void
     {
+        $client = static::createClient();
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
 
-        static::createClient()->request('POST', '/counter_arguments', ['json' => [
+        $client->request('POST', '/counter_arguments', ['json' => [
             'description' => 'new counterArgument',
             'project'     => $projectIri,
         ]]);
@@ -137,12 +139,13 @@ class CounterArgumentApiTest extends ApiTestCase
 
     public function testCreateFailsWithoutPrivilege(): void
     {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROJECT_OBSERVER['email'],
+        ]);
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
 
-        static::createAuthenticatedClient([
-            'email' => TestFixtures::PROJECT_OBSERVER['email'],
-        ])->request('POST', '/counter_arguments', ['json' => [
+        $client->request('POST', '/counter_arguments', ['json' => [
             'description' => 'new counterArgument',
             'project'     => $projectIri,
         ]]);
@@ -161,12 +164,13 @@ class CounterArgumentApiTest extends ApiTestCase
 
     public function testCreateWithoutDescriptionFails(): void
     {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROCESS_MANAGER['email'],
+        ]);
         $projectIri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::PROJECT['id']]);
 
-        static::createAuthenticatedClient([
-            'email' => TestFixtures::PROCESS_MANAGER['email'],
-        ])->request('POST', '/counter_arguments', ['json' => [
+        $client->request('POST', '/counter_arguments', ['json' => [
             'project' => $projectIri,
         ]]);
 
@@ -306,33 +310,38 @@ class CounterArgumentApiTest extends ApiTestCase
 
     public function testDelete(): void
     {
-        /** @var Project $before */
-        $before = $this->entityManager->getRepository(Project::class)
-            ->find(TestFixtures::PROJECT['id']);
-        self::assertCount(1, $before->getCounterArguments());
-
         $client = static::createAuthenticatedClient([
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
 
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        /** @var Project $before */
+        $before = $em->getRepository(Project::class)
+            ->find(TestFixtures::PROJECT['id']);
+        self::assertCount(1, $before->getCounterArguments());
+
+        $now = new DateTimeImmutable();
         sleep(1);
+
         $iri = $this->findIriBy(CounterArgument::class, ['id' => 1]);
         $client->request('DELETE', $iri);
 
         static::assertResponseStatusCodeSame(204);
 
         /** @var CounterArgument $deleted */
-        $deleted = $this->entityManager->getRepository(CounterArgument::class)
+        $deleted = $em->getRepository(CounterArgument::class)
             ->find(1);
         self::assertNull($deleted);
 
         /** @var Project $after */
-        $after = $this->entityManager->getRepository(Project::class)
+        $after = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
         self::assertCount(0, $after->getCounterArguments());
 
         // deletion of a new sub-resource should update the timestamp of the parent
-        self::assertTrue($before->getUpdatedAt() < $after->getUpdatedAt());
+        $project = $em->getRepository(Project::class)
+            ->find(TestFixtures::PROJECT['id']);
+        self::assertTrue($now < $project->getUpdatedAt());
     }
 
     public function testDeleteFailsUnauthenticated(): void
