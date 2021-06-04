@@ -296,6 +296,46 @@ class ProjectApiTest extends ApiTestCase
         ]);
     }
 
+
+    public function testOrderCollection(): void
+    {
+        $client = static::createClient();
+
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        /** @var Project $locked */
+        $locked = $em->getRepository(Project::class)
+            ->find(TestFixtures::LOCKED_PROJECT['id']);
+        sleep(1);
+        $locked->setCreatedAt(new DateTimeImmutable());
+        $locked->setLocked(false);
+        $em->flush();
+        $em->clear();
+
+        // /projects?order[createdAt]=desc
+        $client->request('GET', '/projects', ['query' => [
+            'order' => ['createdAt' => 'desc'],
+        ]]);
+        self::assertResponseIsSuccessful();
+        self::assertResponseHeaderSame('content-type',
+            'application/ld+json; charset=utf-8');
+        self::assertMatchesResourceCollectionJsonSchema(Project::class);
+
+        self::assertJsonContains([
+            '@context'         => '/contexts/Project',
+            '@id'              => '/projects',
+            '@type'            => 'hydra:Collection',
+            'hydra:totalItems' => 2,
+            'hydra:member'     => [
+                0 => [
+                    'id'    => TestFixtures::LOCKED_PROJECT['id'],
+                ],
+                1 => [
+                    'id'    => TestFixtures::PROJECT['id'],
+                ],
+            ],
+        ]);
+    }
+
     /**
      * Test what process owners see (additional properties).
      */

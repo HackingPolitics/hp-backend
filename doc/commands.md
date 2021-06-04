@@ -9,8 +9,8 @@
 
 # Fixtures
 * Datenbank befüllen (funktioniert nur in dev/test Umgebung)  
-  Dev: `php bin/console doctrine:fixtures:load --group initial`  
-  Test: `php bin/console -etest doctrine:fixtures:load --group test`
+  Dev: `php bin/console doctrine:fixtures:load --group initial --append`  
+  Test: `php bin/console -etest doctrine:fixtures:load --group test --append`
   
 # Unittests
 * Test-Suite ausführen (verwendet .env.test und überschreibt die Testdatenbank)  

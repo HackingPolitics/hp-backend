@@ -8,6 +8,7 @@ use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\ExistsFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use App\Controller\ProjectStatisticsAction;
 use App\Controller\ReportProjectAction;
@@ -107,6 +108,7 @@ use Vrok\SymfonyAddons\Validator\Constraints as VrokAssert;
  * @ApiFilter(SimpleSearchFilter::class, properties={
  *     "description", "impact", "topic", "title",
  * }, arguments={"searchParameterName"="pattern"})
+ * @ApiFilter(OrderFilter::class, properties={"id", "title", "updatedAt", "createdAt"})
  *
  * @ORM\Entity
  * @ORM\Table(indexes={
