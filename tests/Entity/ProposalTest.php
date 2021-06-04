@@ -7,6 +7,12 @@ namespace App\Tests\Entity;
 use App\DataFixtures\TestFixtures;
 use App\Entity\Proposal;
 use App\Entity\Project;
+use App\Entity\UsedActionMandate;
+use App\Entity\UsedArgument;
+use App\Entity\UsedCounterArgument;
+use App\Entity\UsedFractionInterest;
+use App\Entity\UsedNegation;
+use App\Entity\UsedProblem;
 use App\Entity\User;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
@@ -55,7 +61,7 @@ class ProposalTest extends KernelTestCase
     public function testCreateAndRead(): void
     {
         $before = $this->getRepository()->findAll();
-        self::assertCount(1, $before);
+        self::assertCount(2, $before);
 
         $project = $this->entityManager->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
@@ -69,10 +75,10 @@ class ProposalTest extends KernelTestCase
         $this->entityManager->clear();
 
         $after = $this->getRepository()->findAll();
-        self::assertCount(2, $after);
+        self::assertCount(3, $after);
 
         /* @var $found Proposal */
-        $found = $this->getRepository()->find(2);
+        $found = $this->getRepository()->find(3);
 
         self::assertSame('Testing', $found->getSponsor());
     }
@@ -84,5 +90,23 @@ class ProposalTest extends KernelTestCase
 
         self::assertInstanceOf(Project::class, $proposal->getProject());
         self::assertInstanceOf(User::class, $proposal->getUpdatedBy());
+
+        self::assertCount(1, $proposal->getUsedActionMandates());
+        self::assertInstanceOf(UsedActionMandate::class, $proposal->getUsedActionMandates()[0]);
+
+        self::assertCount(1, $proposal->getUsedArguments());
+        self::assertInstanceOf(UsedArgument::class, $proposal->getUsedArguments()[0]);
+
+        self::assertCount(1, $proposal->getUsedCounterArguments());
+        self::assertInstanceOf(UsedCounterArgument::class, $proposal->getUsedCounterArguments()[0]);
+
+        self::assertCount(1, $proposal->getUsedFractionInterests());
+        self::assertInstanceOf(UsedFractionInterest::class, $proposal->getUsedFractionInterests()[0]);
+
+        self::assertCount(1, $proposal->getUsedNegations());
+        self::assertInstanceOf(UsedNegation::class, $proposal->getUsedNegations()[0]);
+
+        self::assertCount(1, $proposal->getUsedProblems());
+        self::assertInstanceOf(UsedProblem::class, $proposal->getUsedProblems()[0]);
     }
 }

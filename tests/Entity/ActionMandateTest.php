@@ -7,6 +7,7 @@ namespace App\Tests\Entity;
 use App\DataFixtures\TestFixtures;
 use App\Entity\ActionMandate;
 use App\Entity\Project;
+use App\Entity\UsedActionMandate;
 use App\Entity\User;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
@@ -85,5 +86,8 @@ class ActionMandateTest extends KernelTestCase
 
         self::assertInstanceOf(Project::class, $actionMandate->getProject());
         self::assertInstanceOf(User::class, $actionMandate->getUpdatedBy());
+
+        self::assertCount(1, $actionMandate->getUsages());
+        self::assertInstanceOf(UsedActionMandate::class, $actionMandate->getUsages()[0]);
     }
 }

@@ -15,6 +15,7 @@ use App\Entity\User;
 use App\Message\ProjectReportedMessage;
 use DateTimeImmutable;
 use DateTimeZone;
+use PHPUnit\Util\Test;
 use Vrok\SymfonyAddons\PHPUnit\AuthenticatedClientTrait;
 use Vrok\SymfonyAddons\PHPUnit\RefreshDatabaseTrait;
 
@@ -87,6 +88,7 @@ class ProjectApiTest extends ApiTestCase
         self::assertArrayNotHasKey('arguments', $collection['hydra:member'][0]);
         self::assertArrayNotHasKey('counterArguments', $collection['hydra:member'][0]);
         self::assertArrayNotHasKey('actionMandates', $collection['hydra:member'][0]);
+        self::assertArrayNotHasKey('proposals', $collection['hydra:member'][0]);
 
         self::assertArrayNotHasKey('firstName', $collection['hydra:member'][0]['createdBy']);
         self::assertArrayNotHasKey('lastName', $collection['hydra:member'][0]['createdBy']);
@@ -369,6 +371,7 @@ class ProjectApiTest extends ApiTestCase
         self::assertArrayHasKey('createdBy', $collection['hydra:member'][0]);
         self::assertArrayHasKey('locked', $collection['hydra:member'][0]);
         self::assertArrayHasKey('memberships', $collection['hydra:member'][0]);
+        self::assertArrayHasKey('proposals', $collection['hydra:member'][0]);
     }
 
     /**
@@ -428,6 +431,64 @@ class ProjectApiTest extends ApiTestCase
                     'problems'        => [
                         0 => [],
                     ],
+                    'proposals' => [
+                        0 => [
+                            'id'            => TestFixtures::PROPOSAL_1['id'],
+                            'actionMandate' => 'proposal action-mandate',
+                            'comment'       => 'proposal comment',
+                            'introduction'  => 'proposal introduction',
+                            'reasoning'     => 'proposal reasoning',
+                            'sponsor'       => 'interfraktionell',
+                            'title'         => 'proposal title',
+
+                            'usedActionMandates' => [
+                                0 => [
+                                    'actionMandate'  => [
+                                        'id' => 1
+                                    ],
+                                ],
+                            ],
+                            'usedArguments' => [
+                                0 => [
+                                    'argument'  => [
+                                        'id' => 1
+                                    ],
+                                ],
+                            ],
+                            'usedCounterArguments' => [
+                                0 => [
+                                    'counterArgument'  => [
+                                        'id' => 1
+                                    ],
+                                ],
+                            ],
+                            'usedFractionInterests' => [
+                                0 => [
+                                    'fractionInterest'  => [
+                                        'id' => 1
+                                    ],
+                                ],
+                            ],
+                            'usedNegations' => [
+                                0 => [
+                                    'negation'  => [
+                                        'id' => 1
+                                    ],
+                                ],
+                            ],
+                            'usedProblems' => [
+                                0 => [
+                                    'problem'  => [
+                                        'id' => 1
+                                    ],
+                                ],
+                            ],
+                        ],
+                        1 => [
+                            'id'      => TestFixtures::PROPOSAL_2['id'],
+                            'sponsor' => 'Green',
+                        ],
+                    ],
                 ],
             ],
         ]);
@@ -453,6 +514,21 @@ class ProjectApiTest extends ApiTestCase
             $collection['hydra:member'][0]['counterArguments'][0]);
         self::assertArrayNotHasKey('updatedBy',
             $collection['hydra:member'][0]['actionMandates'][0]);
+        self::assertArrayNotHasKey('updatedBy',
+            $collection['hydra:member'][0]['proposals'][0]);
+
+        self::assertArrayNotHasKey('createdBy',
+            $collection['hydra:member'][0]['proposals'][0]['usedActionMandates'][0]);
+        self::assertArrayNotHasKey('createdBy',
+            $collection['hydra:member'][0]['proposals'][0]['usedArguments'][0]);
+        self::assertArrayNotHasKey('createdBy',
+            $collection['hydra:member'][0]['proposals'][0]['usedCounterArguments'][0]);
+        self::assertArrayNotHasKey('createdBy',
+            $collection['hydra:member'][0]['proposals'][0]['usedFractionInterests'][0]);
+        self::assertArrayNotHasKey('createdBy',
+            $collection['hydra:member'][0]['proposals'][0]['usedNegations'][0]);
+        self::assertArrayNotHasKey('createdBy',
+            $collection['hydra:member'][0]['proposals'][0]['usedProblems'][0]);
     }
 
     /**
@@ -764,6 +840,64 @@ class ProjectApiTest extends ApiTestCase
             'problems'  => [
                 0 => [],
             ],
+            'proposals' => [
+                0 => [
+                    'id'            => TestFixtures::PROPOSAL_1['id'],
+                    'actionMandate' => 'proposal action-mandate',
+                    'comment'       => 'proposal comment',
+                    'introduction'  => 'proposal introduction',
+                    'reasoning'     => 'proposal reasoning',
+                    'sponsor'       => 'interfraktionell',
+                    'title'         => 'proposal title',
+
+                    'usedActionMandates' => [
+                        0 => [
+                            'actionMandate'  => [
+                                'id' => 1
+                            ],
+                        ],
+                    ],
+                    'usedArguments' => [
+                        0 => [
+                            'argument'  => [
+                                'id' => 1
+                            ],
+                        ],
+                    ],
+                    'usedCounterArguments' => [
+                        0 => [
+                            'counterArgument'  => [
+                                'id' => 1
+                            ],
+                        ],
+                    ],
+                    'usedFractionInterests' => [
+                        0 => [
+                            'fractionInterest'  => [
+                                'id' => 1
+                            ],
+                        ],
+                    ],
+                    'usedNegations' => [
+                        0 => [
+                            'negation'  => [
+                                'id' => 1
+                            ],
+                        ],
+                    ],
+                    'usedProblems' => [
+                        0 => [
+                            'problem'  => [
+                                'id' => 1
+                            ],
+                        ],
+                    ],
+                ],
+                1 => [
+                    'id'      => TestFixtures::PROPOSAL_2['id'],
+                    'sponsor' => 'Green',
+                ],
+            ],
             'title'        => TestFixtures::PROJECT['title'],
         ]);
 
@@ -788,6 +922,21 @@ class ProjectApiTest extends ApiTestCase
             $projectData['counterArguments'][0]);
         self::assertArrayNotHasKey('updatedBy',
             $projectData['actionMandates'][0]);
+
+        self::assertArrayNotHasKey('updatedBy',
+            $projectData['proposals'][0]);
+        self::assertArrayNotHasKey('createdBy',
+            $projectData['proposals'][0]['usedActionMandates'][0]);
+        self::assertArrayNotHasKey('createdBy',
+            $projectData['proposals'][0]['usedArguments'][0]);
+        self::assertArrayNotHasKey('createdBy',
+            $projectData['proposals'][0]['usedCounterArguments'][0]);
+        self::assertArrayNotHasKey('createdBy',
+            $projectData['proposals'][0]['usedFractionInterests'][0]);
+        self::assertArrayNotHasKey('createdBy',
+            $projectData['proposals'][0]['usedNegations'][0]);
+        self::assertArrayNotHasKey('createdBy',
+            $projectData['proposals'][0]['usedProblems'][0]);
 
         self::assertArrayNotHasKey('firstName', $projectData['createdBy']);
         self::assertArrayNotHasKey('lastName', $projectData['createdBy']);
@@ -878,6 +1027,86 @@ class ProjectApiTest extends ApiTestCase
                 0 => [
                     'description' => 'problem 1',
                     'updatedBy'   => [],
+                ],
+            ],
+            'proposals' => [
+                0 => [
+                    'id'            => TestFixtures::PROPOSAL_1['id'],
+                    'actionMandate' => 'proposal action-mandate',
+                    'comment'       => 'proposal comment',
+                    'introduction'  => 'proposal introduction',
+                    'reasoning'     => 'proposal reasoning',
+                    'sponsor'       => 'interfraktionell',
+                    'title'         => 'proposal title',
+
+                    'updatedBy' => [
+                        'id' => TestFixtures::PROCESS_MANAGER['id'],
+                    ],
+
+                    'usedActionMandates' => [
+                        0 => [
+                            'actionMandate'  => [
+                                'id' => 1
+                            ],
+                            'createdBy' => [
+                                'id' => TestFixtures::ADMIN['id'],
+                            ],
+                        ],
+                    ],
+                    'usedArguments' => [
+                        0 => [
+                            'argument'  => [
+                                'id' => 1
+                            ],
+                            'createdBy' => [
+                                'id' => TestFixtures::ADMIN['id'],
+                            ],
+                        ],
+                    ],
+                    'usedCounterArguments' => [
+                        0 => [
+                            'counterArgument'  => [
+                                'id' => 1
+                            ],
+                            'createdBy' => [
+                                'id' => TestFixtures::ADMIN['id'],
+                            ],
+                        ],
+                    ],
+                    'usedFractionInterests' => [
+                        0 => [
+                            'fractionInterest'  => [
+                                'id' => 1
+                            ],
+                            'createdBy' => [
+                                'id' => TestFixtures::ADMIN['id'],
+                            ],
+                        ],
+                    ],
+                    'usedNegations' => [
+                        0 => [
+                            'negation'  => [
+                                'id' => 1
+                            ],
+                            'createdBy' => [
+                                'id' => TestFixtures::ADMIN['id'],
+                            ],
+                        ],
+                    ],
+                    'usedProblems' => [
+                        0 => [
+                            'problem'  => [
+                                'id' => 1
+                            ],
+                            'createdBy' => [
+                                'id' => TestFixtures::ADMIN['id'],
+                            ],
+                        ],
+                    ],
+                ],
+                1 => [
+                    'id'      => TestFixtures::PROPOSAL_2['id'],
+                    'sponsor' => 'Green',
                 ],
             ],
         ]);

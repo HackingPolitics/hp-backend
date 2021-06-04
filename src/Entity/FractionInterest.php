@@ -8,6 +8,8 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\Traits\AutoincrementId;
 use App\Entity\Traits\UpdatedAtFunctions;
 use DateTimeImmutable;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -166,4 +168,53 @@ class FractionInterest
     }
 
     //endregion
+
+    //region Usages
+    /**
+     * @var Collection|UsedFractionInterest[]
+     * @Groups({
+     *     "fractionInterest:read",
+     *     "project:read",
+     * })
+     * @ORM\OneToMany(targetEntity="UsedFractionInterest", mappedBy="fractionInterest", cascade={"persist"})
+     */
+    private Collection $usages;
+
+    /**
+     * @return Collection|UsedFractionInterest[]
+     */
+    public function getUsages(): Collection
+    {
+        return $this->usages;
+    }
+
+    public function addUsage(UsedFractionInterest $usedFractionInterest): self
+    {
+        if (!$this->usages->contains($usedFractionInterest)) {
+            $this->usages[] = $usedFractionInterest;
+            $usedFractionInterest->setFractionInterest($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUsage(UsedFractionInterest $usedFractionInterest): self
+    {
+        if ($this->usages->contains($usedFractionInterest)) {
+            $this->usages->removeElement($usedFractionInterest);
+            // set the owning side to null (unless already changed)
+            if ($usedFractionInterest->getFractionInterest() === $this) {
+                $usedFractionInterest->setFractionInterest(null);
+            }
+        }
+
+        return $this;
+    }
+
+    //endregion
+
+    public function __construct()
+    {
+        $this->usages = new ArrayCollection();
+    }
 }

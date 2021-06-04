@@ -7,6 +7,7 @@ namespace App\Tests\Entity;
 use App\DataFixtures\TestFixtures;
 use App\Entity\Problem;
 use App\Entity\Project;
+use App\Entity\UsedProblem;
 use App\Entity\User;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
@@ -85,5 +86,8 @@ class ProblemTest extends KernelTestCase
 
         self::assertInstanceOf(Project::class, $problem->getProject());
         self::assertInstanceOf(User::class, $problem->getUpdatedBy());
+
+        self::assertCount(1, $problem->getUsages());
+        self::assertInstanceOf(UsedProblem::class, $problem->getUsages()[0]);
     }
 }

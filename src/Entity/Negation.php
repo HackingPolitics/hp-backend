@@ -8,6 +8,8 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\Traits\AutoincrementId;
 use App\Entity\Traits\UpdatedAtFunctions;
 use DateTimeImmutable;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -199,4 +201,53 @@ class Negation
     }
 
     //endregion
+
+    //region Usages
+    /**
+     * @var Collection|UsedNegation[]
+     * @Groups({
+     *     "negation:read",
+     *     "project:read",
+     * })
+     * @ORM\OneToMany(targetEntity="UsedNegation", mappedBy="negation", cascade={"persist"})
+     */
+    private Collection $usages;
+
+    /**
+     * @return Collection|UsedNegation[]
+     */
+    public function getUsages(): Collection
+    {
+        return $this->usages;
+    }
+
+    public function addUsage(UsedNegation $usedNegation): self
+    {
+        if (!$this->usages->contains($usedNegation)) {
+            $this->usages[] = $usedNegation;
+            $usedNegation->setNegation($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUsage(UsedNegation $usedNegation): self
+    {
+        if ($this->usages->contains($usedNegation)) {
+            $this->usages->removeElement($usedNegation);
+            // set the owning side to null (unless already changed)
+            if ($usedNegation->getNegation() === $this) {
+                $usedNegation->setNegation(null);
+            }
+        }
+
+        return $this;
+    }
+
+    //endregion
+
+    public function __construct()
+    {
+        $this->usages = new ArrayCollection();
+    }
 }

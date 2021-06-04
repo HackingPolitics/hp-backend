@@ -6,6 +6,7 @@ namespace App\Tests\Entity;
 
 use App\Entity\FractionDetails;
 use App\Entity\FractionInterest;
+use App\Entity\UsedFractionInterest;
 use App\Entity\User;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
@@ -83,8 +84,7 @@ class FractionInterestTest extends KernelTestCase
         self::assertInstanceOf(FractionDetails::class, $interest->getFractionDetails());
         self::assertInstanceOf(User::class, $interest->getUpdatedBy());
 
-        // @todo motion usages
-//        self::assertCount(1, $interest->getInterest());
-//        self::assertInstanceOf(FractionInterestInterest::class, $interest->getInterest()[0]);
+        self::assertCount(1, $interest->getUsages());
+        self::assertInstanceOf(UsedFractionInterest::class, $interest->getUsages()[0]);
     }
 }

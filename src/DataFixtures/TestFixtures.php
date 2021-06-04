@@ -20,6 +20,12 @@ use App\Entity\Problem;
 use App\Entity\Project;
 use App\Entity\ProjectMembership;
 use App\Entity\Proposal;
+use App\Entity\UsedActionMandate;
+use App\Entity\UsedArgument;
+use App\Entity\UsedCounterArgument;
+use App\Entity\UsedFractionInterest;
+use App\Entity\UsedNegation;
+use App\Entity\UsedProblem;
 use App\Entity\User;
 use App\Entity\Validation;
 use DateInterval;
@@ -143,6 +149,16 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         'actionMandate' => 'proposal action-mandate',
         'reasoning'     => 'proposal reasoning',
         'sponsor'       => 'interfraktionell',
+    ];
+
+    public const PROPOSAL_2 = [
+        'id'            => 2,
+        'title'         => 'proposal2 title',
+        'introduction'  => 'proposal2 introduction',
+        'comment'       => 'proposal2 comment',
+        'actionMandate' => 'proposal2 action-mandate',
+        'reasoning'     => 'proposal2 reasoning',
+        'sponsor'       => 'Green',
     ];
 
     public const COUNCIL = [
@@ -358,9 +374,43 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         $problem1->setPriority(77);
         $project->addProblem($problem1);
 
-        $proposal = $this->createProposal(self::PROPOSAL_1);
-        $proposal->setUpdatedBy($processManager);
-        $project->addProposal($proposal);
+        $proposal1 = $this->createProposal(self::PROPOSAL_1);
+        $proposal1->setUpdatedBy($processManager);
+        $project->addProposal($proposal1);
+
+        $usedActionMandate = new UsedActionMandate();
+        $usedActionMandate->setCreatedBy($admin);
+        $actionMandate1->addUsage($usedActionMandate);
+        $proposal1->addUsedActionMandate($usedActionMandate);
+
+        $usedArgument = new UsedArgument();
+        $usedArgument->setCreatedBy($admin);
+        $argument1->addUsage($usedArgument);
+        $proposal1->addUsedArgument($usedArgument);
+
+        $usedCounterArgument = new UsedCounterArgument();
+        $usedCounterArgument->setCreatedBy($admin);
+        $counterArgument1->addUsage($usedCounterArgument);
+        $proposal1->addUsedCounterArgument($usedCounterArgument);
+
+        $usedFractionInterest = new UsedFractionInterest();
+        $usedFractionInterest->setCreatedBy($admin);
+        $interest1->addUsage($usedFractionInterest);
+        $proposal1->addUsedFractionInterest($usedFractionInterest);
+
+        $usedNegation = new UsedNegation();
+        $usedNegation->setCreatedBy($admin);
+        $negation1->addUsage($usedNegation);
+        $proposal1->addUsedNegation($usedNegation);
+
+        $usedProblem = new UsedProblem();
+        $usedProblem->setCreatedBy($admin);
+        $problem1->addUsage($usedProblem);
+        $proposal1->addUsedProblem($usedProblem);
+
+        $proposal2 = $this->createProposal(self::PROPOSAL_2);
+        $proposal2->setUpdatedBy($admin);
+        $project->addProposal($proposal2);
         //endregion
 
         /**

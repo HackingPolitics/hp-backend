@@ -8,6 +8,8 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\Traits\AutoincrementId;
 use App\Entity\Traits\UpdatedAtFunctions;
 use DateTimeImmutable;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -189,4 +191,53 @@ class ActionMandate
     }
 
     //endregion
+
+    //region Usages
+    /**
+     * @var Collection|UsedActionMandate[]
+     * @Groups({
+     *     "argument:read",
+     *     "project:read",
+     * })
+     * @ORM\OneToMany(targetEntity="UsedActionMandate", mappedBy="actionMandate", cascade={"persist"})
+     */
+    private Collection $usages;
+
+    /**
+     * @return Collection|UsedActionMandate[]
+     */
+    public function getUsages(): Collection
+    {
+        return $this->usages;
+    }
+
+    public function addUsage(UsedActionMandate $usedActionMandate): self
+    {
+        if (!$this->usages->contains($usedActionMandate)) {
+            $this->usages[] = $usedActionMandate;
+            $usedActionMandate->setActionMandate($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUsage(UsedActionMandate $usedActionMandate): self
+    {
+        if ($this->usages->contains($usedActionMandate)) {
+            $this->usages->removeElement($usedActionMandate);
+            // set the owning side to null (unless already changed)
+            if ($usedActionMandate->getActionMandate() === $this) {
+                $usedActionMandate->setActionMandate(null);
+            }
+        }
+
+        return $this;
+    }
+
+    //endregion
+
+    public function __construct()
+    {
+        $this->usages = new ArrayCollection();
+    }
 }

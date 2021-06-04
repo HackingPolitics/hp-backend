@@ -379,7 +379,7 @@ class ProposalApiTest extends ApiTestCase
         /** @var Project $before */
         $before = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
-        self::assertCount(1, $before->getProposals());
+        self::assertCount(2, $before->getProposals());
         $before->setLocked(true);
         $em->flush();
         $em->clear();
@@ -398,7 +398,7 @@ class ProposalApiTest extends ApiTestCase
         /** @var Project $after */
         $after = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
-        self::assertCount(0, $after->getProposals());
+        self::assertCount(1, $after->getProposals());
 
         // deletion of a new sub-resource should update the timestamp of the parent
         self::assertTrue($before->getUpdatedAt() < $after->getUpdatedAt());

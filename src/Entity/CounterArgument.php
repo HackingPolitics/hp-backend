@@ -236,8 +236,53 @@ class CounterArgument
 
     //endregion
 
+    //region Usages
+    /**
+     * @var Collection|UsedCounterArgument[]
+     * @Groups({
+     *     "counterArgument:read",
+     *     "project:read",
+     * })
+     * @ORM\OneToMany(targetEntity="UsedCounterArgument", mappedBy="counterArgument", cascade={"persist"})
+     */
+    private Collection $usages;
+
+    /**
+     * @return Collection|UsedCounterArgument[]
+     */
+    public function getUsages(): Collection
+    {
+        return $this->usages;
+    }
+
+    public function addUsage(UsedCounterArgument $usedCounterArgument): self
+    {
+        if (!$this->usages->contains($usedCounterArgument)) {
+            $this->usages[] = $usedCounterArgument;
+            $usedCounterArgument->setCounterArgument($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUsage(UsedCounterArgument $usedCounterArgument): self
+    {
+        if ($this->usages->contains($usedCounterArgument)) {
+            $this->usages->removeElement($usedCounterArgument);
+            // set the owning side to null (unless already changed)
+            if ($usedCounterArgument->getCounterArgument() === $this) {
+                $usedCounterArgument->setCounterArgument(null);
+            }
+        }
+
+        return $this;
+    }
+
+    //endregion
+
     public function __construct()
     {
         $this->negations = new ArrayCollection();
+        $this->usages = new ArrayCollection();
     }
 }

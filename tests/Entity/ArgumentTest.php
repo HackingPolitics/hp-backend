@@ -7,6 +7,7 @@ namespace App\Tests\Entity;
 use App\DataFixtures\TestFixtures;
 use App\Entity\Argument;
 use App\Entity\Project;
+use App\Entity\UsedArgument;
 use App\Entity\User;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
@@ -85,5 +86,9 @@ class ArgumentTest extends KernelTestCase
 
         self::assertInstanceOf(Project::class, $argument->getProject());
         self::assertInstanceOf(User::class, $argument->getUpdatedBy());
+
+        self::assertCount(1, $argument->getUsages());
+        self::assertInstanceOf(UsedArgument::class, $argument->getUsages()[0]);
+
     }
 }

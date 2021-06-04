@@ -17,6 +17,12 @@ use App\Entity\Problem;
 use App\Entity\Project;
 use App\Entity\ProjectMembership;
 use App\Entity\Proposal;
+use App\Entity\UsedActionMandate;
+use App\Entity\UsedArgument;
+use App\Entity\UsedCounterArgument;
+use App\Entity\UsedFractionInterest;
+use App\Entity\UsedNegation;
+use App\Entity\UsedProblem;
 use App\Entity\User;
 use App\Event\Api\ApiActionMandatePreCreateEvent;
 use App\Event\Api\ApiActionMandatePreDeleteEvent;
@@ -55,6 +61,18 @@ use App\Event\Api\ApiProjectPreUpdateEvent;
 use App\Event\Api\ApiProposalPreCreateEvent;
 use App\Event\Api\ApiProposalPreDeleteEvent;
 use App\Event\Api\ApiProposalPreUpdateEvent;
+use App\Event\Api\ApiUsedActionMandatePreCreateEvent;
+use App\Event\Api\ApiUsedActionMandatePreDeleteEvent;
+use App\Event\Api\ApiUsedArgumentPreCreateEvent;
+use App\Event\Api\ApiUsedArgumentPreDeleteEvent;
+use App\Event\Api\ApiUsedCounterArgumentPreCreateEvent;
+use App\Event\Api\ApiUsedCounterArgumentPreDeleteEvent;
+use App\Event\Api\ApiUsedFractionInterestPreCreateEvent;
+use App\Event\Api\ApiUsedFractionInterestPreDeleteEvent;
+use App\Event\Api\ApiUsedNegationPreCreateEvent;
+use App\Event\Api\ApiUsedNegationPreDeleteEvent;
+use App\Event\Api\ApiUsedProblemPreCreateEvent;
+use App\Event\Api\ApiUsedProblemPreDeleteEvent;
 use App\Event\Api\ApiUserPostDeleteEvent;
 use App\Event\Api\ApiUserPreDeleteEvent;
 use App\Event\EntityPostWriteEvent;
@@ -141,6 +159,8 @@ class WriteEventSubscriber implements EventSubscriberInterface
                 case Proposal::class:
                     $eventClass = ApiProposalPreUpdateEvent::class;
                     break;
+
+                // usedArguments etc cannot be updated -> no need for events
             }
         }
 
@@ -178,6 +198,24 @@ class WriteEventSubscriber implements EventSubscriberInterface
                     break;
                 case Proposal::class:
                     $eventClass = ApiProposalPreDeleteEvent::class;
+                    break;
+                case UsedActionMandate::class:
+                    $eventClass = ApiUsedActionMandatePreDeleteEvent::class;
+                    break;
+                case UsedArgument::class:
+                    $eventClass = ApiUsedArgumentPreDeleteEvent::class;
+                    break;
+                case UsedCounterArgument::class:
+                    $eventClass = ApiUsedCounterArgumentPreDeleteEvent::class;
+                    break;
+                case UsedFractionInterest::class:
+                    $eventClass = ApiUsedFractionInterestPreDeleteEvent::class;
+                    break;
+                case UsedNegation::class:
+                    $eventClass = ApiUsedNegationPreDeleteEvent::class;
+                    break;
+                case UsedProblem::class:
+                    $eventClass = ApiUsedProblemPreDeleteEvent::class;
                     break;
                 case User::class:
                     $eventClass = ApiUserPreDeleteEvent::class;
@@ -219,6 +257,24 @@ class WriteEventSubscriber implements EventSubscriberInterface
                     break;
                 case Proposal::class:
                     $eventClass = ApiProposalPreCreateEvent::class;
+                    break;
+                case UsedActionMandate::class:
+                    $eventClass = ApiUsedActionMandatePreCreateEvent::class;
+                    break;
+                case UsedArgument::class:
+                    $eventClass = ApiUsedArgumentPreCreateEvent::class;
+                    break;
+                case UsedCounterArgument::class:
+                    $eventClass = ApiUsedCounterArgumentPreCreateEvent::class;
+                    break;
+                case UsedFractionInterest::class:
+                    $eventClass = ApiUsedFractionInterestPreCreateEvent::class;
+                    break;
+                case UsedNegation::class:
+                    $eventClass = ApiUsedNegationPreCreateEvent::class;
+                    break;
+                case UsedProblem::class:
+                    $eventClass = ApiUsedProblemPreCreateEvent::class;
                     break;
             }
         }

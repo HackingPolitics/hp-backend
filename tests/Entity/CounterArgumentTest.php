@@ -8,6 +8,7 @@ use App\DataFixtures\TestFixtures;
 use App\Entity\CounterArgument;
 use App\Entity\Negation;
 use App\Entity\Project;
+use App\Entity\UsedCounterArgument;
 use App\Entity\User;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
@@ -89,5 +90,8 @@ class CounterArgumentTest extends KernelTestCase
 
         self::assertCount(1, $counterArgument->getNegations());
         self::assertInstanceOf(Negation::class, $counterArgument->getNegations()[0]);
+
+        self::assertCount(1, $counterArgument->getUsages());
+        self::assertInstanceOf(UsedCounterArgument::class, $counterArgument->getUsages()[0]);
     }
 }

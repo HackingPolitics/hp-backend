@@ -8,6 +8,8 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\Traits\AutoincrementId;
 use App\Entity\Traits\UpdatedAtFunctions;
 use DateTimeImmutable;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -331,4 +333,284 @@ class Proposal
     }
 
     //endregion
+
+    //region UsedActionMandates
+    /**
+     * @var Collection|UsedActionMandate[]
+     * @Groups({
+     *     "project:member-read",
+     *     "project:pm-read",
+     *     "project:admin-read",
+     * })
+     * @ORM\OneToMany(targetEntity="UsedActionMandate", mappedBy="proposal", cascade={"persist"})
+     */
+    private Collection $usedActionMandates;
+
+    /**
+     * @return Collection|UsedActionMandate[]
+     */
+    public function getUsedActionMandates(): Collection
+    {
+        return $this->usedActionMandates;
+    }
+
+    public function addUsedActionMandate(UsedActionMandate $usedActionMandate): self
+    {
+        if (!$this->usedActionMandates->contains($usedActionMandate)) {
+            $this->usedActionMandates[] = $usedActionMandate;
+            $usedActionMandate->setProposal($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUsedActionMandate(UsedActionMandate $usedActionMandate): self
+    {
+        if ($this->usedActionMandates->contains($usedActionMandate)) {
+            $this->usedActionMandates->removeElement($usedActionMandate);
+            // set the owning side to null (unless already changed)
+            if ($usedActionMandate->getProposal() === $this) {
+                $usedActionMandate->setProposal(null);
+            }
+        }
+
+        return $this;
+    }
+
+    //endregion
+
+    //region UsedArguments
+    /**
+     * @var Collection|UsedArgument[]
+     * @Groups({
+     *     "project:member-read",
+     *     "project:pm-read",
+     *     "project:admin-read",
+     * })
+     * @ORM\OneToMany(targetEntity="UsedArgument", mappedBy="proposal", cascade={"persist"})
+     */
+    private Collection $usedArguments;
+
+    /**
+     * @return Collection|UsedArgument[]
+     */
+    public function getUsedArguments(): Collection
+    {
+        return $this->usedArguments;
+    }
+
+    public function addUsedArgument(UsedArgument $usedArgument): self
+    {
+        if (!$this->usedArguments->contains($usedArgument)) {
+            $this->usedArguments[] = $usedArgument;
+            $usedArgument->setProposal($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUsedArgument(UsedArgument $usedArgument): self
+    {
+        if ($this->usedArguments->contains($usedArgument)) {
+            $this->usedArguments->removeElement($usedArgument);
+            // set the owning side to null (unless already changed)
+            if ($usedArgument->getProposal() === $this) {
+                $usedArgument->setProposal(null);
+            }
+        }
+
+        return $this;
+    }
+
+    //endregion
+
+    //region UsedCounterArguments
+    /**
+     * @var Collection|UsedCounterArgument[]
+     * @Groups({
+     *     "project:member-read",
+     *     "project:pm-read",
+     *     "project:admin-read",
+     * })
+     * @ORM\OneToMany(targetEntity="UsedCounterArgument", mappedBy="proposal", cascade={"persist"})
+     */
+    private Collection $usedCounterArguments;
+
+    /**
+     * @return Collection|UsedCounterArgument[]
+     */
+    public function getUsedCounterArguments(): Collection
+    {
+        return $this->usedCounterArguments;
+    }
+
+    public function addUsedCounterArgument(UsedCounterArgument $usedCounterArgument): self
+    {
+        if (!$this->usedCounterArguments->contains($usedCounterArgument)) {
+            $this->usedCounterArguments[] = $usedCounterArgument;
+            $usedCounterArgument->setProposal($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUsedCounterArgument(UsedCounterArgument $usedCounterArgument): self
+    {
+        if ($this->usedCounterArguments->contains($usedCounterArgument)) {
+            $this->usedCounterArguments->removeElement($usedCounterArgument);
+            // set the owning side to null (unless already changed)
+            if ($usedCounterArgument->getProposal() === $this) {
+                $usedCounterArgument->setProposal(null);
+            }
+        }
+
+        return $this;
+    }
+
+    //endregion
+
+    //region UsedFractionInterests
+    /**
+     * @var Collection|UsedFractionInterest[]
+     * @Groups({
+     *     "project:member-read",
+     *     "project:pm-read",
+     *     "project:admin-read",
+     * })
+     * @ORM\OneToMany(targetEntity="UsedFractionInterest", mappedBy="proposal", cascade={"persist"})
+     */
+    private Collection $usedFractionInterests;
+
+    /**
+     * @return Collection|UsedFractionInterest[]
+     */
+    public function getUsedFractionInterests(): Collection
+    {
+        return $this->usedFractionInterests;
+    }
+
+    public function addUsedFractionInterest(UsedFractionInterest $usedFractionInterest): self
+    {
+        if (!$this->usedFractionInterests->contains($usedFractionInterest)) {
+            $this->usedFractionInterests[] = $usedFractionInterest;
+            $usedFractionInterest->setProposal($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUsedFractionInterest(UsedFractionInterest $usedFractionInterest): self
+    {
+        if ($this->usedFractionInterests->contains($usedFractionInterest)) {
+            $this->usedFractionInterests->removeElement($usedFractionInterest);
+            // set the owning side to null (unless already changed)
+            if ($usedFractionInterest->getProposal() === $this) {
+                $usedFractionInterest->setProposal(null);
+            }
+        }
+
+        return $this;
+    }
+
+    //endregion
+
+    //region UsedNegations
+    /**
+     * @var Collection|UsedNegation[]
+     * @Groups({
+     *     "project:member-read",
+     *     "project:pm-read",
+     *     "project:admin-read",
+     * })
+     * @ORM\OneToMany(targetEntity="UsedNegation", mappedBy="proposal", cascade={"persist"})
+     */
+    private Collection $usedNegations;
+
+    /**
+     * @return Collection|UsedNegation[]
+     */
+    public function getUsedNegations(): Collection
+    {
+        return $this->usedNegations;
+    }
+
+    public function addUsedNegation(UsedNegation $usedNegation): self
+    {
+        if (!$this->usedNegations->contains($usedNegation)) {
+            $this->usedNegations[] = $usedNegation;
+            $usedNegation->setProposal($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUsedNegation(UsedNegation $usedNegation): self
+    {
+        if ($this->usedNegations->contains($usedNegation)) {
+            $this->usedNegations->removeElement($usedNegation);
+            // set the owning side to null (unless already changed)
+            if ($usedNegation->getProposal() === $this) {
+                $usedNegation->setProposal(null);
+            }
+        }
+
+        return $this;
+    }
+
+    //endregion
+
+    //region UsedProblems
+    /**
+     * @var Collection|UsedProblem[]
+     * @Groups({
+     *     "project:member-read",
+     *     "project:pm-read",
+     *     "project:admin-read",
+     * })
+     * @ORM\OneToMany(targetEntity="UsedProblem", mappedBy="proposal", cascade={"persist"})
+     */
+    private Collection $usedProblems;
+
+    /**
+     * @return Collection|UsedProblem[]
+     */
+    public function getUsedProblems(): Collection
+    {
+        return $this->usedProblems;
+    }
+
+    public function addUsedProblem(UsedProblem $usedProblem): self
+    {
+        if (!$this->usedProblems->contains($usedProblem)) {
+            $this->usedProblems[] = $usedProblem;
+            $usedProblem->setProposal($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUsedProblem(UsedProblem $usedProblem): self
+    {
+        if ($this->usedProblems->contains($usedProblem)) {
+            $this->usedProblems->removeElement($usedProblem);
+            // set the owning side to null (unless already changed)
+            if ($usedProblem->getProposal() === $this) {
+                $usedProblem->setProposal(null);
+            }
+        }
+
+        return $this;
+    }
+
+    //endregion
+
+    public function __construct()
+    {
+        $this->usedActionMandates = new ArrayCollection();
+        $this->usedArguments = new ArrayCollection();
+        $this->usedCounterArguments = new ArrayCollection();
+        $this->usedFractionInterests = new ArrayCollection();
+        $this->usedNegations = new ArrayCollection();
+        $this->usedProblems = new ArrayCollection();
+    }
 }

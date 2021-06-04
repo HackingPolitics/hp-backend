@@ -8,6 +8,8 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\Traits\AutoincrementId;
 use App\Entity\Traits\UpdatedAtFunctions;
 use DateTimeImmutable;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -189,4 +191,53 @@ class Problem
     }
 
     //endregion
+
+    //region Usages
+    /**
+     * @var Collection|UsedProblem[]
+     * @Groups({
+     *     "problem:read",
+     *     "project:read",
+     * })
+     * @ORM\OneToMany(targetEntity="UsedProblem", mappedBy="problem", cascade={"persist"})
+     */
+    private Collection $usages;
+
+    /**
+     * @return Collection|UsedProblem[]
+     */
+    public function getUsages(): Collection
+    {
+        return $this->usages;
+    }
+
+    public function addUsage(UsedProblem $usedProblem): self
+    {
+        if (!$this->usages->contains($usedProblem)) {
+            $this->usages[] = $usedProblem;
+            $usedProblem->setProblem($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUsage(UsedProblem $usedProblem): self
+    {
+        if ($this->usages->contains($usedProblem)) {
+            $this->usages->removeElement($usedProblem);
+            // set the owning side to null (unless already changed)
+            if ($usedProblem->getProblem() === $this) {
+                $usedProblem->setProblem(null);
+            }
+        }
+
+        return $this;
+    }
+
+    //endregion
+
+    public function __construct()
+    {
+        $this->usages = new ArrayCollection();
+    }
 }

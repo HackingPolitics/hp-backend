@@ -8,6 +8,8 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\Traits\AutoincrementId;
 use App\Entity\Traits\UpdatedAtFunctions;
 use DateTimeImmutable;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -189,4 +191,53 @@ class Argument
     }
 
     //endregion
+
+    //region Usages
+    /**
+     * @var Collection|UsedArgument[]
+     * @Groups({
+     *     "argument:read",
+     *     "project:read",
+     * })
+     * @ORM\OneToMany(targetEntity="UsedArgument", mappedBy="argument", cascade={"persist"})
+     */
+    private Collection $usages;
+
+    /**
+     * @return Collection|UsedArgument[]
+     */
+    public function getUsages(): Collection
+    {
+        return $this->usages;
+    }
+
+    public function addUsage(UsedArgument $usedArgument): self
+    {
+        if (!$this->usages->contains($usedArgument)) {
+            $this->usages[] = $usedArgument;
+            $usedArgument->setArgument($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUsage(UsedArgument $usedArgument): self
+    {
+        if ($this->usages->contains($usedArgument)) {
+            $this->usages->removeElement($usedArgument);
+            // set the owning side to null (unless already changed)
+            if ($usedArgument->getArgument() === $this) {
+                $usedArgument->setArgument(null);
+            }
+        }
+
+        return $this;
+    }
+
+    //endregion
+
+    public function __construct()
+    {
+        $this->usages = new ArrayCollection();
+    }
 }

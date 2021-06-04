@@ -6,6 +6,7 @@ namespace App\Tests\Entity;
 
 use App\Entity\CounterArgument;
 use App\Entity\Negation;
+use App\Entity\UsedNegation;
 use App\Entity\User;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
@@ -59,10 +60,10 @@ class NegationTest extends KernelTestCase
         $counterArgument = $this->entityManager->getRepository(CounterArgument::class)
             ->find(1);
 
-        $interest = new Negation();
-        $interest->setCounterArgument($counterArgument);
-        $interest->setDescription('Testing');
-        $this->entityManager->persist($interest);
+        $negation = new Negation();
+        $negation->setCounterArgument($counterArgument);
+        $negation->setDescription('Testing');
+        $this->entityManager->persist($negation);
         $this->entityManager->flush();
         $this->entityManager->clear();
 
@@ -83,8 +84,7 @@ class NegationTest extends KernelTestCase
         self::assertInstanceOf(CounterArgument::class, $negation->getCounterArgument());
         self::assertInstanceOf(User::class, $negation->getUpdatedBy());
 
-        // @todo motion usages
-//        self::assertCount(1, $interest->getInterest());
-//        self::assertInstanceOf(NegationInterest::class, $interest->getInterest()[0]);
+        self::assertCount(1, $negation->getUsages());
+        self::assertInstanceOf(UsedNegation::class, $negation->getUsages()[0]);
     }
 }
