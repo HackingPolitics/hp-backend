@@ -87,7 +87,7 @@ class FederalState
      *         message="validate.general.letterRequired"
      *     ),
      * })
-     * @Groups({"federalState:read", "federalState:write"})
+     * @Groups({"federalState:read", "federalState:write", "council:read"})
      * @ORM\Column(type="string", length=100, nullable=false)
      */
     private ?string $name = null;
@@ -152,7 +152,7 @@ class FederalState
 
     //region Slug
     /**
-     * @Groups({"federalState:read"})
+     * @Groups({"federalState:read", "council:read"})
      * @ORM\Column(type="string", length=150, nullable=true)
      * @Gedmo\Slug(fields={"name"})
      */

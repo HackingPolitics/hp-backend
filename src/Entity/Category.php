@@ -86,7 +86,7 @@ class Category
      *         message="validate.general.letterRequired"
      *     ),
      * })
-     * @Groups({"category:read", "category:write"})
+     * @Groups({"category:read", "category:write", "project:read"})
      * @ORM\Column(type="string", length=100, nullable=false)
      */
     private ?string $name = null;
@@ -147,7 +147,7 @@ class Category
 
     //region Slug
     /**
-     * @Groups({"category:read"})
+     * @Groups({"category:read", "project:read"})
      * @ORM\Column(type="string", length=150, nullable=true)
      * @Gedmo\Slug(fields={"name"})
      */
