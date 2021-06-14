@@ -123,7 +123,7 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         'title'       => 'Car-free Dresden',
         'impact'      => 'impact with 10 characters',
         'topic'       => 'topic with 10 characters',
-        'state'       => Project::STATE_PRIVATE,
+        'state'       => Project::STATE_PUBLIC,
     ];
 
     public const LOCKED_PROJECT = [
@@ -139,6 +139,7 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         'id'        => 3,
         'title'     => 'Deleted Project',
         'deletedAt' => '2019-12-12 12:12:12',
+        'state'     => Project::STATE_PUBLIC
     ];
 
     public const PROPOSAL_1 = [
@@ -168,6 +169,7 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         'zipArea'      => '123',
         'federalState' => 'Baden-Württemberg',
         'validatedAt'  => '2021-05-01',
+        'active'       => true,
 
         // political/organizational details
         'headOfAdministration'      => 'Max Muster',
@@ -586,6 +588,8 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         if ($creator) {
             $council->setUpdatedBy($creator);
         }
+
+        $council->setActive($data['active'] ?? true);
 
         return $council;
     }

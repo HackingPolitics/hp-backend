@@ -9,6 +9,7 @@ use App\DataFixtures\TestFixtures;
 use App\Entity\ActionLog;
 use App\Entity\Category;
 use App\Entity\Council;
+use App\Entity\FederalState;
 use App\Entity\Project;
 use App\Entity\ProjectMembership;
 use App\Entity\User;
@@ -70,6 +71,7 @@ class ProjectApiTest extends ApiTestCase
                     'createdBy'  => [
                         'id' => TestFixtures::PROJECT_COORDINATOR['id'],
                     ],
+                    'state' => Project::STATE_PUBLIC
                 ],
             ],
         ]);
@@ -94,6 +96,50 @@ class ProjectApiTest extends ApiTestCase
         self::assertArrayNotHasKey('lastName', $collection['hydra:member'][0]['createdBy']);
 
         self::assertArrayNotHasKey('projects', $collection['hydra:member'][0]['categories'][0]);
+
+        // fractions can be fetched via the council directly, we don't want to
+        // filter here for active/inactive
+        self::assertArrayNotHasKey('fractions', $collection['hydra:member'][0]['council']);
+    }
+
+    /**
+     * Test what anonymous users see.
+     */
+    public function testGetCollectionReturnsOnlyPublicForAnonymous(): void
+    {
+        $client = static::createClient();
+
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $project = $em->getRepository(Project::class)
+            ->find(TestFixtures::PROJECT['id']);
+        $project->setState(Project::STATE_PRIVATE);
+
+        $locked = $em->getRepository(Project::class)
+            ->find(TestFixtures::LOCKED_PROJECT['id']);
+        $locked->setLocked(false);
+
+        $em->flush();
+        $em->clear();
+
+        $client->request('GET', '/projects');
+
+        self::assertResponseIsSuccessful();
+        self::assertResponseHeaderSame('content-type',
+            'application/ld+json; charset=utf-8');
+
+        self::assertMatchesResourceCollectionJsonSchema(Project::class);
+
+        self::assertJsonContains([
+            '@context'         => '/contexts/Project',
+            '@id'              => '/projects',
+            '@type'            => 'hydra:Collection',
+            'hydra:totalItems' => 1,
+            'hydra:member'     => [
+                0 => [
+                    'id'         => TestFixtures::LOCKED_PROJECT['id'],
+                ],
+            ],
+        ]);
     }
 
     public function testGetCollectionDoesNotReturnDeletedCreator(): void
@@ -264,20 +310,63 @@ class ProjectApiTest extends ApiTestCase
         ]);
     }
 
-    public function testFilterByState(): void
+    public function testFilterByStateAsProcessManager(): void
     {
-        $client = static::createClient();
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROCESS_MANAGER['email'],
+        ]);
 
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();
-        /** @var Project $locked */
-        $locked = $em->getRepository(Project::class)
-            ->find(TestFixtures::LOCKED_PROJECT['id']);
-        $locked->setLocked(false);
+        $project = $em->getRepository(Project::class)
+            ->find(TestFixtures::PROJECT['id']);
+        $project->setState(Project::STATE_PRIVATE);
         $em->flush();
         $em->clear();
 
         $client->request('GET', '/projects', ['query' => [
-            'state' => Project::STATE_PUBLIC,
+            'state' => Project::STATE_PRIVATE,
+        ]]);
+        self::assertResponseIsSuccessful();
+        self::assertResponseHeaderSame('content-type',
+            'application/ld+json; charset=utf-8');
+        self::assertMatchesResourceCollectionJsonSchema(Project::class);
+
+        self::assertJsonContains([
+            '@context'         => '/contexts/Project',
+            '@id'              => '/projects',
+            '@type'            => 'hydra:Collection',
+            'hydra:totalItems' => 1,
+            'hydra:member'     => [
+                0 => [
+                    'id'    => TestFixtures::PROJECT['id'],
+                    'state' => Project::STATE_PRIVATE,
+                ],
+            ],
+        ]);
+    }
+
+    public function testFilterByCouncil(): void
+    {
+        $client = static::createClient();
+
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $fs = $em->getRepository(FederalState::class)->find(1);
+        $council = new Council();
+        $council->setFederalState($fs);
+        $council->setTitle('Stadtrat #2');
+        $em->persist($council);
+
+        /** @var Project $locked */
+        $locked = $em->getRepository(Project::class)
+            ->find(TestFixtures::LOCKED_PROJECT['id']);
+        $locked->setLocked(false);
+        $locked->setCouncil($council);
+
+        $em->flush();
+        $em->clear();
+
+        $client->request('GET', '/projects', ['query' => [
+            'council' => 2,
         ]]);
         self::assertResponseIsSuccessful();
         self::assertResponseHeaderSame('content-type',
@@ -292,6 +381,26 @@ class ProjectApiTest extends ApiTestCase
             'hydra:member'     => [
                 0 => [
                     'id'    => TestFixtures::LOCKED_PROJECT['id'],
+                    'state' => Project::STATE_PUBLIC,
+                ],
+            ],
+        ]);
+
+        // test again for the other council, this time using the IRI instead of the ID
+        $iri = $this->findIriBy(Council::class,
+            ['id' => TestFixtures::COUNCIL['id']]);
+        $client->request('GET', '/projects', ['query' => [
+            'council' => $iri,
+        ]]);
+
+        self::assertJsonContains([
+            '@context'         => '/contexts/Project',
+            '@id'              => '/projects',
+            '@type'            => 'hydra:Collection',
+            'hydra:totalItems' => 1,
+            'hydra:member'     => [
+                0 => [
+                    'id'    => TestFixtures::PROJECT['id'],
                     'state' => Project::STATE_PUBLIC,
                 ],
             ],
@@ -703,25 +812,32 @@ class ProjectApiTest extends ApiTestCase
                 'id' => TestFixtures::PROJECT_COORDINATOR['id'],
             ],
             'council'        => [
-                'id'       => TestFixtures::COUNCIL['id'],
+                'id' => TestFixtures::COUNCIL['id'],
             ],
             'description'      => TestFixtures::PROJECT['description'],
             'id'               => TestFixtures::PROJECT['id'],
-            'state'            => Project::STATE_PRIVATE,
+            'state'            => Project::STATE_PUBLIC,
             'topic'            => TestFixtures::PROJECT['topic'],
         ]);
 
         $projectData = $response->toArray();
 
-        self::assertArrayNotHasKey('locked', $projectData);
-        self::assertArrayNotHasKey('memberships', $projectData);
-        self::assertArrayNotHasKey('fractionDetails', $projectData);
-        self::assertArrayNotHasKey('partners', $projectData);
-        self::assertArrayNotHasKey('problems', $projectData);
+        self::assertArrayNotHasKey('actionMandates', $projectData);
         self::assertArrayNotHasKey('arguments', $projectData);
         self::assertArrayNotHasKey('counterArguments', $projectData);
-        self::assertArrayNotHasKey('actionMandates', $projectData);
-        // @todo und weitere...
+        self::assertArrayNotHasKey('deletedAt', $projectData);
+        self::assertArrayNotHasKey('fractionDetails', $projectData);
+        self::assertArrayNotHasKey('locked', $projectData);
+        self::assertArrayNotHasKey('memberships', $projectData);
+        self::assertArrayNotHasKey('partners', $projectData);
+        self::assertArrayNotHasKey('problems', $projectData);
+        self::assertArrayNotHasKey('proposals', $projectData);
+
+        self::assertArrayNotHasKey('fractions', $projectData['council']);
+        self::assertArrayNotHasKey('projects', $projectData['council']);
+
+        // additional data for the council should be fetched via the council itself
+        self::assertArrayNotHasKey('title', $projectData['council']);
 
         self::assertArrayNotHasKey('projects', $projectData['categories'][0]);
 
@@ -805,7 +921,22 @@ class ProjectApiTest extends ApiTestCase
                 2 => ['id' => 3],
             ],
             'council'      => [
-                'id' => TestFixtures::COUNCIL['id'],
+                'id'        => TestFixtures::COUNCIL['id'],
+                'fractions' => [
+                    0 => [
+                        'id' => TestFixtures::FRACTION_GREEN['id'],
+                    ],
+                    1 => [
+                        'id' => TestFixtures::FRACTION_RED['id'],
+                    ],
+                    2 => [
+                        'id' => TestFixtures::FRACTION_BLACK['id'],
+                    ],
+                    // inactive fractions are visible to project members
+                    3 => [
+                        'id' => TestFixtures::FRACTION_YELLOW['id'],
+                    ],
+                ],
             ],
             'counterArguments'  => [
                 0 => [],
@@ -1164,6 +1295,101 @@ class ProjectApiTest extends ApiTestCase
         $client = static::createAuthenticatedClient([
             'email' => TestFixtures::PROJECT_OBSERVER['email'],
         ]);
+
+        $iri = $this->findIriBy(Project::class,
+            ['id' => TestFixtures::LOCKED_PROJECT['id']]);
+        $client->request('GET', $iri);
+
+        self::assertResponseStatusCodeSame(404);
+        self::assertResponseHeaderSame('content-type',
+            'application/ld+json; charset=utf-8');
+
+        self::assertJsonContains([
+            '@context'          => '/contexts/Error',
+            '@type'             => 'hydra:Error',
+            'hydra:title'       => 'An error occurred',
+            'hydra:description' => 'Not Found',
+        ]);
+    }
+
+    /**
+     * A member can see a private project.
+     */
+    public function testGetPrivateProject(): void
+    {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROJECT_OBSERVER['email'],
+        ]);
+
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $project = $em->getRepository(Project::class)
+            ->find(TestFixtures::PROJECT['id']);
+        $project->setState(Project::STATE_PRIVATE);
+
+        $em->flush();
+        $em->clear();
+
+        $iri = $this->findIriBy(Project::class,
+            ['id' => TestFixtures::PROJECT['id']]);
+        $client->request('GET', $iri);
+
+        self::assertMatchesResourceItemJsonSchema(Project::class);
+
+        self::assertJsonContains([
+            '@id'   => $iri,
+            'id'    => TestFixtures::PROJECT['id'],
+            'title' => TestFixtures::PROJECT['title'],
+        ]);
+    }
+
+    /**
+     * Guests cannot get a private project, returns 404.
+     */
+    public function testGetPrivateProjectFailsUnauthenticated(): void
+    {
+        $client = static::createClient();
+
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $project = $em->getRepository(Project::class)
+            ->find(TestFixtures::PROJECT['id']);
+        $project->setState(Project::STATE_PRIVATE);
+
+        $em->flush();
+        $em->clear();
+
+        $iri = $this->findIriBy(Project::class,
+            ['id' => TestFixtures::PROJECT['id']]);
+        $client->request('GET', $iri);
+
+        self::assertResponseStatusCodeSame(404);
+        self::assertResponseHeaderSame('content-type',
+            'application/ld+json; charset=utf-8');
+
+        self::assertJsonContains([
+            '@context'          => '/contexts/Error',
+            '@type'             => 'hydra:Error',
+            'hydra:title'       => 'An error occurred',
+            'hydra:description' => 'Not Found',
+        ]);
+    }
+
+    /**
+     * Normal users cannot get a private project, returns 404.
+     */
+    public function testGetPrivateProjectFailsWithoutPrivilege(): void
+    {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROJECT_OBSERVER['email'],
+        ]);
+
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $locked = $em->getRepository(Project::class)
+            ->find(TestFixtures::LOCKED_PROJECT['id']);
+        $locked->setState(Project::STATE_PRIVATE);
+        $locked->setLocked(false);
+
+        $em->flush();
+        $em->clear();
 
         $iri = $this->findIriBy(Project::class,
             ['id' => TestFixtures::LOCKED_PROJECT['id']]);
@@ -1654,7 +1880,7 @@ class ProjectApiTest extends ApiTestCase
         self::assertResponseIsSuccessful();
         self::assertJsonContains([
             '@id'   => $iri,
-            'state' => Project::STATE_PRIVATE,
+            'state' => Project::STATE_PUBLIC,
         ]);
     }
 
@@ -1676,7 +1902,7 @@ class ProjectApiTest extends ApiTestCase
         self::assertJsonContains([
             '@id'    => $iri,
             'impact' => 'new challenges',
-            'state'  => Project::STATE_PRIVATE,
+            'state'  => Project::STATE_PUBLIC,
         ]);
     }
 
@@ -1967,8 +2193,8 @@ class ProjectApiTest extends ApiTestCase
 
         self::assertJsonContains([
             'total'   => 3,
-            'new'     => 2,
-            'public'  => 1,
+            'new'     => 1, // non-locked, non-deleted
+            'public'  => 1, // non-locked, non-deleted
             'deleted' => 1,
         ]);
     }

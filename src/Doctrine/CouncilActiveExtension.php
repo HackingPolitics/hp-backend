@@ -12,7 +12,7 @@ use App\Entity\User;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\Security\Core\Security;
 
-class CouncilDeletedExtension implements ContextAwareQueryCollectionExtensionInterface, QueryItemExtensionInterface
+class CouncilActiveExtension implements ContextAwareQueryCollectionExtensionInterface, QueryItemExtensionInterface
 {
     /**
      * @var Security
@@ -42,15 +42,16 @@ class CouncilDeletedExtension implements ContextAwareQueryCollectionExtensionInt
         }
 
         // if an Admin filtered explicitly do nothing, else enforce only
-        // non-deleted councils
-        if (isset($context['filters']['exists']['deletedAt'])
+        // active councils
+        if (isset($context['filters']['active'])
             && $this->security->isGranted(User::ROLE_ADMIN)
         ) {
             return;
         }
 
         $rootAlias = $queryBuilder->getRootAliases()[0];
-        $queryBuilder->andWhere(sprintf('%s.deletedAt IS NULL', $rootAlias));
+        $queryBuilder->andWhere(sprintf('%s.active = :isActive', $rootAlias))
+            ->setParameter('isActive', true);
     }
 
     /**
@@ -68,13 +69,16 @@ class CouncilDeletedExtension implements ContextAwareQueryCollectionExtensionInt
             return;
         }
 
-        // Admins can see deleted councils -> do nothing
-        if ($this->security->isGranted(User::ROLE_ADMIN)) {
+        // PMs can see inactive councils -> do nothing
+        if ($this->security->isGranted(User::ROLE_ADMIN)
+            || $this->security->isGranted(User::ROLE_PROCESS_MANAGER)
+        ) {
             return;
         }
 
         // enforce restriction for all other users
         $rootAlias = $queryBuilder->getRootAliases()[0];
-        $queryBuilder->andWhere(sprintf('%s.deletedAt IS NULL', $rootAlias));
+        $queryBuilder->andWhere(sprintf('%s.active = :isActive', $rootAlias))
+            ->setParameter('isActive', true);
     }
 }

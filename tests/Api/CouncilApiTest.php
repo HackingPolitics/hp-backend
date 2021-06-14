@@ -8,6 +8,7 @@ use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
 use App\DataFixtures\TestFixtures;
 use App\Entity\Council;
 use App\Entity\FederalState;
+use App\Entity\Project;
 use Doctrine\ORM\EntityManager;
 use Vrok\SymfonyAddons\PHPUnit\AuthenticatedClientTrait;
 use Vrok\SymfonyAddons\PHPUnit\RefreshDatabaseTrait;
@@ -48,16 +49,62 @@ class CouncilApiTest extends ApiTestCase
             '@id'              => '/councils',
             '@type'            => 'hydra:Collection',
             'hydra:totalItems' => 1,
+            'hydra:member'     => [
+                0 => [
+                    'id'         => TestFixtures::PROJECT['id'],
+                    'fractions' => [
+                        0 => [
+                            'id' => TestFixtures::FRACTION_GREEN['id'],
+                        ],
+                        1 => [
+                            'id' => TestFixtures::FRACTION_RED['id'],
+                        ],
+                        2 => [
+                            'id' => TestFixtures::FRACTION_BLACK['id'],
+                        ],
+                    ],
+                ],
+            ],
         ]);
 
         $collection = $response->toArray();
         self::assertCount(1, $collection['hydra:member']);
+
+        // the inactive 4th fraction is not returned
+        self::assertCount(3, $collection['hydra:member'][0]['fractions']);
 
         // those properties should not be visible to anonymous
         self::assertArrayNotHasKey('projects',
             $collection['hydra:member'][0]);
         self::assertArrayNotHasKey('details',
             $collection['hydra:member'][0]['fractions'][0]);
+    }
+
+    public function testGetCollectionReturnsOnlyActive(): void
+    {
+        $client = static::createClient();
+
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $council = $em->getRepository(Council::class)
+            ->find(TestFixtures::COUNCIL['id']);
+        $council->setActive(false);
+        $em->flush();
+        $em->clear();
+
+        $client->request('GET', '/councils');
+
+        self::assertResponseIsSuccessful();
+        self::assertResponseHeaderSame('content-type',
+            'application/ld+json; charset=utf-8');
+
+        self::assertMatchesResourceCollectionJsonSchema(Council::class);
+
+        self::assertJsonContains([
+            '@context'         => '/contexts/Council',
+            '@id'              => '/councils',
+            '@type'            => 'hydra:Collection',
+            'hydra:totalItems' => 0,
+        ]);
     }
 
     public function testGetCouncil(): void
@@ -77,11 +124,16 @@ class CouncilApiTest extends ApiTestCase
         self::assertJsonContains([
             '@id'          => $iri,
             'title'        => TestFixtures::COUNCIL['title'],
-            'fractions'     => [
-                0 => [],
-                1 => [],
-                2 => [],
-                3 => [],
+            'fractions'    => [
+                0 => [
+                    'id' => TestFixtures::FRACTION_GREEN['id'],
+                ],
+                1 => [
+                    'id' => TestFixtures::FRACTION_RED['id'],
+                ],
+                2 => [
+                    'id' => TestFixtures::FRACTION_BLACK['id'],
+                ],
             ],
             'federalState' => [
                 'id' => 1,
@@ -93,9 +145,38 @@ class CouncilApiTest extends ApiTestCase
 
         $council = $response->toArray();
 
+        // the inactive 4th fraction is not returned
+        self::assertCount(3, $council['fractions']);
+
         // those properties should not be visible to anonymous
         self::assertArrayNotHasKey('projects', $council);
         self::assertArrayNotHasKey('details', $council['fractions'][0]);
+    }
+
+    public function testGetInactiveCouncilFailsUnauthenticated(): void
+    {
+        $client = static::createClient();
+
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $council = $em->getRepository(Council::class)
+            ->find(TestFixtures::COUNCIL['id']);
+        $council->setActive(false);
+        $em->flush();
+        $em->clear();
+
+        $iri = $this->findIriBy(Council::class, ['id' => 1]);
+        $client->request('GET', $iri);
+
+        self::assertResponseStatusCodeSame(404);
+        self::assertResponseHeaderSame('content-type',
+            'application/ld+json; charset=utf-8');
+
+        self::assertJsonContains([
+            '@context'          => '/contexts/Error',
+            '@type'             => 'hydra:Error',
+            'hydra:title'       => 'An error occurred',
+            'hydra:description' => 'Not Found',
+        ]);
     }
 
     public function testCreateCouncil(): void

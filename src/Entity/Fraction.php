@@ -74,7 +74,7 @@ class Fraction
 
     //region Active
     /**
-     * @Groups({"fraction:read", "fraction:write"})
+     * @Groups({"fraction:read", "fraction:write", "council:read", "project:read"})
      * @ORM\Column(type="boolean", options={"default":true})
      */
     private bool $active = true;

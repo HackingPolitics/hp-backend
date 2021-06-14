@@ -1068,15 +1068,13 @@ class UserApiTest extends ApiTestCase
             ],
         ]]);
 
-        self::assertResponseStatusCodeSame(422);
-        self::assertResponseHeaderSame('content-type',
-            'application/ld+json; charset=utf-8');
-
+        self::assertResponseStatusCodeSame(400);
         self::assertJsonContains([
-            '@context'          => '/contexts/ConstraintViolationList',
-            '@type'             => 'ConstraintViolationList',
+            '@context'          => '/contexts/Error',
+            '@type'             => 'hydra:Error',
             'hydra:title'       => 'An error occurred',
-            'hydra:description' => 'council: validate.project.council.notActive',
+            'hydra:description' => 'Item not found for "/councils/'
+                .TestFixtures::COUNCIL['id'].'".',
         ]);
     }
 

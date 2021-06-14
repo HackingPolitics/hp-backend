@@ -29,7 +29,11 @@ class ProjectStatisticsAction
             ->select('count(p.id)')
             ->where('p.createdAt >= :yesterday')
             ->andWhere('p.deletedAt IS NULL')
-            ->setParameter('yesterday', $yesterday)
+            ->andWhere('p.locked = :locked')
+            ->setParameters([
+                'locked'    => false,
+                'yesterday' => $yesterday
+            ])
             ->getQuery()
             ->enableResultCache(60*30)
             ->getSingleScalarResult();
@@ -38,7 +42,11 @@ class ProjectStatisticsAction
             ->select('count(p.id)')
             ->where('p.state = :state')
             ->andWhere('p.deletedAt IS NULL')
-            ->setParameter('state', Project::STATE_PUBLIC)
+            ->andWhere('p.locked = :locked')
+            ->setParameters([
+                'locked' => false,
+                'state'  => Project::STATE_PUBLIC,
+            ])
             ->getQuery()
             ->enableResultCache(60*30)
             ->getSingleScalarResult();

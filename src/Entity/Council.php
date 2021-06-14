@@ -84,7 +84,7 @@ class Council
 
     //region Active
     /**
-     * @Groups({"council:read", "council:write"})
+     * @Groups({"council:read", "council:write", "project:member-read"})
      * @ORM\Column(type="boolean", options={"default":true})
      */
     private bool $active = true;
@@ -133,6 +133,7 @@ class Council
      * @var Collection|Fraction[]
      * @Groups({
      *     "council:read",
+     *     "project:member-read",
      * })
      * @MaxDepth(1)
      * @ORM\OneToMany(targetEntity="Fraction", mappedBy="council", cascade={"persist"})
@@ -174,7 +175,7 @@ class Council
 
     //region FederalState
     /**
-     * @Groups({"council:read", "council:write"})
+     * @Groups({"council:read", "council:write", "project:member-read"})
      * @ORM\ManyToOne(targetEntity="FederalState", inversedBy="councils")
      * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
@@ -200,7 +201,7 @@ class Council
      *     @Assert\Length(max=50),
      *     @VrokAssert\NoLineBreaks,
      * })
-     * @Groups({"council:read", "council:write"})
+     * @Groups({"council:read", "council:write", "project:member-read"})
      * @ORM\Column(type="text", length=50, nullable=true)
      */
     private ?string $headOfAdministration = null;
@@ -226,7 +227,7 @@ class Council
      *     @Assert\Length(max=50),
      *     @VrokAssert\NoLineBreaks,
      * })
-     * @Groups({"council:read", "council:write"})
+     * @Groups({"council:read", "council:write", "project:member-read"})
      * @ORM\Column(type="text", length=50, nullable=true)
      */
     private ?string $headOfAdministrationTitle = null;
@@ -255,7 +256,7 @@ class Council
      *         message="validate.council.invalidLocation"
      *     ),
      * })
-     * @Groups({"council:read", "council:write"})
+     * @Groups({"council:read", "council:write", "project:member-read"})
      * @ORM\Column(type="text", length=200, nullable=true)
      */
     private ?string $location = null;
@@ -317,7 +318,7 @@ class Council
 
     //region Slug
     /**
-     * @Groups({"council:read"})
+     * @Groups({"council:read", "project:member-read"})
      * @ORM\Column(type="string", length=150, nullable=true)
      * @Gedmo\Slug(fields={"title"})
      */
@@ -338,8 +339,8 @@ class Council
      *         message="validate.general.letterRequired"
      *     ),
      * })
-     * @Groups({"council:read", "council:write"})
-     * @ORM\Column(type="string", length=100, nullable=true)
+     * @Groups({"council:read", "council:write", "project:member-read"})
+     * @ORM\Column(type="string", length=100, nullable=false)
      */
     private ?string $title = null;
 
@@ -360,7 +361,7 @@ class Council
     //region UpdatedAt
     /**
      * @Assert\NotBlank(allowNull=true)
-     * @Groups({"council:read"})
+     * @Groups({"council:read", "project:member-read"})
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
@@ -371,9 +372,10 @@ class Council
     /**
      * @Groups({
      *     "council:create",
-     *     "council:read"
+     *     "council:read",
+     *     "project:member-read"
      * })
-     * @Gedmo\Blameable(on="update")
+     * @Gedmo\Blameable(on="update", "project:read")
      * @MaxDepth(1)
      * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
@@ -400,7 +402,7 @@ class Council
      *     @Assert\Length(max=200),
      *     @VrokAssert\NoLineBreaks,
      * })
-     * @Groups({"council:read", "council:write"})
+     * @Groups({"council:read", "council:write", "project:member-read"})
      * @ORM\Column(type="text", length=200, nullable=true)
      */
     private ?string $url = null;
@@ -422,7 +424,7 @@ class Council
     //region ValidatedAt
     /**
      * @Assert\NotBlank(allowNull=true)
-     * @Groups({"council:read", "council:pm-write"})
+     * @Groups({"council:read", "council:pm-write", "project:member-read"})
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
     protected ?DateTimeImmutable $validatedAt = null;
@@ -457,7 +459,7 @@ class Council
      *     @Assert\Length(max=200),
      *     @VrokAssert\NoLineBreaks,
      * })
-     * @Groups({"council:read", "council:write"})
+     * @Groups({"council:read", "council:write", "project:member-read"})
      * @ORM\Column(type="text", length=200, nullable=true)
      */
     private ?string $wikipediaUrl = null;
@@ -486,7 +488,7 @@ class Council
      *         message="validate.council.invalidZipArea"
      *     ),
      * })
-     * @Groups({"council:read", "council:write"})
+     * @Groups({"council:read", "council:write", "project:member-read"})
      * @ORM\Column(type="text", length=20, nullable=true)
      */
     private ?string $zipArea = null;

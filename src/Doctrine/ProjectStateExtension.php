@@ -13,7 +13,7 @@ use App\Entity\User;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\Security\Core\Security;
 
-class ProjectLockedExtension implements ContextAwareQueryCollectionExtensionInterface, QueryItemExtensionInterface
+class ProjectStateExtension implements ContextAwareQueryCollectionExtensionInterface, QueryItemExtensionInterface
 {
     /**
      * @var Security
@@ -43,15 +43,15 @@ class ProjectLockedExtension implements ContextAwareQueryCollectionExtensionInte
         }
 
         // if an admin|PM filtered explicitly do nothing, else enforce only
-        // non-locked projects
-        if (isset($context['filters']['locked'])
+        // public projects
+        if (isset($context['filters']['state'])
             && ($this->security->isGranted(User::ROLE_ADMIN)
             || $this->security->isGranted(User::ROLE_PROCESS_MANAGER))
         ) {
             return;
         }
 
-        // logged in users can filter by ID and retrieve locked projects,
+        // logged in users can filter by ID and retrieve private projects,
         // e.g. members filter by the IDs of their projects
         if (isset($context['filters']['id']) &&
             $this->security->isGranted(User::ROLE_USER)
@@ -59,11 +59,11 @@ class ProjectLockedExtension implements ContextAwareQueryCollectionExtensionInte
             return;
         }
 
-        // in all other cases we only return non-locked projects
+        // in all other cases we only return public projects
         $rootAlias = $queryBuilder->getRootAliases()[0];
         $queryBuilder
-            ->andWhere(sprintf('%s.locked = :locked', $rootAlias))
-            ->setParameter('locked', false);
+            ->andWhere(sprintf('%s.state = :state', $rootAlias))
+            ->setParameter('state', Project::STATE_PUBLIC);
     }
 
     /**
@@ -81,7 +81,7 @@ class ProjectLockedExtension implements ContextAwareQueryCollectionExtensionInte
             return;
         }
 
-        // admins|POs can see locked projects -> do nothing
+        // admins|POs can see private projects -> do nothing
         if ($this->security->isGranted(User::ROLE_ADMIN)
             || $this->security->isGranted(User::ROLE_PROCESS_MANAGER)
         ) {
@@ -95,19 +95,18 @@ class ProjectLockedExtension implements ContextAwareQueryCollectionExtensionInte
     {
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
-        // members can see locked projects
+        // members can see private projects
         if ($this->security->getUser()) {
             if (!in_array('memberships', $queryBuilder->getAllAliases())) {
                 $queryBuilder
                     ->leftJoin("$rootAlias.memberships", 'memberships');
             }
-
             $queryBuilder
-                ->andWhere("($rootAlias.locked = :locked OR (".
+                ->andWhere("($rootAlias.state = :publicState OR (".
                     'memberships.role IN (:memberRoles) '.
                     'AND memberships.user = :currentUser'.
                     '))')
-                ->setParameter('locked', false)
+                ->setParameter('publicState', Project::STATE_PUBLIC)
                 ->setParameter('memberRoles', [
                     ProjectMembership::ROLE_COORDINATOR,
                     ProjectMembership::ROLE_WRITER,
@@ -118,8 +117,8 @@ class ProjectLockedExtension implements ContextAwareQueryCollectionExtensionInte
         // enforce restriction for all other users
         else {
             $queryBuilder
-                ->andWhere(sprintf('%s.locked = :locked', $rootAlias))
-                ->setParameter('locked', false);
+                ->andWhere(sprintf('%s.state = :state', $rootAlias))
+                ->setParameter('state', Project::STATE_PUBLIC);
         }
     }
 }
