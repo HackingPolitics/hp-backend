@@ -1038,6 +1038,48 @@ class UserApiTest extends ApiTestCase
         self::assertGreaterThan($before, $projectLogs[0]->timestamp);
     }
 
+    public function testRegistrationWithProjectWithInactiveCouncilFails(): void
+    {
+        $client = static::createClient();
+
+        $iri = $this->findIriBy(Council::class,
+            ['id' => TestFixtures::COUNCIL['id']]);
+
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $council = $em->getRepository(Council::class)
+            ->find(TestFixtures::COUNCIL['id']);
+        $council->setActive(false);
+        $em->flush();
+
+        $client->request('POST', '/users/register', ['json' => [
+            'username'        => 'Tester',
+            'email'           => 'new@zukunftsstadt.de',
+            'firstName'       => 'Peter',
+            'password'        => '-*?*#+ with letters',
+            'validationUrl'   => 'https://vrok.de/?token={{token}}&id={{id}}&type={{type}}',
+            'createdProjects' => [
+                [
+                    'motivation' => 'I wanna do something',
+                    'council'    => $iri,
+                    'title'      => 'new project title',
+                    'topic'      => 'new topic',
+                    'skills'     => 'I can do it',
+                ],
+            ],
+        ]]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertResponseHeaderSame('content-type',
+            'application/ld+json; charset=utf-8');
+
+        self::assertJsonContains([
+            '@context'          => '/contexts/ConstraintViolationList',
+            '@type'             => 'ConstraintViolationList',
+            'hydra:title'       => 'An error occurred',
+            'hydra:description' => 'council: validate.project.council.notActive',
+        ]);
+    }
+
     public function testRegistrationWithDuplicateEmailFails(): void
     {
         static::createClient()->request('POST', '/users/register', ['json' => [

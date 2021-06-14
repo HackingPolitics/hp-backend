@@ -297,7 +297,7 @@ class FractionApiTest extends ApiTestCase
     public function testDelete(): void
     {
         $client = static::createAuthenticatedClient([
-            'email' => TestFixtures::PROCESS_MANAGER['email'],
+            'email' => TestFixtures::ADMIN['email'],
         ]);
 
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();
@@ -341,7 +341,7 @@ class FractionApiTest extends ApiTestCase
     public function testDeleteFailsWithoutPrivilege(): void
     {
         $client = static::createAuthenticatedClient([
-            'email' => TestFixtures::PROJECT_COORDINATOR['email'],
+            'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
 
         $iri = $this->findIriBy(Fraction::class, ['id' => 1]);

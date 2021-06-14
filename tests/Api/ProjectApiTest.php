@@ -1313,7 +1313,7 @@ class ProjectApiTest extends ApiTestCase
 
         $client->request('POST', '/projects', ['json' => [
             'motivation' => 'my motivation',
-            'council' => $iri,
+            'council'    => $iri,
             'skills'     => 'my project skills',
             'topic'      => 'not required, only for this test',
         ]]);
@@ -1352,6 +1352,41 @@ class ProjectApiTest extends ApiTestCase
             '@type'             => 'ConstraintViolationList',
             'hydra:title'       => 'An error occurred',
             'hydra:description' => 'council: validate.general.notBlank',
+        ]);
+    }
+
+    public function testCreateProjectWithInactiveCouncilFails(): void
+    {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::ADMIN['email'],
+        ]);
+
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $council = $em->getRepository(Council::class)
+            ->find(TestFixtures::COUNCIL['id']);
+        $council->setActive(false);
+        $em->flush();
+
+        $iri = $this->findIriBy(Council::class,
+            ['id' => TestFixtures::COUNCIL['id']]);
+
+        $client->request('POST', '/projects', ['json' => [
+            'council'    => $iri,
+            'title'      => 'test title',
+            'topic'      => 'new topic',
+            'skills'     => 'my project skills',
+            'motivation' => 'my project motivation',
+        ]]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertResponseHeaderSame('content-type',
+            'application/ld+json; charset=utf-8');
+
+        self::assertJsonContains([
+            '@context'          => '/contexts/ConstraintViolationList',
+            '@type'             => 'ConstraintViolationList',
+            'hydra:title'       => 'An error occurred',
+            'hydra:description' => 'council: validate.project.council.notActive',
         ]);
     }
 

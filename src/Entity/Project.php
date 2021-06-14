@@ -110,6 +110,14 @@ use Vrok\SymfonyAddons\Validator\Constraints as VrokAssert;
  * }, arguments={"searchParameterName"="pattern"})
  * @ApiFilter(OrderFilter::class, properties={"id", "title", "updatedAt", "createdAt"})
  *
+ * @Assert\Callback(
+ *     groups={"project:create", "user:register"},
+ *     callback={"App\Validator\ProjectValidator", "validateCreation"}
+ * )
+ * @Assert\Callback(
+ *     groups={"project:write"},
+ *     callback={"App\Validator\ProjectValidator", "validateUpdate"}
+ * )
  * @ORM\Entity
  * @ORM\Table(indexes={
  *     @ORM\Index(name="project_state_idx", columns={"state"})

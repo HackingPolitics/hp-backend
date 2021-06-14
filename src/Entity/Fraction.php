@@ -47,7 +47,7 @@ use Vrok\SymfonyAddons\Validator\Constraints as VrokAssert;
  *             "validation_groups"={"Default", "fraction:write"}
  *         },
  *         "delete"={
- *              "security"="is_granted('ROLE_PROCESS_MANAGER')",
+ *              "security"="is_granted('ROLE_ADMIN')",
  *          },
  *     },
  *     normalizationContext={

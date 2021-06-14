@@ -46,7 +46,7 @@ use Vrok\SymfonyAddons\Validator\Constraints as VrokAssert;
  *             "validation_groups"={"Default", "council:write"}
  *         },
  *         "delete"={
- *              "security"="is_granted('ROLE_PROCESS_MANAGER')",
+ *              "security"="is_granted('ROLE_ADMIN')",
  *          },
  *     },
  *     normalizationContext={
@@ -81,6 +81,27 @@ class Council
     use DeletedAtFunctions;
     use SlugFunctions;
     use UpdatedAtFunctions;
+
+    //region Active
+    /**
+     * @Groups({"council:read", "council:write"})
+     * @ORM\Column(type="boolean", options={"default":true})
+     */
+    private bool $active = true;
+
+    public function isActive(): bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active = true): self
+    {
+        $this->active = $active;
+
+        return $this;
+    }
+
+    //endregion
 
     //region DeletedAt
     /**
