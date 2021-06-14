@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Tests\Entity;
 
 use App\Entity\Argument;
-use App\Entity\CounterArgument;
 use App\Entity\Proposal;
 use App\Entity\UsedArgument;
 use App\Entity\User;

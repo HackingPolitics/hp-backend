@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Serializer;
 
 use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
-use App\Entity\UsedFractionInterest;
 use App\Entity\ProjectMembership;
+use App\Entity\UsedFractionInterest;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Normalizer\ContextAwareDenormalizerInterface;

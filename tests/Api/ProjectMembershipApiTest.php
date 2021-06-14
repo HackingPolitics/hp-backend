@@ -769,7 +769,7 @@ class ProjectMembershipApiTest extends ApiTestCase
             ['id' => TestFixtures::PROJECT_WRITER['id']]);
         $membershipIRI = $this->findIriBy(ProjectMembership::class, [
             'project' => TestFixtures::PROJECT['id'],
-            'user' => TestFixtures::PROJECT_WRITER['id'],
+            'user'    => TestFixtures::PROJECT_WRITER['id'],
         ]);
 
         $client->request('PUT', $membershipIRI, ['json' => [
@@ -804,7 +804,7 @@ class ProjectMembershipApiTest extends ApiTestCase
             ['id' => TestFixtures::PROJECT_WRITER['id']]);
         $membershipIRI = $this->findIriBy(ProjectMembership::class, [
             'project' => TestFixtures::PROJECT['id'],
-            'user' => TestFixtures::PROJECT_WRITER['id'],
+            'user'    => TestFixtures::PROJECT_WRITER['id'],
         ]);
 
         $client->request('PUT', $membershipIRI, ['json' => [
@@ -895,7 +895,7 @@ class ProjectMembershipApiTest extends ApiTestCase
 
         $membershipIRI = $this->findIriBy(ProjectMembership::class, [
             'project' => TestFixtures::PROJECT['id'],
-            'user' => TestFixtures::PROJECT_WRITER['id'],
+            'user'    => TestFixtures::PROJECT_WRITER['id'],
         ]);
 
         $client->request('PUT', $membershipIRI, ['json' => [
@@ -1055,7 +1055,7 @@ class ProjectMembershipApiTest extends ApiTestCase
 
         $membershipIRI = $this->findIriBy(ProjectMembership::class, [
             'project' => TestFixtures::LOCKED_PROJECT['id'],
-            'user' => TestFixtures::PROJECT_WRITER['id'],
+            'user'    => TestFixtures::PROJECT_WRITER['id'],
         ]);
 
         $client->request('PUT', $membershipIRI, ['json' => [
@@ -1091,7 +1091,7 @@ class ProjectMembershipApiTest extends ApiTestCase
 
         $membershipIRI = $this->findIriBy(ProjectMembership::class, [
             'project' => TestFixtures::LOCKED_PROJECT['id'],
-            'user' => TestFixtures::PROJECT_WRITER['id'],
+            'user'    => TestFixtures::PROJECT_WRITER['id'],
         ]);
 
         $client->request('PUT', $membershipIRI, ['json' => [
@@ -1261,7 +1261,7 @@ class ProjectMembershipApiTest extends ApiTestCase
         ]);
         $iri = $this->findIriBy(ProjectMembership::class, [
             'project' => TestFixtures::PROJECT['id'],
-            'user' => TestFixtures::PROJECT_WRITER['id'],
+            'user'    => TestFixtures::PROJECT_WRITER['id'],
         ]);
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();
         $member = $em->getRepository(User::class)
@@ -1290,7 +1290,7 @@ class ProjectMembershipApiTest extends ApiTestCase
         ]);
         $iri = $this->findIriBy(ProjectMembership::class, [
             'project' => TestFixtures::PROJECT['id'],
-            'user' => TestFixtures::PROJECT_WRITER['id'],
+            'user'    => TestFixtures::PROJECT_WRITER['id'],
         ]);
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();
         $member = $em->getRepository(User::class)
@@ -1319,7 +1319,7 @@ class ProjectMembershipApiTest extends ApiTestCase
         ]);
         $iri = $this->findIriBy(ProjectMembership::class, [
             'project' => TestFixtures::PROJECT['id'],
-            'user' => TestFixtures::PROJECT_WRITER['id'],
+            'user'    => TestFixtures::PROJECT_WRITER['id'],
         ]);
 
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();

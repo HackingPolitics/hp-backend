@@ -298,7 +298,6 @@ class ProjectApiTest extends ApiTestCase
         ]);
     }
 
-
     public function testOrderCollection(): void
     {
         $client = static::createClient();
@@ -444,42 +443,42 @@ class ProjectApiTest extends ApiTestCase
                             'usedActionMandates' => [
                                 0 => [
                                     'actionMandate'  => [
-                                        'id' => 1
+                                        'id' => 1,
                                     ],
                                 ],
                             ],
                             'usedArguments' => [
                                 0 => [
                                     'argument'  => [
-                                        'id' => 1
+                                        'id' => 1,
                                     ],
                                 ],
                             ],
                             'usedCounterArguments' => [
                                 0 => [
                                     'counterArgument'  => [
-                                        'id' => 1
+                                        'id' => 1,
                                     ],
                                 ],
                             ],
                             'usedFractionInterests' => [
                                 0 => [
                                     'fractionInterest'  => [
-                                        'id' => 1
+                                        'id' => 1,
                                     ],
                                 ],
                             ],
                             'usedNegations' => [
                                 0 => [
                                     'negation'  => [
-                                        'id' => 1
+                                        'id' => 1,
                                     ],
                                 ],
                             ],
                             'usedProblems' => [
                                 0 => [
                                     'problem'  => [
-                                        'id' => 1
+                                        'id' => 1,
                                     ],
                                 ],
                             ],
@@ -853,42 +852,42 @@ class ProjectApiTest extends ApiTestCase
                     'usedActionMandates' => [
                         0 => [
                             'actionMandate'  => [
-                                'id' => 1
+                                'id' => 1,
                             ],
                         ],
                     ],
                     'usedArguments' => [
                         0 => [
                             'argument'  => [
-                                'id' => 1
+                                'id' => 1,
                             ],
                         ],
                     ],
                     'usedCounterArguments' => [
                         0 => [
                             'counterArgument'  => [
-                                'id' => 1
+                                'id' => 1,
                             ],
                         ],
                     ],
                     'usedFractionInterests' => [
                         0 => [
                             'fractionInterest'  => [
-                                'id' => 1
+                                'id' => 1,
                             ],
                         ],
                     ],
                     'usedNegations' => [
                         0 => [
                             'negation'  => [
-                                'id' => 1
+                                'id' => 1,
                             ],
                         ],
                     ],
                     'usedProblems' => [
                         0 => [
                             'problem'  => [
-                                'id' => 1
+                                'id' => 1,
                             ],
                         ],
                     ],
@@ -1046,7 +1045,7 @@ class ProjectApiTest extends ApiTestCase
                     'usedActionMandates' => [
                         0 => [
                             'actionMandate'  => [
-                                'id' => 1
+                                'id' => 1,
                             ],
                             'createdBy' => [
                                 'id' => TestFixtures::ADMIN['id'],
@@ -1056,7 +1055,7 @@ class ProjectApiTest extends ApiTestCase
                     'usedArguments' => [
                         0 => [
                             'argument'  => [
-                                'id' => 1
+                                'id' => 1,
                             ],
                             'createdBy' => [
                                 'id' => TestFixtures::ADMIN['id'],
@@ -1066,7 +1065,7 @@ class ProjectApiTest extends ApiTestCase
                     'usedCounterArguments' => [
                         0 => [
                             'counterArgument'  => [
-                                'id' => 1
+                                'id' => 1,
                             ],
                             'createdBy' => [
                                 'id' => TestFixtures::ADMIN['id'],
@@ -1076,7 +1075,7 @@ class ProjectApiTest extends ApiTestCase
                     'usedFractionInterests' => [
                         0 => [
                             'fractionInterest'  => [
-                                'id' => 1
+                                'id' => 1,
                             ],
                             'createdBy' => [
                                 'id' => TestFixtures::ADMIN['id'],
@@ -1086,7 +1085,7 @@ class ProjectApiTest extends ApiTestCase
                     'usedNegations' => [
                         0 => [
                             'negation'  => [
-                                'id' => 1
+                                'id' => 1,
                             ],
                             'createdBy' => [
                                 'id' => TestFixtures::ADMIN['id'],
@@ -1096,7 +1095,7 @@ class ProjectApiTest extends ApiTestCase
                     'usedProblems' => [
                         0 => [
                             'problem'  => [
-                                'id' => 1
+                                'id' => 1,
                             ],
                             'createdBy' => [
                                 'id' => TestFixtures::ADMIN['id'],

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Tests\Entity;
 
 use App\DataFixtures\TestFixtures;
-use App\Entity\Proposal;
 use App\Entity\Project;
+use App\Entity\Proposal;
 use App\Entity\UsedActionMandate;
 use App\Entity\UsedArgument;
 use App\Entity\UsedCounterArgument;

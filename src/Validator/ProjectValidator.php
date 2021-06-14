@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Validator;
 
 use App\Entity\Project;
-use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class ProjectValidator

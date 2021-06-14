@@ -89,6 +89,5 @@ class ArgumentTest extends KernelTestCase
 
         self::assertCount(1, $argument->getUsages());
         self::assertInstanceOf(UsedArgument::class, $argument->getUsages()[0]);
-
     }
 }

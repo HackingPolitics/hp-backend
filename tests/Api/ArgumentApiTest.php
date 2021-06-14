@@ -310,7 +310,6 @@ class ArgumentApiTest extends ApiTestCase
 
     public function testDelete(): void
     {
-
         $client = static::createAuthenticatedClient([
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
