@@ -340,7 +340,7 @@ class Council
      *     ),
      * })
      * @Groups({"council:read", "council:write", "project:member-read"})
-     * @ORM\Column(type="string", length=100, nullable=false)
+     * @ORM\Column(type="string", length=100, nullable=true)
      */
     private ?string $title = null;
 

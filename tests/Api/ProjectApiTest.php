@@ -1583,7 +1583,7 @@ class ProjectApiTest extends ApiTestCase
     public function testCreateProjectWithInactiveCouncilFails(): void
     {
         $client = static::createAuthenticatedClient([
-            'email' => TestFixtures::ADMIN['email'],
+            'email' => TestFixtures::PROJECT_OBSERVER['email'],
         ]);
 
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();
@@ -1603,15 +1603,13 @@ class ProjectApiTest extends ApiTestCase
             'motivation' => 'my project motivation',
         ]]);
 
-        self::assertResponseStatusCodeSame(422);
-        self::assertResponseHeaderSame('content-type',
-            'application/ld+json; charset=utf-8');
-
+        self::assertResponseStatusCodeSame(400);
         self::assertJsonContains([
-            '@context'          => '/contexts/ConstraintViolationList',
-            '@type'             => 'ConstraintViolationList',
+            '@context'          => '/contexts/Error',
+            '@type'             => 'hydra:Error',
             'hydra:title'       => 'An error occurred',
-            'hydra:description' => 'council: validate.project.council.notActive',
+            'hydra:description' => 'Item not found for "/councils/'
+                .TestFixtures::COUNCIL['id'].'".',
         ]);
     }
 
