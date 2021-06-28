@@ -2289,4 +2289,218 @@ class ProjectApiTest extends ApiTestCase
             ->find(TestFixtures::PROJECT['id']);
         self::assertSame(TestFixtures::PROJECT['title'], $project->getTitle());
     }
+
+    public function testGetCollaboration(): void
+    {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROJECT_WRITER['email'],
+        ]);
+
+        $projectIri = $this->findIriBy(Project::class,
+            ['id' => TestFixtures::PROJECT['id']]);
+
+        $client->request('GET', $projectIri.'/collab');
+
+        static::assertResponseStatusCodeSame(200);
+        self::assertResponseHeaderSame('content-type',
+            'application/json');
+
+        self::assertJsonContains([
+            'collabData' => [
+                'description' => [
+                    "type"    => "doc",
+                    "content" => [
+                        [
+                            "type"    => "paragraph",
+                            "content" => [
+                                [
+                                    "type" => "text",
+                                    "text" => "description with 20 characters"
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    public function testGetCollaborationFailsWithoutPrivilege(): void
+    {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROJECT_OBSERVER['email'],
+        ]);
+
+        $projectIri = $this->findIriBy(Project::class,
+            ['id' => TestFixtures::PROJECT['id']]);
+
+        $client->request('GET', $projectIri.'/collab');
+
+        self::assertResponseStatusCodeSame(403);
+        self::assertResponseHeaderSame('content-type',
+            'application/ld+json; charset=utf-8');
+
+        self::assertJsonContains([
+            '@context'          => '/contexts/Error',
+            '@type'             => 'hydra:Error',
+            'hydra:title'       => 'An error occurred',
+            'hydra:description' => 'Access Denied.',
+        ]);
+    }
+
+    public function testGetCollaborationFailsUnauthorized(): void
+    {
+        $client = static::createClient();
+
+        $projectIri = $this->findIriBy(Project::class,
+            ['id' => TestFixtures::PROJECT['id']]);
+
+        $client->request('GET', $projectIri.'/collab');
+
+        self::assertResponseStatusCodeSame(401);
+        self::assertResponseHeaderSame('content-type',
+            'application/json');
+
+        self::assertJsonContains([
+            'code'    => 401,
+            'message' => 'JWT Token not found',
+        ]);
+    }
+
+    public function testSetCollaboration(): void
+    {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROJECT_WRITER['email'],
+        ]);
+
+        $projectIri = $this->findIriBy(Project::class,
+            ['id' => TestFixtures::PROJECT['id']]);
+
+        $client->request('POST', $projectIri.'/collab', ['json' => [
+            'collabData' => [
+                'description' => [
+                    "type"    => "doc",
+                    "content" => [
+                        [
+                            "type"    => "heading",
+                            "attrs"   => ["level" => "2"],
+                            "content" => [
+                                [
+                                    "type" => "text",
+                                    "text" => "Überschrift"
+                                ],
+                            ],
+                        ],
+                        [
+                            "type"    => "paragraph",
+                            "content" => [
+                                [
+                                    "type" => "text",
+                                    "text" => "Te"
+                                ],
+                                [
+                                    "type"  => "text",
+                                    "text"  => "s",
+                                    "marks" => [
+                                        ["type" => "bold"]
+                                    ]
+                                ],
+                                [
+                                    "type" => "text",
+                                    "text" => "t"
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]]);
+
+        static::assertResponseStatusCodeSame(204);
+
+        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        /** @var Project $project */
+        $project = $em->getRepository(Project::class)
+            ->find(TestFixtures::PROJECT['id']);
+
+        self::assertSame('<h2>Überschrift</h2><p>Te<strong>s</strong>t</p>', $project->getDescription());
+    }
+
+    public function testSetCollaborationFailsWithoutPrivilege(): void
+    {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROJECT_OBSERVER['email'],
+        ]);
+
+        $projectIri = $this->findIriBy(Project::class,
+            ['id' => TestFixtures::PROJECT['id']]);
+
+        $client->request('POST', $projectIri.'/collab', ['json' => [
+            'collabData' => [
+                'description' => [
+                    "type"    => "doc",
+                    "content" => [
+                        [
+                            "type"    => "heading",
+                            "attrs"   => ["level" => "2"],
+                            "content" => [
+                                [
+                                    "type" => "text",
+                                    "text" => "Überschrift"
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]]);
+
+        self::assertResponseStatusCodeSame(403);
+        self::assertResponseHeaderSame('content-type',
+            'application/ld+json; charset=utf-8');
+
+        self::assertJsonContains([
+            '@context'          => '/contexts/Error',
+            '@type'             => 'hydra:Error',
+            'hydra:title'       => 'An error occurred',
+            'hydra:description' => 'Access Denied.',
+        ]);
+    }
+
+    public function testSetCollaborationFailsUnauthorized(): void
+    {
+        $client = static::createClient();
+
+        $projectIri = $this->findIriBy(Project::class,
+            ['id' => TestFixtures::PROJECT['id']]);
+
+        $client->request('POST', $projectIri.'/collab', ['json' => [
+            'collabData' => [
+                'description' => [
+                    "type"    => "doc",
+                    "content" => [
+                        [
+                            "type"    => "heading",
+                            "attrs"   => ["level" => "2"],
+                            "content" => [
+                                [
+                                    "type" => "text",
+                                    "text" => "Überschrift"
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]]);
+
+        self::assertResponseStatusCodeSame(401);
+        self::assertResponseHeaderSame('content-type',
+            'application/json');
+
+        self::assertJsonContains([
+            'code'    => 401,
+            'message' => 'JWT Token not found',
+        ]);
+    }
 }

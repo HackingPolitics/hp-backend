@@ -93,4 +93,9 @@ class ProjectInput
      */
     public ?string $reporterEmail;
     //endregion
+
+    /**
+     * @Groups({"project:collab"})
+     */
+    public ?array $collabData = null;
 }

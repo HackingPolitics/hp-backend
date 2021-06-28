@@ -161,11 +161,8 @@
     "laminas/laminas-code": {
         "version": "3.4.1"
     },
-    "laminas/laminas-eventmanager": {
-        "version": "3.3.0"
-    },
     "laminas/laminas-zendframework-bridge": {
-        "version": "1.1.0"
+        "version": "1.3.0"
     },
     "lcobucci/clock": {
         "version": "2.0.0"
@@ -750,6 +747,12 @@
     },
     "twig/twig": {
         "version": "v2.11.3"
+    },
+    "ueberdosis/html-to-prosemirror": {
+        "version": "1.5.0"
+    },
+    "ueberdosis/prosemirror-to-html": {
+        "version": "2.6.0"
     },
     "vich/uploader-bundle": {
         "version": "1.5",
