@@ -74,7 +74,12 @@ class Fraction
 
     //region Active
     /**
-     * @Groups({"fraction:read", "fraction:write", "council:read", "project:read"})
+     * @Groups({
+     *     "fraction:read",
+     *     "fraction:write",
+     *     "council:read",
+     *     "project:read",
+     * })
      * @ORM\Column(type="boolean", options={"default":true})
      */
     private bool $active = true;
@@ -87,6 +92,36 @@ class Fraction
     public function setActive(bool $active = true): self
     {
         $this->active = $active;
+
+        return $this;
+    }
+
+    //endregion
+
+    //region Color
+    /**
+     * @Assert\Sequentially({
+     *     @Assert\NotBlank,
+     *     @Assert\Length(max=6),
+     *     @VrokAssert\NoLineBreaks,
+     * })
+     * @Groups({
+     *     "fraction:read",
+     *     "fraction:write",
+     *     "council:read",
+     * })
+     * @ORM\Column(type="string", length=6, nullable=false, options={"default": "000000"})
+     */
+    private string $color = '000000';
+
+    public function getColor(): string
+    {
+        return $this->color;
+    }
+
+    public function setColor(string $value): self
+    {
+        $this->color = trim($value);
 
         return $this;
     }
@@ -165,7 +200,11 @@ class Fraction
      *     @Assert\Length(max=60),
      *     @VrokAssert\NoLineBreaks,
      * })
-     * @Groups({"fraction:read", "fraction:write"})
+     * @Groups({
+     *     "fraction:read",
+     *     "fraction:write",
+     *     "council:read",
+     * })
      * @ORM\Column(type="string", length=100, nullable=false)
      */
     private ?string $name = null;
@@ -212,7 +251,11 @@ class Fraction
      *     @Assert\Length(max=200),
      *     @VrokAssert\NoLineBreaks,
      * })
-     * @Groups({"fraction:read", "fraction:write"})
+     * @Groups({
+     *     "fraction:read",
+     *     "fraction:write",
+     *     "council:read",
+     * })
      * @ORM\Column(type="text", length=200, nullable=true)
      */
     private ?string $url = null;
@@ -234,7 +277,7 @@ class Fraction
     //region UpdatedAt
     /**
      * @Assert\NotBlank(allowNull=true)
-     * @Groups({"fraction:read"})
+     * @Groups({"fraction:read", "council:read"})
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
@@ -243,10 +286,7 @@ class Fraction
 
     //region UpdatedBy
     /**
-     * @Groups({
-     *     "fraction:create",
-     *     "fraction:read"
-     * })
+     * @Groups({"fraction:create", "fraction:read", "council:read"})
      * @MaxDepth(1)
      * @Gedmo\Blameable(on="update")
      * @ORM\ManyToOne(targetEntity="User")

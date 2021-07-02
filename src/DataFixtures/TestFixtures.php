@@ -180,11 +180,13 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         'id'          => 1,
         'name'        => 'Grün',
         'memberCount' => 1,
+        'color'       => '00FF00',
     ];
     public const FRACTION_RED = [
         'id'          => 2,
         'name'        => 'Rot',
         'memberCount' => 2,
+        'color'       => 'FF0000',
     ];
     public const FRACTION_BLACK = [
         'id'          => 3,
@@ -606,6 +608,9 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         }
         if (isset($data['url'])) {
             $fraction->setUrl($data['url']);
+        }
+        if (isset($data['color'])) {
+            $fraction->setColor($data['color']);
         }
         if (isset($data['active'])) {
             $fraction->setActive($data['active']);

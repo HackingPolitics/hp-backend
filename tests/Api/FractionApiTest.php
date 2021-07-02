@@ -91,8 +91,9 @@ class FractionApiTest extends ApiTestCase
 
         $client->request('POST', '/fractions', ['json' => [
             'name'        => 'Grau',
-            'council'  => $councilIri,
+            'council'     => $councilIri,
             'memberCount' => 14,
+            'color'       => 'aaaaaa',
         ]]);
 
         self::assertResponseStatusCodeSame(201);
@@ -106,10 +107,11 @@ class FractionApiTest extends ApiTestCase
             '@type'       => 'Fraction',
             'name'        => 'Grau',
             'memberCount' => 14,
-            'council'  => [
+            'color'       => 'aaaaaa',
+            'council'     => [
                 '@id' => $councilIri,
             ],
-            'updatedBy' => [
+            'updatedBy'   => [
                 'id' => TestFixtures::PROCESS_MANAGER['id'],
             ],
         ]);
@@ -121,7 +123,7 @@ class FractionApiTest extends ApiTestCase
         $councilIri = $this->findIriBy(Council::class, ['id' => 1]);
 
         $client->request('POST', '/fractions', ['json' => [
-            'name'        => 'Grau',
+            'name'     => 'Grau',
             'council'  => $councilIri,
         ]]);
 
@@ -143,7 +145,7 @@ class FractionApiTest extends ApiTestCase
         $councilIri = $this->findIriBy(Council::class, ['id' => 1]);
 
         $client->request('POST', '/fractions', ['json' => [
-            'name'        => 'Grau',
+            'name'     => 'Grau',
             'council'  => $councilIri,
         ]]);
 
@@ -168,7 +170,7 @@ class FractionApiTest extends ApiTestCase
 
         $client->request('POST', '/fractions', ['json' => [
             'memberCount' => 11,
-            'council'  => $councilIri,
+            'council'     => $councilIri,
         ]]);
 
         self::assertResponseStatusCodeSame(422);
@@ -193,7 +195,7 @@ class FractionApiTest extends ApiTestCase
         $client->request('POST', '/fractions', ['json' => [
             'name'        => TestFixtures::FRACTION_GREEN['name'],
             'memberCount' => 1,
-            'council'  => $councilIri,
+            'council'     => $councilIri,
         ]]);
 
         self::assertResponseStatusCodeSame(422);

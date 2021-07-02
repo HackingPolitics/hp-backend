@@ -126,7 +126,9 @@ class CouncilApiTest extends ApiTestCase
             'title'        => TestFixtures::COUNCIL['title'],
             'fractions'    => [
                 0 => [
-                    'id' => TestFixtures::FRACTION_GREEN['id'],
+                    'id'    => TestFixtures::FRACTION_GREEN['id'],
+                    'name'  => TestFixtures::FRACTION_GREEN['name'],
+                    'color' => TestFixtures::FRACTION_GREEN['color'],
                 ],
                 1 => [
                     'id' => TestFixtures::FRACTION_RED['id'],

@@ -1,3 +1,18 @@
+@todo
+* Docker Ordner einrichten
+* Docker-Compose setup
+* clone
+* log ordner anlegen
+* DB einrichten
+* smtp account für mails
+* .env.local anpassen
+  * app secret
+  * jwt passphrase
+* compose: mount points anpassen
+* nginx vhost erstellen
+* cert erstellen
+* fixtures einspielen
+
 # Installation & Setup
 
 The application is designed to run within a docker container that provides
