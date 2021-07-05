@@ -2416,9 +2416,10 @@ class ProjectApiTest extends ApiTestCase
             ],
         ]]);
 
-        static::assertResponseStatusCodeSame(204);
+        static::assertResponseStatusCodeSame(200);
 
         $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em->clear();
         /** @var Project $project */
         $project = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);

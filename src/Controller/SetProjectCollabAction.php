@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Project;
-use App\Entity\User;
+use Doctrine\Persistence\ManagerRegistry;
 use HtmlToProseMirror\Renderer as Converter;
 use ProseMirrorToHtml\Renderer;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,7 +16,8 @@ class SetProjectCollabAction
 {
     public function __invoke(
         Request $request,
-        Project $project
+        Project $project,
+        ManagerRegistry $registry
     ): JsonResponse {
         // not associative! The PM->HTML Renderer needs the objects
         $input = json_decode($request->getContent(), false, 512, JSON_THROW_ON_ERROR);
@@ -31,6 +32,9 @@ class SetProjectCollabAction
         if (!empty($input->collabData->description)) {
             $project->setDescription($renderer->render($input->collabData->description));
         }
+
+        $entityManager = $registry->getManagerForClass(Project::class);
+        $entityManager->flush();
 
         $converter = new Converter();
         // @todo restrict Nodes/Marks for output? Should not be necessary
