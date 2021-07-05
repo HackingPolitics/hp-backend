@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Project;
+use App\Entity\User;
+use HtmlToProseMirror\Renderer as Converter;
 use ProseMirrorToHtml\Renderer;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class SetProjectCollabAction
@@ -31,10 +32,13 @@ class SetProjectCollabAction
             $project->setDescription($renderer->render($input->collabData->description));
         }
 
-        // return 204: successful, but no content
+        $converter = new Converter();
+        // @todo restrict Nodes/Marks for output? Should not be necessary
+
         return new JsonResponse([
-            'success' => true,
-            'message' => 'Request received',
-        ], Response::HTTP_NO_CONTENT);
+            'collabData' => [
+                'description' => $converter->render($project->getDescription())
+            ]
+        ]);
     }
 }

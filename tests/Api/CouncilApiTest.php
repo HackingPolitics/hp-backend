@@ -297,7 +297,8 @@ class CouncilApiTest extends ApiTestCase
 
         $iri = $this->findIriBy(Council::class, ['id' => 1]);
         $client->request('PUT', $iri, ['json' => [
-            'title' => 'Test #1',
+            'title'       => 'Test #1',
+            'validatedAt' => null,
         ]]);
 
         self::assertResponseIsSuccessful();

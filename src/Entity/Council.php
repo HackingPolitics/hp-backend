@@ -434,7 +434,7 @@ class Council
      *
      * @return $this
      */
-    public function setValidatedAt(DateTimeImmutable $validatedAt): self
+    public function setValidatedAt(?DateTimeImmutable $validatedAt): self
     {
         $this->validatedAt = $validatedAt;
 
