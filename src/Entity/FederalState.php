@@ -26,7 +26,7 @@ use Vrok\SymfonyAddons\Validator\Constraints as VrokAssert;
  * @ApiResource(
  *     attributes={
  *         "security"="is_granted('IS_AUTHENTICATED_ANONYMOUSLY')",
- *         "pagination_items_per_page"=15
+ *         "pagination_items_per_page"=30
  *     },
  *     collectionOperations={
  *         "get",

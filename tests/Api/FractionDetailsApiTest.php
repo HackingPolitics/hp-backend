@@ -139,7 +139,7 @@ class FractionDetailsApiTest extends ApiTestCase
 
         $client->request('POST', '/fraction_details', ['json' => [
             'fraction' => $fractionIri,
-            'project' => $projectIri,
+            'project'  => $projectIri,
         ]]);
 
         self::assertResponseStatusCodeSame(401);

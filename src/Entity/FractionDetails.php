@@ -150,7 +150,10 @@ class FractionDetails
      * @Assert\NotBlank
      * @Groups({
      *     "fractionDetails:read",
-     *     "fractionDetails:create"
+     *     "fractionDetails:create",
+     *     "project:member-read",
+     *     "project:pm-read",
+     *     "project:admin-read",
      * })
      * @ORM\ManyToOne(targetEntity="Fraction", inversedBy="details")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
