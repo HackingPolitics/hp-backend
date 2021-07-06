@@ -52,9 +52,8 @@ class FederalStateApiTest extends ApiTestCase
 
         $collection = $response->toArray();
 
-        // pagesize = 15
-        self::assertCount(15, $collection['hydra:member']);
-        self::assertNotNull($collection['hydra:view']['hydra:next']);
+        // pagesize = 30
+        self::assertCount(16, $collection['hydra:member']);
     }
 
     public function testGetFederalState(): void
