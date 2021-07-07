@@ -109,6 +109,7 @@ class Fraction
      *     "fraction:read",
      *     "fraction:write",
      *     "council:read",
+     *     "project:read",
      * })
      * @ORM\Column(type="string", length=6, nullable=false, options={"default": "000000"})
      */
@@ -173,7 +174,12 @@ class Fraction
     /**
      * @Assert\NotBlank
      * @Assert\Range(min=1)
-     * @Groups({"fraction:read", "fraction:write", "council:read"})
+     * @Groups({
+     *     "fraction:read",
+     *     "fraction:write",
+     *     "council:read",
+     *     "project:read",
+     * })
      * @ORM\Column(type="integer", options={"unsigned"=true})
      */
     private ?int $memberCount = null;
@@ -204,6 +210,7 @@ class Fraction
      *     "fraction:read",
      *     "fraction:write",
      *     "council:read",
+     *     "project:read",
      * })
      * @ORM\Column(type="string", length=100, nullable=false)
      */
@@ -255,6 +262,7 @@ class Fraction
      *     "fraction:read",
      *     "fraction:write",
      *     "council:read",
+     *     "project:read",
      * })
      * @ORM\Column(type="text", length=200, nullable=true)
      */

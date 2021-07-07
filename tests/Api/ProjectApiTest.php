@@ -1119,7 +1119,8 @@ class ProjectApiTest extends ApiTestCase
             'fractionDetails' => [
                 0 => [
                     'fraction'    => [
-                        'id' => TestFixtures::FRACTION_GREEN['id'],
+                        'id'   => TestFixtures::FRACTION_GREEN['id'],
+                        'name' => TestFixtures::FRACTION_GREEN['name'],
                     ],
                     'contactName' => 'Green',
                     'interests'   => [

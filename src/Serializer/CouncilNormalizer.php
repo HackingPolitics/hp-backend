@@ -43,11 +43,10 @@ class CouncilNormalizer implements ContextAwareNormalizerInterface, NormalizerAw
         if (isset($result['fractions']) && !$isPM
             && !in_array('project:read', $context['groups'])
         ) {
-            foreach($result['fractions'] as $k => $fraction) {
-                if (!$fraction['active']) {
-                    unset($result['fractions'][$k]);
-                }
-            }
+            // use array_values to reindex, else JSON will return an object instead of an array
+            $result['fractions'] = array_values(array_filter($result['fractions'], static function($fraction) {
+                return $fraction['active'];
+            }));
         }
 
         return $result;
