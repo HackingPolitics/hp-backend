@@ -41,7 +41,8 @@ class SetProjectCollabAction
 
         return new JsonResponse([
             'collabData' => [
-                'description' => $converter->render($project->getDescription())
+                // the converter cannot handle empty values, give him an empty <p> to feed on...
+                'description' => $converter->render($project->getDescription() ?: '<p></p>')
             ]
         ]);
     }
