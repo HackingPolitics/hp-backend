@@ -452,6 +452,31 @@ class Project
 
     //endregion
 
+    //region FeatureImage
+    /**
+     * @Assert\Sequentially({
+     *     @Assert\Length(max=500),
+     *     @VrokAssert\NoLineBreaks,
+     * })
+     * @Groups({"project:read", "project:write"})
+     * @ORM\Column(type="string", length=500, nullable=true)
+     */
+    private ?string $featureImage = null;
+
+    public function getFeatureImage(): string
+    {
+        return $this->featureImage ?? '';
+    }
+
+    public function setFeatureImage(?string $value): self
+    {
+        $this->featureImage = NormalizerHelper::toNullableString($value);
+
+        return $this;
+    }
+
+    //endregion
+
     //region FractionDetails
     /**
      * @var Collection|FractionDetails[]

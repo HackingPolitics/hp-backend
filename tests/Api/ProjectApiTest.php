@@ -1459,12 +1459,17 @@ class ProjectApiTest extends ApiTestCase
         $iri = $this->findIriBy(Council::class,
             ['id' => TestFixtures::COUNCIL['id']]);
 
+        $catIri = $this->findIriBy(Category::class,
+            ['id' => 2]);
+
         $response = $client->request('POST', '/projects', ['json' => [
-            'title'      => 'test project',
-            'topic'      => 'new topic',
-            'council'    => $iri,
-            'motivation' => 'my motivation',
-            'skills'     => 'my project skills',
+            'title'        => 'test project',
+            'topic'        => 'new topic',
+            'council'      => $iri,
+            'motivation'   => 'my motivation',
+            'skills'       => 'my project skills',
+            'categories'   => [$catIri],
+            'featureImage' => 'https://link.to/image',
         ]]);
 
         self::assertResponseStatusCodeSame(201);
@@ -1488,15 +1493,21 @@ class ProjectApiTest extends ApiTestCase
                     ],
                 ],
             ],
+            'categories' => [
+                0 => [
+                    'id' => 2
+                ],
+            ],
             'createdBy'             => [
                 'id' => TestFixtures::ADMIN['id'],
             ],
             'council'               => [
                 'id' => TestFixtures::COUNCIL['id'],
             ],
+            'featureImage'          => 'https://link.to/image',
+            'impact'                => '',
             'slug'                  => 'test-project',
             'state'                 => Project::STATE_PRIVATE,
-            'impact'                => '',
             'topic'                 => 'new topic',
         ]);
 

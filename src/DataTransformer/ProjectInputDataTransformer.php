@@ -140,5 +140,9 @@ class ProjectInputDataTransformer implements DataTransformerInterface
         if (null !== $data->topic) {
             $project->setTopic($data->topic);
         }
+
+        if (null !== $data->featureImage) {
+            $project->setFeatureImage($data->featureImage);
+        }
     }
 }

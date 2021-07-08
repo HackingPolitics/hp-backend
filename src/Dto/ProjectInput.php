@@ -57,6 +57,10 @@ class ProjectInput
      */
     public ?string $topic = null;
 
+    /**
+     * @Groups({"project:write", "project:create", "user:register"})
+     */
+    public ?string $featureImage = null;
     //endregion
 
     //region Project creation
