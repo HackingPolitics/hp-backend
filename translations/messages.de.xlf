@@ -13,14 +13,13 @@
             <trans-unit id="mail.imprint">
                 <source>mail.imprint</source>
                 <target><![CDATA[
-                HPO<br />
-                @todo
+                <a href="https://www.hacking-politics.de/impressum">Impressum</a>
                ]]></target>
             </trans-unit>
             <trans-unit id="mail.poweredBy">
                 <source>mail.poweredBy</source>
                 <target><![CDATA[
-                Gesendet von <a href="https://@todo client url" style="color: #999999; font-size: 12px; text-align: center; text-decoration: none;">HackinPoliticsOnline</a>.
+                Gesendet von <a href="https://www.hacking-politics.de/" style="color: #999999; font-size: 12px; text-align: center; text-decoration: none;">HackingPoliticsOnline</a>.
                ]]></target>
             </trans-unit>
             <trans-unit id="mail.user.salutation">
