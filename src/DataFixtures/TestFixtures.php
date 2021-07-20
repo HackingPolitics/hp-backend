@@ -139,7 +139,7 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         'id'        => 3,
         'title'     => 'Deleted Project',
         'deletedAt' => '2019-12-12 12:12:12',
-        'state'     => Project::STATE_PUBLIC
+        'state'     => Project::STATE_PUBLIC,
     ];
 
     public const PROPOSAL_1 = [

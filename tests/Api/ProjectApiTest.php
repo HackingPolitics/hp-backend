@@ -71,7 +71,7 @@ class ProjectApiTest extends ApiTestCase
                     'createdBy'  => [
                         'id' => TestFixtures::PROJECT_COORDINATOR['id'],
                     ],
-                    'state' => Project::STATE_PUBLIC
+                    'state' => Project::STATE_PUBLIC,
                 ],
             ],
         ]);
@@ -1495,7 +1495,7 @@ class ProjectApiTest extends ApiTestCase
             ],
             'categories' => [
                 0 => [
-                    'id' => 2
+                    'id' => 2,
                 ],
             ],
             'createdBy'             => [
@@ -2323,14 +2323,14 @@ class ProjectApiTest extends ApiTestCase
         self::assertJsonContains([
             'collabData' => [
                 'description' => [
-                    "type"    => "doc",
-                    "content" => [
+                    'type'    => 'doc',
+                    'content' => [
                         [
-                            "type"    => "paragraph",
-                            "content" => [
+                            'type'    => 'paragraph',
+                            'content' => [
                                 [
-                                    "type" => "text",
-                                    "text" => "description with 20 characters"
+                                    'type' => 'text',
+                                    'text' => 'description with 20 characters',
                                 ],
                             ],
                         ],
@@ -2394,35 +2394,35 @@ class ProjectApiTest extends ApiTestCase
         $client->request('POST', $projectIri.'/collab', ['json' => [
             'collabData' => [
                 'description' => [
-                    "type"    => "doc",
-                    "content" => [
+                    'type'    => 'doc',
+                    'content' => [
                         [
-                            "type"    => "heading",
-                            "attrs"   => ["level" => "2"],
-                            "content" => [
+                            'type'    => 'heading',
+                            'attrs'   => ['level' => '2'],
+                            'content' => [
                                 [
-                                    "type" => "text",
-                                    "text" => "Überschrift"
+                                    'type' => 'text',
+                                    'text' => 'Überschrift',
                                 ],
                             ],
                         ],
                         [
-                            "type"    => "paragraph",
-                            "content" => [
+                            'type'    => 'paragraph',
+                            'content' => [
                                 [
-                                    "type" => "text",
-                                    "text" => "Te"
+                                    'type' => 'text',
+                                    'text' => 'Te',
                                 ],
                                 [
-                                    "type"  => "text",
-                                    "text"  => "s",
-                                    "marks" => [
-                                        ["type" => "bold"]
-                                    ]
+                                    'type'  => 'text',
+                                    'text'  => 's',
+                                    'marks' => [
+                                        ['type' => 'bold'],
+                                    ],
                                 ],
                                 [
-                                    "type" => "text",
-                                    "text" => "t"
+                                    'type' => 'text',
+                                    'text' => 't',
                                 ],
                             ],
                         ],
@@ -2454,15 +2454,15 @@ class ProjectApiTest extends ApiTestCase
         $client->request('POST', $projectIri.'/collab', ['json' => [
             'collabData' => [
                 'description' => [
-                    "type"    => "doc",
-                    "content" => [
+                    'type'    => 'doc',
+                    'content' => [
                         [
-                            "type"    => "heading",
-                            "attrs"   => ["level" => "2"],
-                            "content" => [
+                            'type'    => 'heading',
+                            'attrs'   => ['level' => '2'],
+                            'content' => [
                                 [
-                                    "type" => "text",
-                                    "text" => "Überschrift"
+                                    'type' => 'text',
+                                    'text' => 'Überschrift',
                                 ],
                             ],
                         ],
@@ -2493,15 +2493,15 @@ class ProjectApiTest extends ApiTestCase
         $client->request('POST', $projectIri.'/collab', ['json' => [
             'collabData' => [
                 'description' => [
-                    "type"    => "doc",
-                    "content" => [
+                    'type'    => 'doc',
+                    'content' => [
                         [
-                            "type"    => "heading",
-                            "attrs"   => ["level" => "2"],
-                            "content" => [
+                            'type'    => 'heading',
+                            'attrs'   => ['level' => '2'],
+                            'content' => [
                                 [
-                                    "type" => "text",
-                                    "text" => "Überschrift"
+                                    'type' => 'text',
+                                    'text' => 'Überschrift',
                                 ],
                             ],
                         ],

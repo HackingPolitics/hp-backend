@@ -78,7 +78,7 @@ class ExportProposalMessageHandler implements MessageHandlerInterface
     private function export(Proposal $proposal): string
     {
         // @todo configurable?
-        $odt = new Text(['templateFile' => __DIR__ . '/../../templates/export/export-template.odt']);
+        $odt = new Text(['templateFile' => __DIR__.'/../../templates/export/export-template.odt']);
 
         // replace fixed markers, content without HTML
         $odt->addReplace('/\{\{title\}\}/siu', strtoupper($proposal->getTitle()));

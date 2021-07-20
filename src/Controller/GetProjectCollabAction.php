@@ -10,15 +10,16 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class GetProjectCollabAction
 {
-    public function __invoke(Project $project): JsonResponse {
+    public function __invoke(Project $project): JsonResponse
+    {
         $converter = new Converter();
         // @todo restrict Nodes/Marks for output? Should not be necessary
 
         return new JsonResponse([
             'collabData' => [
                 // the converter cannot handle empty values, give him an empty <p> to feed on...
-                'description' => $converter->render($project->getDescription() ?: '<p></p>')
-            ]
+                'description' => $converter->render($project->getDescription() ?: '<p></p>'),
+            ],
         ]);
     }
 }

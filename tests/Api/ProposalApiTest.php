@@ -485,7 +485,6 @@ class ProposalApiTest extends ApiTestCase
         ]);
     }
 
-
     public function testDownloadDocument(): void
     {
         $client = static::createClient();

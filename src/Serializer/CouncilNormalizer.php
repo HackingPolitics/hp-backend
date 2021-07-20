@@ -5,10 +5,7 @@ declare(strict_types=1);
 namespace App\Serializer;
 
 use App\Entity\Council;
-use App\Entity\CouncilMembership;
-use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
@@ -44,7 +41,7 @@ class CouncilNormalizer implements ContextAwareNormalizerInterface, NormalizerAw
             && !in_array('project:read', $context['groups'])
         ) {
             // use array_values to reindex, else JSON will return an object instead of an array
-            $result['fractions'] = array_values(array_filter($result['fractions'], static function($fraction) {
+            $result['fractions'] = array_values(array_filter($result['fractions'], static function ($fraction) {
                 return $fraction['active'];
             }));
         }

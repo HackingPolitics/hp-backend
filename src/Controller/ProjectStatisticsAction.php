@@ -32,7 +32,7 @@ class ProjectStatisticsAction
             ->andWhere('p.locked = :locked')
             ->setParameters([
                 'locked'    => false,
-                'yesterday' => $yesterday
+                'yesterday' => $yesterday,
             ])
             ->getQuery()
             ->enableResultCache(60*30)
