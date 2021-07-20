@@ -1,0 +1,14 @@
+{% extends 'layout/mail.html.twig' %}
+
+{% do email.setSubject("mail.project.proposalExported.subject"|trans) %}
+{% block mail_subject %}{{ email.subject }}{% endblock %}
+
+{% block mail_body %}
+    <h1>{{ "mail.user.salutation"|trans({
+        'username': username,
+    })}}</h1>
+
+    {{ "mail.project.proposalExported.content"|trans({
+        'projectname': projectname,
+    })|raw }}
+{% endblock %}

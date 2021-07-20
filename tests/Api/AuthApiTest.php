@@ -136,7 +136,7 @@ class AuthApiTest extends ApiTestCase
         self::assertArrayHasKey('editableProjects', $decoded);
         self::assertIsArray($decoded['editableProjects']);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $rtoken = $em->getRepository(RefreshToken::class)->findOneBy([
             'refreshToken' => $auth['refresh_token'],
         ]);
@@ -176,7 +176,7 @@ class AuthApiTest extends ApiTestCase
         self::assertSame([User::ROLE_ADMIN, User::ROLE_USER], $decoded['roles']);
         self::assertSame(TestFixtures::ADMIN['id'], $decoded['id']);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $rtoken = $em->getRepository(RefreshToken::class)->findOneBy([
             'refreshToken' => $auth['refresh_token'],
         ]);
@@ -207,7 +207,7 @@ class AuthApiTest extends ApiTestCase
             'message' => 'user.invalidCredentials',
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $logs = $em->getRepository(ActionLog::class)
             ->findBy(['username' => 'not-found']);
         self::assertCount(1, $logs);
@@ -219,7 +219,7 @@ class AuthApiTest extends ApiTestCase
     {
         $client = static::createClient();
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $l1 = new ActionLog();
         $l1->timestamp = DateHelper::nowSubInterval('PT10M');
         $l1->action = ActionLog::FAILED_LOGIN;
@@ -271,7 +271,7 @@ class AuthApiTest extends ApiTestCase
             'message' => 'user.invalidCredentials',
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $logs = $em->getRepository(ActionLog::class)
             ->findBy(['username' => TestFixtures::ADMIN['username']]);
         self::assertCount(1, $logs);
@@ -284,7 +284,7 @@ class AuthApiTest extends ApiTestCase
         $before = new \DateTimeImmutable();
         $client = static::createClient();
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $admin = $em->getRepository(User::class)->find(TestFixtures::ADMIN['id']);
         $admin->setActive(false);
         $em->flush();
@@ -327,7 +327,7 @@ class AuthApiTest extends ApiTestCase
             'message' => 'user.notValidated',
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $logs = $em->getRepository(ActionLog::class)
             ->findBy(['username' => TestFixtures::GUEST['username']]);
         self::assertCount(1, $logs);
@@ -348,7 +348,7 @@ class AuthApiTest extends ApiTestCase
         self::assertArrayHasKey('refresh_token', $auth);
         self::assertArrayHasKey('refresh_token_expires', $auth);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $oldLogs = $em->getRepository(ActionLog::class)->findAll();
         foreach ($oldLogs as $oldLog) {
             $em->remove($oldLog);
@@ -455,7 +455,7 @@ class AuthApiTest extends ApiTestCase
         ]]);
         $auth = $r->toArray();
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $admin = $em->getRepository(User::class)->find(TestFixtures::ADMIN['id']);
         $admin->setActive(false);
         $em->flush();
@@ -484,7 +484,7 @@ class AuthApiTest extends ApiTestCase
         static::assertResponseStatusCodeSame(200);
         $auth = $r->toArray();
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $user = $em->getRepository(User::class)->find(TestFixtures::PROJECT_COORDINATOR['id']);
         $user->markDeleted();
         $em->flush();

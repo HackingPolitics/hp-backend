@@ -8,6 +8,10 @@ use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
 use App\DataFixtures\TestFixtures;
 use App\Entity\Project;
 use App\Entity\Proposal;
+use App\Entity\UploadedFileTypes\ProposalDocument;
+use App\Entity\User;
+use App\Message\ExportProposalMessage;
+use App\MessageHandler\ExportProposalMessageHandler;
 use DateTimeImmutable;
 use DateTimeZone;
 use Doctrine\ORM\EntityManager;
@@ -53,7 +57,7 @@ class ProposalApiTest extends ApiTestCase
             '@context'          => '/contexts/Error',
             '@type'             => 'hydra:Error',
             'hydra:title'       => 'An error occurred',
-            'hydra:description' => 'No route found for "GET /proposals": Method Not Allowed (Allow: POST)',
+            'hydra:description' => 'No route found for "GET http://example.com/proposals": Method Not Allowed (Allow: POST)',
         ]);
     }
 
@@ -113,7 +117,7 @@ class ProposalApiTest extends ApiTestCase
         ]);
 
         /** @var Project $found */
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $found = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
 
@@ -290,7 +294,7 @@ class ProposalApiTest extends ApiTestCase
         ]);
 
         /** @var Project $found */
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $found = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
 
@@ -374,7 +378,7 @@ class ProposalApiTest extends ApiTestCase
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
 
         /** @var Project $before */
         $before = $em->getRepository(Project::class)
@@ -429,12 +433,12 @@ class ProposalApiTest extends ApiTestCase
     {
         $client = static::createClient();
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         /** @var Project $before */
         $before = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
         $before->setLocked(true);
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $em->flush();
         $em->clear();
 
@@ -457,12 +461,12 @@ class ProposalApiTest extends ApiTestCase
             'email' => TestFixtures::PROJECT_OBSERVER['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         /** @var Project $before */
         $before = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
         $before->setLocked(true);
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $em->flush();
         $em->clear();
 
@@ -479,5 +483,130 @@ class ProposalApiTest extends ApiTestCase
             'hydra:title'       => 'An error occurred',
             'hydra:description' => 'Access Denied.',
         ]);
+    }
+
+
+    public function testDownloadDocument(): void
+    {
+        $client = static::createClient();
+
+        // >>> create an ODT
+        $msg = new ExportProposalMessage(
+            1,
+            TestFixtures::PROJECT_COORDINATOR['id']
+        );
+
+        /** @var ExportProposalMessageHandler $handler */
+        $handler = self::getContainer()->get(ExportProposalMessageHandler::class);
+        $handler($msg);
+        // <<< create an ODT
+
+        $proposalIri = $this->findIriBy(Proposal::class, ['id' => 1]);
+        $token = static::getJWT(static::getContainer(), [
+            'email' => TestFixtures::PROJECT_WRITER['email'],
+        ]);
+
+        // use output buffering to prevent sending the ODT file to the stdout as
+        // the client does not support streamed responses (@see https://github.com/symfony/symfony/issues/25005)
+        ob_start();
+
+        // we need to use the getKernelBrowser() to send an form-encoded request
+        $client->getKernelBrowser()->request('POST', $proposalIri.'/document-download', [
+            'bearer' => $token,
+        ]);
+
+        ob_end_clean();
+        static::assertResponseStatusCodeSame(200);
+
+        $em = static::getContainer()->get('doctrine')->getManager();
+        /** @var Proposal $proposal */
+        $proposal = $em->getRepository(Proposal::class)->find(1);
+
+        self::assertInstanceOf(ProposalDocument::class, $proposal->getDocumentFile());
+
+        $headers = $client->getKernelBrowser()->getInternalResponse()->getHeaders();
+        self::assertSame('application/vnd.oasis.opendocument.text', $headers['content-type'][0]);
+        self::assertSame(
+            'inline; filename='.$proposal->getDocumentFile()->getOriginalName(),
+            $headers['content-disposition'][0]
+        );
+
+        // cleanup, removes the file from the storage
+        $em->remove($proposal->getDocumentFile());
+        $em->flush();
+    }
+
+    public function testDownloadFailsWithoutPrivilege(): void
+    {
+        $client = static::createClient();
+
+        $em = static::getContainer()->get('doctrine')->getManager();
+        /** @var User $guest */
+        $guest = $em->getRepository(User::class)
+            ->find(TestFixtures::GUEST['id']);
+        $guest->setValidated(true);
+        $em->flush();
+
+        $proposalIri = $this->findIriBy(Proposal::class, ['id' => 1]);
+        $token = static::getJWT(static::getContainer(), [
+            'email' => TestFixtures::GUEST['email'],
+        ]);
+
+        // we need to use the getKernelBrowser() to send an form-encoded request
+        $client->getKernelBrowser()->request('POST', $proposalIri.'/document-download', [
+            'bearer' => $token,
+        ]);
+
+        // returns text/html
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testDownloadFailsUnauthorized(): void
+    {
+        $client = static::createClient();
+
+        $proposalIri = $this->findIriBy(Proposal::class, ['id' => 1]);
+
+        // we need to use the getKernelBrowser() to send an form-encoded request
+        $client->getKernelBrowser()->request('POST', $proposalIri.'/document-download', [
+            // no token
+        ]);
+
+        // returns text/html
+        self::assertResponseStatusCodeSame(401);
+    }
+
+    public function testDownloadReturns404WithoutFile(): void
+    {
+        $client = static::createClient();
+
+        $proposalIri = $this->findIriBy(Proposal::class, ['id' => 1]);
+        $token = static::getJWT(static::getContainer(), [
+            'email' => TestFixtures::PROJECT_OBSERVER['email'],
+        ]);
+
+        // we need to use the getKernelBrowser() to send an form-encoded request
+        $client->getKernelBrowser()->request('POST', $proposalIri.'/document-download', [
+            'bearer' => $token,
+        ]);
+
+        static::assertResponseStatusCodeSame(404);
+    }
+
+    public function testDownloadFailsWithGetRequest(): void
+    {
+        $client = static::createClient();
+
+        $proposalIri = $this->findIriBy(Proposal::class, ['id' => 1]);
+        $token = static::getJWT(static::getContainer(), [
+            'email' => TestFixtures::PROJECT_OBSERVER['email'],
+        ]);
+
+        // we need to use the getKernelBrowser() to send an form-encoded request
+        $client->getKernelBrowser()->request('GET', $proposalIri.'/document-download', [
+            'bearer' => $token,
+        ]);
+
+        static::assertResponseStatusCodeSame(400);
     }
 }

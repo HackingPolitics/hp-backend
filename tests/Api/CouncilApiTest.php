@@ -84,7 +84,7 @@ class CouncilApiTest extends ApiTestCase
     {
         $client = static::createClient();
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $council = $em->getRepository(Council::class)
             ->find(TestFixtures::COUNCIL['id']);
         $council->setActive(false);
@@ -159,7 +159,7 @@ class CouncilApiTest extends ApiTestCase
     {
         $client = static::createClient();
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $council = $em->getRepository(Council::class)
             ->find(TestFixtures::COUNCIL['id']);
         $council->setActive(false);
@@ -362,7 +362,7 @@ class CouncilApiTest extends ApiTestCase
         $council = new Council();
         $council->setTitle('just for fun');
         $council->setHeadOfAdministrationTitle('OBM');
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $em->persist($council);
         $em->flush();
 
@@ -389,7 +389,7 @@ class CouncilApiTest extends ApiTestCase
             'email' => TestFixtures::ADMIN['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         /** @var FederalState $before */
         $before = $em->getRepository(FederalState::class)
             ->find(1);

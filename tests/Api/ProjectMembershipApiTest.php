@@ -506,7 +506,7 @@ class ProjectMembershipApiTest extends ApiTestCase
         self::assertArrayNotHasKey('applications', $data['project']);
 
         // notification for the project coordinators should be triggered
-        $messenger = self::$container->get('messenger.default_bus');
+        $messenger = static::getContainer()->get('messenger.default_bus');
         $messages = $messenger->getDispatchedMessages();
         self::assertCount(1, $messages);
         self::assertInstanceOf(NewMemberApplicationMessage::class,
@@ -718,7 +718,7 @@ class ProjectMembershipApiTest extends ApiTestCase
             'email' => TestFixtures::PROJECT_COORDINATOR['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $user = $em->getRepository(User::class)
             ->find(TestFixtures::GUEST['id']);
         $project = $em->getRepository(Project::class)
@@ -922,7 +922,7 @@ class ProjectMembershipApiTest extends ApiTestCase
             'email' => TestFixtures::PROJECT_COORDINATOR['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
 
         /** @var User $planner */
         $planner = $em->getRepository(User::class)
@@ -1082,7 +1082,7 @@ class ProjectMembershipApiTest extends ApiTestCase
         ]);
 
         // a deleted project should not have memberships, just to make sure...
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $project = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
         $project->markDeleted();
@@ -1263,7 +1263,7 @@ class ProjectMembershipApiTest extends ApiTestCase
             'project' => TestFixtures::PROJECT['id'],
             'user'    => TestFixtures::PROJECT_WRITER['id'],
         ]);
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $member = $em->getRepository(User::class)
             ->find(TestFixtures::PROJECT_WRITER['id']);
         $project = $em->getRepository(Project::class)
@@ -1292,7 +1292,7 @@ class ProjectMembershipApiTest extends ApiTestCase
             'project' => TestFixtures::PROJECT['id'],
             'user'    => TestFixtures::PROJECT_WRITER['id'],
         ]);
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $member = $em->getRepository(User::class)
             ->find(TestFixtures::PROJECT_WRITER['id']);
         $project = $em->getRepository(Project::class)
@@ -1322,7 +1322,7 @@ class ProjectMembershipApiTest extends ApiTestCase
             'user'    => TestFixtures::PROJECT_WRITER['id'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $member = $em->getRepository(User::class)
             ->find(TestFixtures::PROJECT_WRITER['id']);
         $project = $em->getRepository(Project::class)
@@ -1419,7 +1419,7 @@ class ProjectMembershipApiTest extends ApiTestCase
             'email' => TestFixtures::PROJECT_COORDINATOR['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
 
         /** @var Project $project */
         $project = $em->getRepository(Project::class)
@@ -1498,7 +1498,7 @@ class ProjectMembershipApiTest extends ApiTestCase
             'email' => TestFixtures::PROJECT_COORDINATOR['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
 
         /** @var User $planner */
         $planner = $em->getRepository(User::class)
@@ -1531,7 +1531,7 @@ class ProjectMembershipApiTest extends ApiTestCase
             'email' => TestFixtures::PROJECT_COORDINATOR['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
 
         /** @var User $planner */
         $planner = $em->getRepository(User::class)
@@ -1563,7 +1563,7 @@ class ProjectMembershipApiTest extends ApiTestCase
             'email' => TestFixtures::PROJECT_COORDINATOR['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
 
         $planner = $em->getRepository(User::class)
             ->find(TestFixtures::PROJECT_WRITER['id']);
@@ -1591,7 +1591,7 @@ class ProjectMembershipApiTest extends ApiTestCase
         self::assertCount(0, $project->getMemberships());
 
         // notification for the process managers should be triggered
-        $messenger = self::$container->get('messenger.default_bus');
+        $messenger = static::getContainer()->get('messenger.default_bus');
         $messages = $messenger->getDispatchedMessages();
         self::assertCount(1, $messages);
         self::assertInstanceOf(AllProjectMembersLeftMessage::class,

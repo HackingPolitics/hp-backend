@@ -225,7 +225,7 @@ class UserApiTest extends ApiTestCase
             'email' => TestFixtures::ADMIN['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $admin = $em->getRepository(User::class)->find(TestFixtures::PROCESS_MANAGER['id']);
         $admin->setActive(false);
         $em->flush();
@@ -667,7 +667,7 @@ class UserApiTest extends ApiTestCase
         self::assertIsInt($userData['id']);
         self::assertArrayNotHasKey('password', $userData);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $user = $em->getRepository(User::class)->find($userData['id']);
 
         // user has a password and it was encoded
@@ -918,7 +918,7 @@ class UserApiTest extends ApiTestCase
         self::assertMatchesResourceItemJsonSchema(User::class);
 
         $userData = $response->toArray();
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $user = $em->getRepository(User::class)->find($userData['id']);
         self::assertNotEmpty($user->getPassword());
     }
@@ -959,13 +959,13 @@ class UserApiTest extends ApiTestCase
         $userData = $response->toArray();
         self::assertArrayNotHasKey('password', $userData);
 
-        $messenger = self::$container->get('messenger.default_bus');
+        $messenger = static::getContainer()->get('messenger.default_bus');
         $messages = $messenger->getDispatchedMessages();
         self::assertCount(1, $messages);
         self::assertInstanceOf(UserRegisteredMessage::class,
             $messages[0]['message']);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $logs = $em->getRepository(ActionLog::class)
             ->findBy(['action' => ActionLog::REGISTERED_USER]);
         self::assertCount(1, $logs);
@@ -1024,7 +1024,7 @@ class UserApiTest extends ApiTestCase
             ],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $userLogs = $em->getRepository(ActionLog::class)
             ->findBy(['action' => ActionLog::REGISTERED_USER]);
         self::assertCount(1, $userLogs);
@@ -1045,7 +1045,7 @@ class UserApiTest extends ApiTestCase
         $iri = $this->findIriBy(Council::class,
             ['id' => TestFixtures::COUNCIL['id']]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $council = $em->getRepository(Council::class)
             ->find(TestFixtures::COUNCIL['id']);
         $council->setActive(false);
@@ -1302,7 +1302,7 @@ class UserApiTest extends ApiTestCase
         // the user registered with a membership application and was
         // marked validated -> notification for the project coordinators
         // should be triggered
-        $messenger = self::$container->get('messenger.default_bus');
+        $messenger = static::getContainer()->get('messenger.default_bus');
         $messages = $messenger->getDispatchedMessages();
         self::assertCount(1, $messages);
         self::assertInstanceOf(NewMemberApplicationMessage::class,
@@ -1410,7 +1410,7 @@ class UserApiTest extends ApiTestCase
             'email' => TestFixtures::ADMIN['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $before = $em->getRepository(User::class)
             ->find(TestFixtures::PROJECT_WRITER['id']);
 
@@ -1538,7 +1538,7 @@ class UserApiTest extends ApiTestCase
             'email' => TestFixtures::ADMIN['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $oldPW = $em->getRepository(User::class)
             ->find(TestFixtures::PROJECT_WRITER['id'])
             ->getPassword();
@@ -1813,7 +1813,7 @@ class UserApiTest extends ApiTestCase
             'email' => TestFixtures::PROJECT_WRITER['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $oldPW = $em->getRepository(User::class)
             ->find(TestFixtures::PROJECT_WRITER['id'])
             ->getPassword();
@@ -1923,7 +1923,7 @@ class UserApiTest extends ApiTestCase
             'email' => TestFixtures::ADMIN['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $allMemberships = $em->getRepository(ProjectMembership::class)
             ->findAll();
         self::assertCount(5, $allMemberships);
@@ -1963,7 +1963,7 @@ class UserApiTest extends ApiTestCase
             'email' => TestFixtures::PROJECT_WRITER['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $allMemberships = $em->getRepository(ProjectMembership::class)
             ->findAll();
         self::assertCount(5, $allMemberships);
@@ -2084,7 +2084,7 @@ class UserApiTest extends ApiTestCase
             'email' => TestFixtures::ADMIN['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $allMemberships = $em->getRepository(ProjectMembership::class)
             ->findAll();
         self::assertCount(5, $allMemberships);
@@ -2115,7 +2115,7 @@ class UserApiTest extends ApiTestCase
             'email' => TestFixtures::ADMIN['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $allMemberships = $em->getRepository(ProjectMembership::class)
             ->findAll();
         self::assertCount(5, $allMemberships);
@@ -2148,7 +2148,7 @@ class UserApiTest extends ApiTestCase
 
         // notification for the process managers should be triggered
         // (for the "normal" and for the locked project)
-        $messenger = self::$container->get('messenger.default_bus');
+        $messenger = static::getContainer()->get('messenger.default_bus');
         $messages = $messenger->getDispatchedMessages();
         self::assertCount(2, $messages);
         self::assertInstanceOf(AllProjectMembersLeftMessage::class,
@@ -2192,7 +2192,7 @@ class UserApiTest extends ApiTestCase
             'message' => 'Request received',
         ]);
 
-        $messenger = self::$container->get('messenger.default_bus');
+        $messenger = static::getContainer()->get('messenger.default_bus');
         $messages = $messenger->getDispatchedMessages();
         self::assertCount(1, $messages);
         self::assertInstanceOf(UserForgotPasswordMessage::class,
@@ -2217,7 +2217,7 @@ class UserApiTest extends ApiTestCase
             'message' => 'Request received',
         ]);
 
-        $messenger = self::$container->get('messenger.default_bus');
+        $messenger = static::getContainer()->get('messenger.default_bus');
         $messages = $messenger->getDispatchedMessages();
         self::assertCount(1, $messages);
         self::assertInstanceOf(UserForgotPasswordMessage::class,
@@ -2225,7 +2225,7 @@ class UserApiTest extends ApiTestCase
         self::assertSame(TestFixtures::PROJECT_COORDINATOR['id'],
             $messages[0]['message']->userId);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $logs = $em->getRepository(ActionLog::class)
             ->findBy(['action' => ActionLog::SUCCESSFUL_PW_RESET_REQUEST]);
         self::assertCount(1, $logs);
@@ -2252,11 +2252,11 @@ class UserApiTest extends ApiTestCase
         ]);
 
         // when the request fails no message is dispatched
-        $messenger = self::$container->get('messenger.default_bus');
+        $messenger = static::getContainer()->get('messenger.default_bus');
         $messages = $messenger->getDispatchedMessages();
         self::assertCount(0, $messages);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $logs = $em->getRepository(ActionLog::class)
             ->findBy(['action' => ActionLog::FAILED_PW_RESET_REQUEST]);
         self::assertCount(1, $logs);
@@ -2282,11 +2282,11 @@ class UserApiTest extends ApiTestCase
         ]);
 
         // when the request fails no message is dispatched
-        $messenger = self::$container->get('messenger.default_bus');
+        $messenger = static::getContainer()->get('messenger.default_bus');
         $messages = $messenger->getDispatchedMessages();
         self::assertCount(0, $messages);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $logs = $em->getRepository(ActionLog::class)
             ->findBy(['action' => ActionLog::FAILED_PW_RESET_REQUEST]);
         self::assertCount(1, $logs);
@@ -2393,7 +2393,7 @@ class UserApiTest extends ApiTestCase
     {
         $client = static::createClient();
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $l1 = new ActionLog();
         $l1->timestamp = DateHelper::nowSubInterval('PT10M');
         $l1->action = ActionLog::SUCCESSFUL_PW_RESET_REQUEST;
@@ -2447,11 +2447,11 @@ class UserApiTest extends ApiTestCase
         ]);
 
         // when the request fails no message is dispatched
-        $messenger = self::$container->get('messenger.default_bus');
+        $messenger = static::getContainer()->get('messenger.default_bus');
         $messages = $messenger->getDispatchedMessages();
         self::assertCount(0, $messages);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $logs = $em->getRepository(ActionLog::class)
             ->findBy(['action' => ActionLog::FAILED_PW_RESET_REQUEST]);
         self::assertCount(1, $logs);
@@ -2464,7 +2464,7 @@ class UserApiTest extends ApiTestCase
         $before = new DateTimeImmutable();
 
         $client = static::createClient();
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
 
         $user = $em->getRepository(User::class)
             ->find(TestFixtures::PROJECT_COORDINATOR['id']);
@@ -2485,11 +2485,11 @@ class UserApiTest extends ApiTestCase
         ]);
 
         // when the request fails no message is dispatched
-        $messenger = self::$container->get('messenger.default_bus');
+        $messenger = static::getContainer()->get('messenger.default_bus');
         $messages = $messenger->getDispatchedMessages();
         self::assertCount(0, $messages);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $logs = $em->getRepository(ActionLog::class)
             ->findBy(['action' => ActionLog::FAILED_PW_RESET_REQUEST]);
         self::assertCount(1, $logs);
@@ -2519,13 +2519,13 @@ class UserApiTest extends ApiTestCase
         ]);
 
         // check that the email wasn't changed already
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $user = $em->getRepository(User::class)
             ->find(TestFixtures::PROCESS_MANAGER['id']);
         self::assertSame(TestFixtures::PROCESS_MANAGER['email'], $user->getEmail());
 
         // ... instead a queue message was dispatched
-        $messenger = self::$container->get('messenger.default_bus');
+        $messenger = static::getContainer()->get('messenger.default_bus');
         $messages = $messenger->getDispatchedMessages();
         self::assertCount(1, $messages);
         self::assertInstanceOf(UserEmailChangeMessage::class,
@@ -2735,7 +2735,7 @@ class UserApiTest extends ApiTestCase
         $client = self::createAuthenticatedClient(
             ['id' => TestFixtures::PROCESS_MANAGER['id']]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $oldUser = $em->getRepository(User::class)
             ->find(TestFixtures::PROJECT_WRITER['id']);
         $oldPW = $oldUser->getPassword();
@@ -2760,7 +2760,7 @@ class UserApiTest extends ApiTestCase
         self::assertNotSame($oldPW, $user->getPassword());
 
         // ... instead a queue message was dispatched
-        $messenger = self::$container->get('messenger.default_bus');
+        $messenger = static::getContainer()->get('messenger.default_bus');
         $messages = $messenger->getDispatchedMessages();
         self::assertCount(1, $messages);
         self::assertInstanceOf(NewUserPasswordMessage::class,
@@ -2855,9 +2855,9 @@ class UserApiTest extends ApiTestCase
         ]);
 
         /** @var UserPasswordEncoderInterface $pwe */
-        $pwe = self::$container->get(UserPasswordEncoderInterface::class);
+        $pwe = static::getContainer()->get(UserPasswordEncoderInterface::class);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $user = $em->getRepository(User::class)
             ->find(TestFixtures::PROJECT_WRITER['id']);
 
@@ -2930,7 +2930,7 @@ class UserApiTest extends ApiTestCase
 
         self::assertResponseStatusCodeSame(200);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $user = $em->getRepository(User::class)
             ->find(TestFixtures::PROJECT_WRITER['id']);
 

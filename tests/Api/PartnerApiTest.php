@@ -115,7 +115,7 @@ class PartnerApiTest extends ApiTestCase
         ]);
 
         /** @var Project $found */
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $found = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
 
@@ -261,7 +261,7 @@ class PartnerApiTest extends ApiTestCase
         ]);
 
         /** @var Project $found */
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $found = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
 
@@ -345,7 +345,7 @@ class PartnerApiTest extends ApiTestCase
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         /** @var Project $before */
         $before = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);

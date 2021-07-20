@@ -61,7 +61,7 @@ class PurgeValidationTest extends KernelTestCase
         $msg = new PurgeValidationsMessage();
 
         /* @var $handler PurgeValidationsMessageHandler */
-        $handler = self::$container->get(PurgeValidationsMessageHandler::class);
+        $handler = static::getContainer()->get(PurgeValidationsMessageHandler::class);
         $handler($msg);
 
         $after = $this->entityManager->getRepository(User::class)

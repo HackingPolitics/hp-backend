@@ -7,6 +7,7 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\Traits\AutoincrementId;
 use App\Entity\Traits\UpdatedAtFunctions;
+use App\Entity\UploadedFileTypes\ProposalDocument;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -124,6 +125,32 @@ class Proposal
     public function setComment(?string $value): self
     {
         $this->comment = NormalizerHelper::toNullableHtml($value);
+
+        return $this;
+    }
+
+    //endregion
+
+    //region DocumentFile
+    /**
+     * @Groups({"proposal:read", "proposal:write", "project:read"})
+     * @ORM\OneToOne(
+     *     targetEntity="App\Entity\UploadedFileTypes\ProposalDocument",
+     *     cascade={"persist", "remove"},
+     *     orphanRemoval=true
+     * )
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
+     */
+    private ?ProposalDocument $documentFile = null;
+
+    public function getDocumentFile(): ?ProposalDocument
+    {
+        return $this->documentFile;
+    }
+
+    public function setDocumentFile(?ProposalDocument $documentFile): self
+    {
+        $this->documentFile = $documentFile;
 
         return $this;
     }

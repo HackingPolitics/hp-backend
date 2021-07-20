@@ -15,7 +15,7 @@ class ProjectVoter extends Voter
      */
     protected function supports($attribute, $subject): bool
     {
-        return in_array($attribute, ['EDIT', 'DELETE'])
+        return in_array($attribute, ['READ', 'EDIT', 'DELETE'])
             && $subject instanceof Project;
     }
 
@@ -33,6 +33,15 @@ class ProjectVoter extends Voter
         }
 
         switch ($attribute) {
+            case 'READ':
+                if ($user->hasRole(User::ROLE_ADMIN)
+                    || $user->hasRole(User::ROLE_PROCESS_MANAGER)
+                ) {
+                    return true;
+                }
+
+                return $subject->userCanRead($user);
+
             case 'EDIT':
                 if ($user->hasRole(User::ROLE_ADMIN)
                     || $user->hasRole(User::ROLE_PROCESS_MANAGER)

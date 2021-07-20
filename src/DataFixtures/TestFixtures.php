@@ -379,6 +379,10 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         $project->addProblem($problem1);
 
         $proposal1 = $this->createProposal(self::PROPOSAL_1);
+        $proposal1->setSponsor('Intergalaktisch');
+        $proposal1->setIntroduction('<p>This is <b>HTML</b> with <em>viel</em> sinnfreiem Text</p>');
+        $proposal1->setActionMandate('<ul><li>Mache er das</li><li>Und dann gleich noch mal</li></ul>');
+        $proposal1->setReasoning('<p>Weil es so am <br />besten<br />ist.</p>');
         $proposal1->setUpdatedBy($processManager);
         $project->addProposal($proposal1);
 

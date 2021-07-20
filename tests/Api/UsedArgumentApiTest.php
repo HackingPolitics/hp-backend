@@ -112,7 +112,7 @@ class UsedArgumentApiTest extends ApiTestCase
         ]);
 
         /** @var Project $found */
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $found = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
 
@@ -273,7 +273,7 @@ class UsedArgumentApiTest extends ApiTestCase
             'email' => TestFixtures::PROJECT_WRITER['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         /** @var Argument $before */
         $before = $em->getRepository(Argument::class)
             ->find(1);

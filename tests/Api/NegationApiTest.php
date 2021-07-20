@@ -110,7 +110,7 @@ class NegationApiTest extends ApiTestCase
         ]);
 
         /** @var Project $found */
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $found = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
 
@@ -231,7 +231,7 @@ class NegationApiTest extends ApiTestCase
         ]);
 
         /** @var Project $found */
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $found = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
 
@@ -314,7 +314,7 @@ class NegationApiTest extends ApiTestCase
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         /** @var CounterArgument $before */
         $before = $em->getRepository(CounterArgument::class)
             ->find(1);

@@ -89,7 +89,7 @@ class CleanupActionLogTest extends KernelTestCase
         $msg = new CleanupActionLogMessage();
 
         /* @var $handler CleanupActionLogMessageHandler */
-        $handler = self::$container->get(CleanupActionLogMessageHandler::class);
+        $handler = static::getContainer()->get(CleanupActionLogMessageHandler::class);
         $handler($msg);
 
         $l1c = $this->getRepository()->find($l1->getId());
@@ -143,7 +143,7 @@ class CleanupActionLogTest extends KernelTestCase
         $msg = new CleanupActionLogMessage();
 
         /* @var $handler CleanupActionLogMessageHandler */
-        $handler = self::$container->get(CleanupActionLogMessageHandler::class);
+        $handler = static::getContainer()->get(CleanupActionLogMessageHandler::class);
         $handler($msg);
 
         $l1c = $this->getRepository()->find($l1->getId());

@@ -1,6 +1,5 @@
 # Anstehend
 
-* proposal hinzufügen mit sub-entities
-  * proposal api test
-* spaltentypen überprüfen, string vs text
+* spaltentypen überprüfen, string vs text, linebreaks
+* project active/inactive? cron eventlistenr + PROJECT_INACTIVE_THRESHOLD entfernen
 * setup.md überarbeiten

@@ -4,7 +4,7 @@
         <body>
             <trans-unit id="project.unnamed">
                 <source>project.unnamed</source>
-                <target>[unbenanntes Projekt, ID %projectid%]</target>
+                <target>[unbenanntes Projekt, ID {projectid}]</target>
             </trans-unit>
             <trans-unit id="mail.app.title">
                 <source>mail.app.title</source>
@@ -24,7 +24,7 @@
             </trans-unit>
             <trans-unit id="mail.user.salutation">
                 <source>mail.user.salutation</source>
-                <target>Hallo %username%!</target>
+                <target>Hallo {username}!</target>
             </trans-unit>
             <trans-unit id="mail.coordinator.salutation">
                 <source>mail.coordinator.salutation</source>
@@ -40,7 +40,7 @@
             </trans-unit>
             <trans-unit id="mail.validation.registration.intro">
                 <source>mail.validation.registration.intro</source>
-                <target>Vielen Dank für Deine Registrierung, bitte bestätige Deine Email-Adresse bis zum %expirationDate% durch Klick auf folgenden Link:</target>
+                <target>Vielen Dank für Deine Registrierung, bitte bestätige Deine Email-Adresse bis zum {expirationDate} durch Klick auf folgenden Link:</target>
             </trans-unit>
             <trans-unit id="mail.validation.registration.description">
                 <source>mail.validation.registration.description</source>
@@ -56,7 +56,7 @@
             </trans-unit>
             <trans-unit id="mail.validation.emailChange.intro">
                 <source>mail.validation.emailChange.intro</source>
-                <target>Du hast die Änderung Deiner Email-Adresse angefordert, bitte bestätige die Anfrage bis zum %expirationDate% durch Klick auf folgenden Link, die Email-Adresse Deines Zugangs wird dann umgestellt:</target>
+                <target>Du hast die Änderung Deiner Email-Adresse angefordert, bitte bestätige die Anfrage bis zum {expirationDate} durch Klick auf folgenden Link, die Email-Adresse Deines Zugangs wird dann umgestellt:</target>
             </trans-unit>
             <trans-unit id="mail.validation.passwordReset.subject">
                 <source>mail.validation.passwordReset.subject</source>
@@ -64,7 +64,7 @@
             </trans-unit>
             <trans-unit id="mail.validation.passwordReset.intro">
                 <source>mail.validation.passwordReset.intro</source>
-                <target>Du hast das Zurücksetzen Deines Passworts angefordert, bitte bestätige die Anfrage bis zum %expirationDate% durch Klick auf folgenden Link, dort kannst Du ein neues Passwort vergeben:</target>
+                <target>Du hast das Zurücksetzen Deines Passworts angefordert, bitte bestätige die Anfrage bis zum {expirationDate} durch Klick auf folgenden Link, dort kannst Du ein neues Passwort vergeben:</target>
             </trans-unit>
             <trans-unit id="mail.validation.newPassword.subject">
                 <source>mail.validation.newPassword.subject</source>
@@ -94,10 +94,10 @@
                 </p>
                 <ul>
                     <li>
-                        Identifikator: %id%
+                        Identifikator: {id}
                     </li>
                     <li>
-                        Sicherheitscode: %token%
+                        Sicherheitscode: {token}
                     </li>
                 </ul>
                ]]></target>
@@ -114,10 +114,10 @@
                 </p>
                 <ul>
                     <li>
-                        Benutzername: %username%
+                        Benutzername: {username}
                     </li>
                     <li>
-                        Email: %useremail%
+                        Email: {useremail}
                     </li>
                 </ul>
                ]]></target>
@@ -134,7 +134,7 @@
                 </p>
                 <ul>
                     <li>
-                        Projekt: %projectTitle%
+                        Projekt: {projectTitle}
                     </li>
                 </ul>
                ]]></target>
@@ -151,10 +151,10 @@
                 </p>
                 <ul>
                     <li>
-                        Benutzername: %username%
+                        Benutzername: {username}
                     </li>
                     <li>
-                        Projekt: %projectTitle%
+                        Projekt: {projectTitle}
                     </li>
                 </ul>
                ]]></target>
@@ -170,13 +170,13 @@
                     Soeben hat ein Benutzer das folgende Projekt als Verstoß gemeldet:
                 </p>
                 <p>
-                    %projectTitle%
+                    {projectTitle}
                 </p>
                 <p>
                     Angegebener Grund:
                 </p>
                 <p>
-                    %message%
+                    {message}
                 </p>
                ]]></target>
             </trans-unit>
@@ -184,10 +184,23 @@
                 <source>mail.reportNotification.from</source>
                 <target><![CDATA[
                 <p>
-                    Angegebener Name: %reporterName%
+                    Angegebener Name: {reporterName}
                 </p>
                 <p>
-                    Angegebene Email: %reporterEmail%
+                    Angegebene Email: {reporterEmail}
+                </p>
+               ]]></target>
+            </trans-unit>
+            <trans-unit id="mail.project.proposalExported.subject">
+                <source>mail.project.proposalExported.subject</source>
+                <target>ODT-Datei für Antrag bereit</target>
+            </trans-unit>
+            <trans-unit id="mail.project.proposalExported.content">
+                <source>mail.project.proposalExported.content</source>
+                <target><![CDATA[
+                <p>
+                    Die ODT-Datei für dein Projekt <em>{projectname}</em> steht zum Download bereit
+                    und befindet sich auch im Anhang dieser Email.
                 </p>
                ]]></target>
             </trans-unit>

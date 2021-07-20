@@ -1,0 +1,47 @@
+# Read the documentation at https://github.com/thephpleague/flysystem-bundle/blob/master/docs/1-getting-started.md
+flysystem:
+  storages:
+    # for files that should not be directly accessible, only
+    # privateStorage should be used as service, the ENV decides which
+    # adapter will be used
+    private.storage.local:
+      adapter: 'local'
+      visibility: 'private'
+      options:
+        directory: '%kernel.project_dir%/var/storage'
+        permissions:
+          file:
+            public: 0o600
+            private: 0o600
+          dir:
+            public: 0o700
+            private: 0o700
+    private.storage:
+      adapter: 'lazy'
+      options:
+        source: '%env(PRIVATE_STORAGE)%'
+
+    # for files that will be directly accessible, only
+    # publicStorage should be used as service, the ENV decides which
+    # adapter will be used
+    public.storage.local:
+      adapter: 'local'
+      # Eine beim lazy-Adapter angegebene Visibility wird nicht vererbt, darum
+      # muss jede Variante (storage.local, storage.memory, storage.aw, ...)
+      # das selbst angeben...
+      visibility: 'public'
+      options:
+        directory: '%kernel.project_dir%/public/storage'
+        permissions:
+          file:
+            public: 0o644
+            private: 0o600
+          dir:
+            public: 0o755
+            # flysystem bundle does not support setting the directory_visibility
+            # and does not use the general visibility setting for files...
+            private: 0o755
+    public.storage:
+      adapter: 'lazy'
+      options:
+        source: '%env(PUBLIC_STORAGE)%'

@@ -121,7 +121,7 @@ class FractionDetailsApiTest extends ApiTestCase
         ]);
 
         /** @var Project $found */
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $found = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
 
@@ -277,7 +277,7 @@ class FractionDetailsApiTest extends ApiTestCase
         ]);
 
         /** @var Project $found */
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $found = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
 
@@ -391,7 +391,7 @@ class FractionDetailsApiTest extends ApiTestCase
         ]);
 
         /** @var EntityManagerInterface $em */
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         /** @var Fraction $before */
         $before = $em->getRepository(Fraction::class)
             ->find(TestFixtures::FRACTION_GREEN['id']);

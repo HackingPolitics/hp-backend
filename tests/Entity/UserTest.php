@@ -282,7 +282,7 @@ class UserTest extends KernelTestCase
         // fetch a valid user and automatically initialize the service container
         $user = $this->getUserRepository()->find(TestFixtures::ADMIN['id']);
 
-        $validator = self::$container->get(ValidatorInterface::class);
+        $validator = static::getContainer()->get(ValidatorInterface::class);
 
         $user->setEmail('deleted_12@hpo.user');
         $failing = $validator->validate($user);
@@ -295,7 +295,7 @@ class UserTest extends KernelTestCase
         // fetch a valid user and automatically initialize the service container
         $user = $this->getUserRepository()->find(TestFixtures::ADMIN['id']);
 
-        $validator = self::$container->get(ValidatorInterface::class);
+        $validator = static::getContainer()->get(ValidatorInterface::class);
 
         $invalidUsernames = [
             '123', // no letters
@@ -326,7 +326,7 @@ class UserTest extends KernelTestCase
         // fetch a valid user and automatically initialize the service container
         $user = $this->getUserRepository()->find(TestFixtures::ADMIN['id']);
 
-        $validator = self::$container->get(ValidatorInterface::class);
+        $validator = static::getContainer()->get(ValidatorInterface::class);
 
         foreach (self::invalidNames as $invalidName) {
             $user->setFirstName($invalidName);
@@ -348,7 +348,7 @@ class UserTest extends KernelTestCase
         // fetch a valid user and automatically initialize the service container
         $user = $this->getUserRepository()->find(TestFixtures::ADMIN['id']);
 
-        $validator = self::$container->get(ValidatorInterface::class);
+        $validator = static::getContainer()->get(ValidatorInterface::class);
 
         foreach (self::invalidNames as $invalidName) {
             $user->setLastName($invalidName);

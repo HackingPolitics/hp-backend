@@ -47,7 +47,7 @@ class NewMemberApplicationTest extends KernelTestCase
 
     public function testHandlerSendsMessage()
     {
-        $em = self::$container->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
 
         /** @var User $user */
         $user = $em->getRepository(User::class)
@@ -72,16 +72,9 @@ class NewMemberApplicationTest extends KernelTestCase
         $msg = new NewMemberApplicationMessage(TestFixtures::PROJECT_OBSERVER['id'], TestFixtures::PROJECT['id']);
 
         /** @var NewMemberApplicationMessageHandler $handler */
-        $handler = self::$container->get(NewMemberApplicationMessageHandler::class);
+        $handler = static::getContainer()->get(NewMemberApplicationMessageHandler::class);
         $handler($msg);
 
-        // check for sent emails, @see Symfony\Component\Mailer\Test\Constraint\EmailCount
-        // & Symfony\Bundle\FrameworkBundle\Test\MailerAssertionsTrait, we don't
-        // use the trait as it requires the usage of a WebTestCase
-        $logger = self::$container->get('mailer.logger_message_listener');
-        $sent = array_filter($logger->getEvents()->getEvents(), function ($e) {
-            return !$e->isQueued();
-        });
-        self::assertCount(1, $sent);
+        self::assertEmailCount(1);
     }
 }

@@ -109,7 +109,7 @@ class ProjectApiTest extends ApiTestCase
     {
         $client = static::createClient();
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $project = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
         $project->setState(Project::STATE_PRIVATE);
@@ -146,7 +146,7 @@ class ProjectApiTest extends ApiTestCase
     {
         $client = static::createClient();
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         /** @var User $creator */
         $creator = $em->getRepository(User::class)
             ->find(TestFixtures::PROJECT_COORDINATOR['id']);
@@ -183,7 +183,7 @@ class ProjectApiTest extends ApiTestCase
     {
         $client = static::createClient();
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         /** @var Project $project */
         $project = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
@@ -316,7 +316,7 @@ class ProjectApiTest extends ApiTestCase
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $project = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
         $project->setState(Project::STATE_PRIVATE);
@@ -349,7 +349,7 @@ class ProjectApiTest extends ApiTestCase
     {
         $client = static::createClient();
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $fs = $em->getRepository(FederalState::class)->find(1);
         $council = new Council();
         $council->setFederalState($fs);
@@ -411,7 +411,7 @@ class ProjectApiTest extends ApiTestCase
     {
         $client = static::createClient();
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         /** @var Project $locked */
         $locked = $em->getRepository(Project::class)
             ->find(TestFixtures::LOCKED_PROJECT['id']);
@@ -869,7 +869,7 @@ class ProjectApiTest extends ApiTestCase
     {
         $client = static::createClient();
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         /** @var User $creator */
         $creator = $em->getRepository(User::class)
             ->find(TestFixtures::PROJECT_COORDINATOR['id']);
@@ -1325,7 +1325,7 @@ class ProjectApiTest extends ApiTestCase
             'email' => TestFixtures::PROJECT_OBSERVER['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $project = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
         $project->setState(Project::STATE_PRIVATE);
@@ -1353,7 +1353,7 @@ class ProjectApiTest extends ApiTestCase
     {
         $client = static::createClient();
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $project = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
         $project->setState(Project::STATE_PRIVATE);
@@ -1386,7 +1386,7 @@ class ProjectApiTest extends ApiTestCase
             'email' => TestFixtures::PROJECT_OBSERVER['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $locked = $em->getRepository(Project::class)
             ->find(TestFixtures::LOCKED_PROJECT['id']);
         $locked->setState(Project::STATE_PRIVATE);
@@ -1514,7 +1514,7 @@ class ProjectApiTest extends ApiTestCase
         $projectData = $response->toArray();
         self::assertSame(TestFixtures::ADMIN['id'], $projectData['createdBy']['id']);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $logs = $em->getRepository(ActionLog::class)
             ->findBy(['action' => ActionLog::CREATED_PROJECT]);
         self::assertCount(1, $logs);
@@ -1601,7 +1601,7 @@ class ProjectApiTest extends ApiTestCase
             'email' => TestFixtures::PROJECT_OBSERVER['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $council = $em->getRepository(Council::class)
             ->find(TestFixtures::COUNCIL['id']);
         $council->setActive(false);
@@ -1787,7 +1787,7 @@ class ProjectApiTest extends ApiTestCase
         ]);
 
         /** @var Project $found */
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $found = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
         self::assertTrue($now->getTimestamp() < $found->getUpdatedAt()->getTimestamp());
@@ -2070,7 +2070,7 @@ class ProjectApiTest extends ApiTestCase
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         /** @var Project $project */
         $project = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
@@ -2097,7 +2097,7 @@ class ProjectApiTest extends ApiTestCase
         $client = static::createClient();
 
         /* @var $before Project */
-        /*   $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        /*   $em = static::getContainer()->get('doctrine')->getManager();
            $before = $em
                ->getRepository(Project::class)
                ->find(TestFixtures::PROJECT['id']);
@@ -2150,7 +2150,7 @@ class ProjectApiTest extends ApiTestCase
         ]);
 
         /* @var $before Project */
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $before = $em
             ->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
@@ -2263,7 +2263,7 @@ class ProjectApiTest extends ApiTestCase
             'message' => 'Request received',
         ]);
 
-        $messenger = self::$container->get('messenger.default_bus');
+        $messenger = static::getContainer()->get('messenger.default_bus');
         $messages = $messenger->getDispatchedMessages();
         self::assertCount(1, $messages);
         self::assertInstanceOf(ProjectReportedMessage::class,
@@ -2277,7 +2277,7 @@ class ProjectApiTest extends ApiTestCase
         self::assertSame('fake@email.com',
             $messages[0]['message']->reporterEmail);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $logs = $em->getRepository(ActionLog::class)
             ->findBy(['action' => ActionLog::REPORTED_PROJECT]);
         self::assertCount(1, $logs);
@@ -2299,7 +2299,7 @@ class ProjectApiTest extends ApiTestCase
 
         self::assertResponseStatusCodeSame(202);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $project = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
         self::assertSame(TestFixtures::PROJECT['title'], $project->getTitle());
@@ -2433,7 +2433,7 @@ class ProjectApiTest extends ApiTestCase
 
         static::assertResponseStatusCodeSame(200);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $em->clear();
         /** @var Project $project */
         $project = $em->getRepository(Project::class)

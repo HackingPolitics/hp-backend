@@ -264,7 +264,7 @@ class FederalStateApiTest extends ApiTestCase
             'email' => TestFixtures::PROCESS_MANAGER['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
 
         /** @var Council $before */
         $before = $em->getRepository(Council::class)

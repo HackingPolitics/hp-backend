@@ -140,7 +140,7 @@ class ValidationApiTest extends ApiTestCase
             'email' => TestFixtures::PROJECT_COORDINATOR['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
 
         // ID 2 is the owners email change validation
         $token = $em->getRepository(Validation::class)
@@ -171,7 +171,7 @@ class ValidationApiTest extends ApiTestCase
     public function testConfirmAccountValidation(): void
     {
         $client = static::createClient();
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
 
         /** @var User $before */
         $before = $em->getRepository(User::class)
@@ -196,7 +196,7 @@ class ValidationApiTest extends ApiTestCase
         self::assertTrue($after->isValidated());
         self::assertCount(0, $after->getValidations());
 
-        $messenger = self::$container->get('messenger.default_bus');
+        $messenger = static::getContainer()->get('messenger.default_bus');
         $messages = $messenger->getDispatchedMessages();
         self::assertCount(1, $messages);
 
@@ -208,7 +208,7 @@ class ValidationApiTest extends ApiTestCase
     public function testConfirmPasswordReset(): void
     {
         $client = static::createClient();
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
 
         // ID 3 is the members PW reset validation
         $token = $em->getRepository(Validation::class)
@@ -240,7 +240,7 @@ class ValidationApiTest extends ApiTestCase
     public function testConfirmPasswordResetFailsWithCompromisedPassword(): void
     {
         $client = static::createClient();
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
 
         // ID 3 is the members PW reset validation
         $token = $em->getRepository(Validation::class)
@@ -264,7 +264,7 @@ class ValidationApiTest extends ApiTestCase
     public function testConfirmPasswordResetFailsWithShortPassword(): void
     {
         $client = static::createClient();
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
 
         // ID 3 is the members PW reset validation
         $token = $em->getRepository(Validation::class)
@@ -287,7 +287,7 @@ class ValidationApiTest extends ApiTestCase
     public function testConfirmPasswordResetFailsWithSamePassword(): void
     {
         $client = static::createClient();
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
 
         // ID 3 is the members PW reset validation
         $token = $em->getRepository(Validation::class)
@@ -320,7 +320,7 @@ class ValidationApiTest extends ApiTestCase
             'email' => TestFixtures::PROJECT_WRITER['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
 
         // ID 1 is the jurors account validation
         $token = $em->getRepository(Validation::class)
@@ -349,7 +349,7 @@ class ValidationApiTest extends ApiTestCase
             'email' => TestFixtures::ADMIN['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
 
         // ID 2 is the users email change validation
         $token = $em->getRepository(Validation::class)
@@ -378,7 +378,7 @@ class ValidationApiTest extends ApiTestCase
             'email' => TestFixtures::PROJECT_OBSERVER['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
 
         // ID 3 is the users PW reset validation
         $token = $em->getRepository(Validation::class)
@@ -407,7 +407,7 @@ class ValidationApiTest extends ApiTestCase
             'email' => TestFixtures::PROJECT_OBSERVER['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
 
         // ID 3 is the users PW reset validation
         $token = $em->getRepository(Validation::class)
@@ -467,7 +467,7 @@ class ValidationApiTest extends ApiTestCase
             'hydra:description' => 'Not Found',
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $logs = $em->getRepository(ActionLog::class)
             ->findBy(['action' => ActionLog::FAILED_VALIDATION]);
         self::assertCount(1, $logs);
@@ -494,7 +494,7 @@ class ValidationApiTest extends ApiTestCase
             'hydra:description' => 'Not Found',
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $logs = $em->getRepository(ActionLog::class)
             ->findBy(['action' => ActionLog::FAILED_VALIDATION]);
         self::assertCount(1, $logs);
@@ -508,7 +508,7 @@ class ValidationApiTest extends ApiTestCase
         $client = static::createClient();
 
         // ID 1 is the owners email change validation
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         /** @var Validation $validation */
         $validation = $em->getRepository(Validation::class)->find(1);
         $validation->setExpiresAt(new DateTimeImmutable('yesterday'));
@@ -530,7 +530,7 @@ class ValidationApiTest extends ApiTestCase
             'hydra:description' => 'Not Found',
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $logs = $em->getRepository(ActionLog::class)
             ->findBy(['action' => ActionLog::FAILED_VALIDATION]);
         self::assertCount(1, $logs);
@@ -543,7 +543,7 @@ class ValidationApiTest extends ApiTestCase
         $client = static::createClient();
 
         // ID 1 is the owners email change validation
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         /** @var Validation $validation */
         $validation = $em->getRepository(Validation::class)->find(1);
 

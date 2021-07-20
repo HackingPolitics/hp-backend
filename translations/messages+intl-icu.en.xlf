@@ -4,7 +4,7 @@
         <body>
             <trans-unit id="mail.user.salutation">
                 <source>mail.user.salutation</source>
-                <target>Hello %username%!</target>
+                <target>Hello {username}!</target>
             </trans-unit>
         </body>
     </file>

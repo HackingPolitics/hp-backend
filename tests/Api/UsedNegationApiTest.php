@@ -112,7 +112,7 @@ class UsedNegationApiTest extends ApiTestCase
         ]);
 
         /** @var Project $found */
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         $found = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
 
@@ -273,7 +273,7 @@ class UsedNegationApiTest extends ApiTestCase
             'email' => TestFixtures::PROJECT_WRITER['email'],
         ]);
 
-        $em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $em = static::getContainer()->get('doctrine')->getManager();
         /** @var Negation $before */
         $before = $em->getRepository(Negation::class)
             ->find(1);

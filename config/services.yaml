@@ -4,8 +4,6 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-    env(MERCURE_PUBLISH_URL): ''
-    env(MERCURE_JWT_SECRET): ''
     env(USER_VALIDATION_REQUIRED): 'true'
     env(DEFAULT_LOCALE): 'de'
     env(DEFAULT_TZ): 'Europe/Berlin'
@@ -110,3 +108,9 @@ services:
         factory: '@App\Security\JWT\TokenExtractorFactory'
         arguments:
             $authorizationHeaderTokenExtractor: '@lexik_jwt_authentication.extractor.authorization_header_extractor'
+
+    App\Uploader\ReverseSubdirDirectoryNamer:
+        public: true # @todo: why must this be made public to prevent "service or alias has been removed or inlined"
+
+    App\Uploader\UniqueFileNamer:
+        public: true # @todo: why must this be made public to prevent "service or alias has been removed or inlined"

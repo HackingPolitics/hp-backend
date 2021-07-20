@@ -1,0 +1,33 @@
+vich_uploader:
+    db_driver: orm
+
+    # @see https://github.com/dustin10/VichUploaderBundle/blob/master/docs/storage/flysystem.md
+    storage: flysystem
+
+    mappings:
+
+        public_file:
+            uri_prefix: /storage
+            upload_destination: public.storage
+            delete_on_update: true
+            delete_on_remove: true
+            # We don't use /projects/{id}/ etc as directory names like this would
+            # cause possibly thousands of folders within one directory -> filesystem
+            # limitations & performance issues.
+            # Instead we append a random hex string to the original, transliterated
+            # filename to prevent collisions and then generate 2 levels of
+            # subdirectories from the last 4 chars, this gives us 256 * 256
+            # directories into which the files will be sorted evenly.
+            namer: App\Uploader\UniqueFileNamer
+            directory_namer:
+                service: App\Uploader\ReverseSubdirDirectoryNamer
+                options: {chars_per_dir: 2, dirs: 2}
+
+        private_file:
+            upload_destination: private.storage
+            delete_on_update: true
+            delete_on_remove: true
+            namer: App\Uploader\UniqueFileNamer
+            directory_namer:
+                service: App\Uploader\ReverseSubdirDirectoryNamer
+                options: {chars_per_dir: 2, dirs: 2}
