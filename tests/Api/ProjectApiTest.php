@@ -2190,7 +2190,7 @@ class ProjectApiTest extends ApiTestCase
             '@context'          => '/contexts/Error',
             '@type'             => 'hydra:Error',
             'hydra:title'       => 'An error occurred',
-            'hydra:description' => 'No route found for "DELETE /projects": Method Not Allowed (Allow: GET, POST)',
+            'hydra:description' => 'No route found for "DELETE http://example.com/projects": Method Not Allowed (Allow: GET, POST)',
         ]);
     }
 

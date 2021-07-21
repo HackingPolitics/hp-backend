@@ -597,7 +597,7 @@ class ValidationApiTest extends ApiTestCase
             '@context'          => '/contexts/Error',
             '@type'             => 'hydra:Error',
             'hydra:title'       => 'An error occurred',
-            'hydra:description' => 'No route found for "DELETE /validations/1": Method Not Allowed (Allow: GET)',
+            'hydra:description' => 'No route found for "DELETE http://example.com/validations/1": Method Not Allowed (Allow: GET)',
         ]);
     }
 
@@ -618,7 +618,7 @@ class ValidationApiTest extends ApiTestCase
             '@context'          => '/contexts/Error',
             '@type'             => 'hydra:Error',
             'hydra:title'       => 'An error occurred',
-            'hydra:description' => 'No route found for "DELETE /validations"',
+            'hydra:description' => 'No route found for "DELETE http://example.com/validations"',
         ]);
     }
 

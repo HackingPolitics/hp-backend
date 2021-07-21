@@ -2174,7 +2174,7 @@ class UserApiTest extends ApiTestCase
             '@context'          => '/contexts/Error',
             '@type'             => 'hydra:Error',
             'hydra:title'       => 'An error occurred',
-            'hydra:description' => 'No route found for "DELETE /users": Method Not Allowed (Allow: GET, POST)',
+            'hydra:description' => 'No route found for "DELETE http://example.com/users": Method Not Allowed (Allow: GET, POST)',
         ]);
     }
 
