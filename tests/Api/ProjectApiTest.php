@@ -542,10 +542,10 @@ class ProjectApiTest extends ApiTestCase
                     'proposals' => [
                         0 => [
                             'id'            => TestFixtures::PROPOSAL_1['id'],
-                            'actionMandate' => 'proposal action-mandate',
+                            'actionMandate' => '<ul><li>proposal</li><li>action-mandate</li></ul>',
                             'comment'       => 'proposal comment',
-                            'introduction'  => 'proposal introduction',
-                            'reasoning'     => 'proposal reasoning',
+                            'introduction'  => 'proposal <b>introduction</b>',
+                            'reasoning'     => '<em>proposal reasoning</em>',
                             'sponsor'       => 'interfraktionell',
                             'title'         => 'proposal title',
 
@@ -973,10 +973,10 @@ class ProjectApiTest extends ApiTestCase
             'proposals' => [
                 0 => [
                     'id'            => TestFixtures::PROPOSAL_1['id'],
-                    'actionMandate' => 'proposal action-mandate',
+                    'actionMandate' => '<ul><li>proposal</li><li>action-mandate</li></ul>',
                     'comment'       => 'proposal comment',
-                    'introduction'  => 'proposal introduction',
-                    'reasoning'     => 'proposal reasoning',
+                    'introduction'  => 'proposal <b>introduction</b>',
+                    'reasoning'     => '<em>proposal reasoning</em>',
                     'sponsor'       => 'interfraktionell',
                     'title'         => 'proposal title',
 
@@ -1166,10 +1166,10 @@ class ProjectApiTest extends ApiTestCase
             'proposals' => [
                 0 => [
                     'id'            => TestFixtures::PROPOSAL_1['id'],
-                    'actionMandate' => 'proposal action-mandate',
+                    'actionMandate' => '<ul><li>proposal</li><li>action-mandate</li></ul>',
                     'comment'       => 'proposal comment',
-                    'introduction'  => 'proposal introduction',
-                    'reasoning'     => 'proposal reasoning',
+                    'introduction'  => 'proposal <b>introduction</b>',
+                    'reasoning'     => '<em>proposal reasoning</em>',
                     'sponsor'       => 'interfraktionell',
                     'title'         => 'proposal title',
 

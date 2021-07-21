@@ -145,10 +145,10 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
     public const PROPOSAL_1 = [
         'id'            => 1,
         'title'         => 'proposal title',
-        'introduction'  => 'proposal introduction',
+        'introduction'  => 'proposal <b>introduction</b>',
         'comment'       => 'proposal comment',
-        'actionMandate' => 'proposal action-mandate',
-        'reasoning'     => 'proposal reasoning',
+        'actionMandate' => '<ul><li>proposal</li><li>action-mandate</li></ul>',
+        'reasoning'     => '<em>proposal reasoning</em>',
         'sponsor'       => 'interfraktionell',
     ];
 
@@ -379,10 +379,6 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         $project->addProblem($problem1);
 
         $proposal1 = $this->createProposal(self::PROPOSAL_1);
-        $proposal1->setSponsor('Intergalaktisch');
-        $proposal1->setIntroduction('<p>This is <b>HTML</b> with <em>viel</em> sinnfreiem Text</p>');
-        $proposal1->setActionMandate('<ul><li>Mache er das</li><li>Und dann gleich noch mal</li></ul>');
-        $proposal1->setReasoning('<p>Weil es so am <br />besten<br />ist.</p>');
         $proposal1->setUpdatedBy($processManager);
         $project->addProposal($proposal1);
 
