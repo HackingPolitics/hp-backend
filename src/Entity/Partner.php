@@ -72,8 +72,11 @@ class Partner
 
     //region ContactEmail
     /**
-     * @Assert\Email
-     * @Assert\Length(max=255)
+     * @Assert\Sequentially({
+     *     @Assert\Email,
+     *     @Assert\Length(max=255),
+     *     @VrokAssert\NoLineBreaks,
+     * })
      * @Groups({"partner:read", "partner:write", "project:read"})
      * @ORM\Column(type="text", length=255, nullable=true)
      */

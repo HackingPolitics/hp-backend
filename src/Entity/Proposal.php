@@ -280,6 +280,7 @@ class Proposal
     /**
      * @Assert\Sequentially({
      *     @Assert\NotBlank,
+     *     @VrokAssert\NoLineBreaks,
      *     @Assert\Length(max=1000),
      * })
      * @Groups({"proposal:read", "proposal:write", "project:read"})
