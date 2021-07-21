@@ -53,7 +53,7 @@ class UsedActionMandateApiTest extends ApiTestCase
             '@context'          => '/contexts/Error',
             '@type'             => 'hydra:Error',
             'hydra:title'       => 'An error occurred',
-            'hydra:description' => 'No route found for "GET /used_action_mandates": Method Not Allowed (Allow: POST)',
+            'hydra:description' => 'No route found for "GET http://example.com/used_action_mandates": Method Not Allowed (Allow: POST)',
         ]);
     }
 
@@ -263,7 +263,7 @@ class UsedActionMandateApiTest extends ApiTestCase
             '@context'          => '/contexts/Error',
             '@type'             => 'hydra:Error',
             'hydra:title'       => 'An error occurred',
-            'hydra:description' => 'No route found for "PUT /used_action_mandates/1": Method Not Allowed (Allow: GET, DELETE)',
+            'hydra:description' => 'No route found for "PUT http://example.com/used_action_mandates/1": Method Not Allowed (Allow: GET, DELETE)',
         ]);
     }
 

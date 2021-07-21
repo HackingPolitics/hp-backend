@@ -54,7 +54,7 @@ class PartnerApiTest extends ApiTestCase
             '@context'          => '/contexts/Error',
             '@type'             => 'hydra:Error',
             'hydra:title'       => 'An error occurred',
-            'hydra:description' => 'No route found for "GET /partners": Method Not Allowed (Allow: POST)',
+            'hydra:description' => 'No route found for "GET http://example.com/partners": Method Not Allowed (Allow: POST)',
         ]);
     }
 

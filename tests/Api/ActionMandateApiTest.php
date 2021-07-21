@@ -51,7 +51,7 @@ class ActionMandateApiTest extends ApiTestCase
             '@context'          => '/contexts/Error',
             '@type'             => 'hydra:Error',
             'hydra:title'       => 'An error occurred',
-            'hydra:description' => 'No route found for "GET /action_mandates": Method Not Allowed (Allow: POST)',
+            'hydra:description' => 'No route found for "GET http://example.com/action_mandates": Method Not Allowed (Allow: POST)',
         ]);
     }
 

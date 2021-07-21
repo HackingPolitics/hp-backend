@@ -52,7 +52,7 @@ class FractionInterestApiTest extends ApiTestCase
             '@context'          => '/contexts/Error',
             '@type'             => 'hydra:Error',
             'hydra:title'       => 'An error occurred',
-            'hydra:description' => 'No route found for "GET /fraction_interests": Method Not Allowed (Allow: POST)',
+            'hydra:description' => 'No route found for "GET http://example.com/fraction_interests": Method Not Allowed (Allow: POST)',
         ]);
     }
 

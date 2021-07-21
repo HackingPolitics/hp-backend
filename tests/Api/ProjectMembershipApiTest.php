@@ -89,7 +89,7 @@ class ProjectMembershipApiTest extends ApiTestCase
             '@context'          => '/contexts/Error',
             '@type'             => 'hydra:Error',
             'hydra:title'       => 'An error occurred',
-            'hydra:description' => 'No route found for "GET /project_memberships": Method Not Allowed (Allow: POST)',
+            'hydra:description' => 'No route found for "GET http://example.com/project_memberships": Method Not Allowed (Allow: POST)',
         ]);
     }
 
