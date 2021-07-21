@@ -485,6 +485,65 @@ class ProposalApiTest extends ApiTestCase
         ]);
     }
 
+
+    public function testExport(): void
+    {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROJECT_COORDINATOR['email'],
+        ]);
+
+        $proposalIri = $this->findIriBy(Proposal::class, ['id' => 1]);
+        $client->request('POST', $proposalIri.'/export',
+            ['json' => []]);
+
+        static::assertResponseStatusCodeSame(202);
+
+        $messenger = self::getContainer()->get('messenger.default_bus');
+        $messages = $messenger->getDispatchedMessages();
+        self::assertCount(1, $messages);
+        self::assertInstanceOf(ExportProposalMessage::class,
+            $messages[0]['message']);
+    }
+
+    public function testExportFailsUnauthorized(): void
+    {
+        $client = static::createClient();
+        $proposalIri = $this->findIriBy(Proposal::class, ['id' => 1]);
+        $client->request('POST', $proposalIri.'/export',
+            ['json' => []]);
+
+        self::assertResponseStatusCodeSame(401);
+        self::assertResponseHeaderSame('content-type',
+            'application/json');
+
+        self::assertJsonContains([
+            'code'    => 401,
+            'message' => 'JWT Token not found',
+        ]);
+    }
+
+    public function testExportFailsWithoutPrivilege(): void
+    {
+        $client = static::createAuthenticatedClient([
+            'email' => TestFixtures::PROJECT_OBSERVER['email'],
+        ]);
+
+        $proposalIri = $this->findIriBy(Proposal::class, ['id' => 1]);
+        $client->request('POST', $proposalIri.'/export',
+            ['json' => []]);
+
+        self::assertResponseStatusCodeSame(403);
+        self::assertResponseHeaderSame('content-type',
+            'application/ld+json; charset=utf-8');
+
+        self::assertJsonContains([
+            '@context'          => '/contexts/Error',
+            '@type'             => 'hydra:Error',
+            'hydra:title'       => 'An error occurred',
+            'hydra:description' => 'Access Denied.',
+        ]);
+    }
+
     public function testDownloadDocument(): void
     {
         $client = static::createClient();

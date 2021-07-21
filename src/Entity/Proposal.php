@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Controller\ExportProposalAction;
 use App\Entity\Traits\AutoincrementId;
 use App\Entity\Traits\UpdatedAtFunctions;
 use App\Entity\UploadedFileTypes\ProposalDocument;
@@ -49,6 +50,13 @@ use Vrok\SymfonyAddons\Validator\Constraints as VrokAssert;
  *         },
  *         "delete"={
  *              "security"="is_granted('DELETE', object)",
+ *         },
+ *         "export"={
+ *             "controller"=ExportProposalAction::class,
+ *             "method"="POST",
+ *             "path"="/proposals/{id}/export",
+ *             "security"="is_granted('EDIT', object)",
+ *             "validation_groups"={"Default", "proposal:export"},
  *         },
  *     },
  *     normalizationContext={
