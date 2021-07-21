@@ -20,6 +20,7 @@ use App\Entity\Problem;
 use App\Entity\Project;
 use App\Entity\ProjectMembership;
 use App\Entity\Proposal;
+use App\Entity\UploadedFileTypes\ProposalDocument;
 use App\Entity\UsedActionMandate;
 use App\Entity\UsedArgument;
 use App\Entity\UsedCounterArgument;
@@ -411,6 +412,13 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         $usedProblem->setCreatedBy($admin);
         $problem1->addUsage($usedProblem);
         $proposal1->addUsedProblem($usedProblem);
+
+        $document = new ProposalDocument();
+        $document->setName('fake-abcd.odt');
+        $document->setOriginalName('fake.odt');
+        $document->setMimeType('application/vnd.oasis.opendocument.text');
+        $document->setSize(999);
+        $proposal1->setDocumentFile($document);
 
         $proposal2 = $this->createProposal(self::PROPOSAL_2);
         $proposal2->setUpdatedBy($admin);

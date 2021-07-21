@@ -544,6 +544,12 @@ class ProjectApiTest extends ApiTestCase
                             'id'            => TestFixtures::PROPOSAL_1['id'],
                             'actionMandate' => '<ul><li>proposal</li><li>action-mandate</li></ul>',
                             'comment'       => 'proposal comment',
+                            'documentFile'  => [
+                                'contentUrl'   => '/proposals/1/document-download',
+                                'name'         => 'fake-abcd.odt',
+                                'originalName' => 'fake.odt',
+                                'mimeType'     => 'application/vnd.oasis.opendocument.text',
+                            ],
                             'introduction'  => 'proposal <b>introduction</b>',
                             'reasoning'     => '<em>proposal reasoning</em>',
                             'sponsor'       => 'interfraktionell',
@@ -1168,6 +1174,12 @@ class ProjectApiTest extends ApiTestCase
                     'id'            => TestFixtures::PROPOSAL_1['id'],
                     'actionMandate' => '<ul><li>proposal</li><li>action-mandate</li></ul>',
                     'comment'       => 'proposal comment',
+                    'documentFile'  => [
+                        'contentUrl'   => '/proposals/1/document-download',
+                        'name'         => 'fake-abcd.odt',
+                        'originalName' => 'fake.odt',
+                        'mimeType'     => 'application/vnd.oasis.opendocument.text',
+                    ],
                     'introduction'  => 'proposal <b>introduction</b>',
                     'reasoning'     => '<em>proposal reasoning</em>',
                     'sponsor'       => 'interfraktionell',
@@ -1239,8 +1251,9 @@ class ProjectApiTest extends ApiTestCase
                     ],
                 ],
                 1 => [
-                    'id'      => TestFixtures::PROPOSAL_2['id'],
-                    'sponsor' => 'Green',
+                    'id'           => TestFixtures::PROPOSAL_2['id'],
+                    'documentFile' => null,
+                    'sponsor'      => 'Green',
                 ],
             ],
         ]);
