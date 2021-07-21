@@ -638,12 +638,18 @@ class ProposalApiTest extends ApiTestCase
     {
         $client = static::createClient();
 
+        // remove the demo record created by the fixtures
+        $em = static::getContainer()->get('doctrine')->getManager();
+        $proposal = $em->getRepository(Proposal::class)->find(1);
+        $proposal->setDocumentFile(null);
+        $em->flush();
+
         $proposalIri = $this->findIriBy(Proposal::class, ['id' => 1]);
         $token = static::getJWT(static::getContainer(), [
             'email' => TestFixtures::PROJECT_OBSERVER['email'],
         ]);
 
-        // we need to use the getKernelBrowser() to send an form-encoded request
+        // we need to use the getKernelBrowser() to send a form-encoded request
         $client->getKernelBrowser()->request('POST', $proposalIri.'/document-download', [
             'bearer' => $token,
         ]);
@@ -660,7 +666,7 @@ class ProposalApiTest extends ApiTestCase
             'email' => TestFixtures::PROJECT_OBSERVER['email'],
         ]);
 
-        // we need to use the getKernelBrowser() to send an form-encoded request
+        // we need to use the getKernelBrowser() to send a form-encoded request
         $client->getKernelBrowser()->request('GET', $proposalIri.'/document-download', [
             'bearer' => $token,
         ]);
