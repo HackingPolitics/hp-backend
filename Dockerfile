@@ -18,7 +18,7 @@ COPY docker/php/supervisord.conf /etc/supervisor/supervisord.conf
 ARG APP_ENV=prod
 ENV APP_ENV $APP_ENV
 
-# prevent the reinstallation of vendors at every changes in the source code
+# prevent the reinstallation of dependencies at every change in the source code
 COPY composer.json composer.lock symfony.lock ./
 RUN set -eux; \
 	COMPOSER_MEMORY_LIMIT=-1 composer install --prefer-dist --no-dev --no-scripts --no-progress; \
@@ -42,7 +42,7 @@ RUN set -eux; \
 	composer run-script --no-dev post-install-cmd; \
 	chmod +x bin/console; \
 	sync
-VOLUME /srv/api/var
+VOLUME /srv/api/var/storage
 
 COPY docker/php/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
 RUN chmod +x /usr/local/bin/docker-entrypoint
@@ -52,16 +52,10 @@ CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
 
 # "nginx" stage
 # depends on the "php" stage above
-FROM nginx:1.19-alpine AS api_platform_nginx
+FROM nginx:1-alpine AS api_platform_nginx
 
 COPY docker/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
 
 WORKDIR /srv/api
 
 COPY --from=api_platform_php /srv/api/public public/
-
-# "varnish" stage
-# does not depend on any of the above stages, but placed here to keep everything in one Dockerfile
-FROM cooptilleuls/varnish:6.2-alpine AS api_platform_varnish
-
-COPY docker/varnish/conf/default.vcl /usr/local/etc/varnish/default.vcl

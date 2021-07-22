@@ -80,3 +80,36 @@ jobs:
           export PATH="$PATH:$HOME/.composer/vendor/bin"
           coveralls build/logs/phpunit/clover.xml
         continue-on-error: true
+
+  docker:
+    name: Push Docker image to Docker Hub
+    needs: phpunit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@v2
+      - name: Log in to Docker Hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          username: ${{ secrets.DOCKER_HUB_USER }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        if: github.event_name != 'pull_request'
+        uses: docker/metadata-action@v3
+        with:
+          images: jschumanndd/hp-backend
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        if: github.event_name != 'pull_request'
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

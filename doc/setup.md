@@ -21,7 +21,17 @@ define the URL the API runs on.
 Requirements are a MariaDB/MySQL database (e.g. in separate container) and
 a Redis container for caching.
 
-## Create Docker container
+## Development
+
+For development the project contains a folder `.dev-hpo`. This demonstrates how
+to setup a DEV environment including PHP + MySQL. That folder can be used in
+_PhpStorm_ to run unit-tests & debug session from within the IDE by using File >
+Settings > PHP > CLI Interpreter and then adding a new entry "from Docker" and
+configuring the _docker-compose.yml_ from the `.dev-hpo` folder.  
+The _docker-compose.yml_ needs to be adjusted to your system, depending on
+wether your docker service runs locally or within a VM etc.
+
+## Create the Docker container
 
 Create a custom Dockerfile or use the three files below
 
