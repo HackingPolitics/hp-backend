@@ -1,4 +1,4 @@
-# Monitoring
+# Monitoring with Nagios / Icinga
 ## Symfony side
 With vrok/monitoring-bundle we can schedule a CLI command via cron
 to execute every half hour:
@@ -65,7 +65,7 @@ object CheckCommand "check_service_alive" {
 }
 ```
 
-Also the service definition:
+Also add the service definition:
 ```
 // Symfony Service Check (innerhalb der letzten Stunde muss eine Mai mit dem angegebenem Betreff eingegangen sein)
 apply Service for (name => subject in host.vars.service_alive) {

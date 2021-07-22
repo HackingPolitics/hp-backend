@@ -1,4 +1,4 @@
 framework:
     mailer:
         envelope:
-            recipients: ['j_schumann@gmx.de']
+            recipients: ['%env(TEST_MAIL_RECEIVER)%']

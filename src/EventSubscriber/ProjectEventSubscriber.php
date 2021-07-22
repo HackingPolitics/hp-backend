@@ -19,16 +19,13 @@ use App\Event\Entity\ProjectPostUpdateEvent;
 use App\Event\Entity\ProjectPreCreateEvent;
 use App\Event\Entity\ProjectPreUpdateEvent;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\Service\ServiceSubscriberInterface;
 use Symfony\Contracts\Service\ServiceSubscriberTrait;
-use Vrok\SymfonyAddons\Event\CronDailyEvent;
 
 class ProjectEventSubscriber implements EventSubscriberInterface, ServiceSubscriberInterface
 {
@@ -66,13 +63,6 @@ class ProjectEventSubscriber implements EventSubscriberInterface, ServiceSubscri
 
             ProjectPreCreateEvent::class => [
                 ['onPreCreate', 100],
-            ],
-            ProjectPreUpdateEvent::class => [
-                ['onPreUpdate', 100],
-            ],
-
-            CronDailyEvent::class => [
-                ['onCronDaily', 100],
             ],
         ];
     }
@@ -153,30 +143,12 @@ class ProjectEventSubscriber implements EventSubscriberInterface, ServiceSubscri
         $this->entityManager()->persist($log);
     }
 
-    public function onPreUpdate(ProjectPreUpdateEvent $event): void
-    {
-    }
-
-    public function onCronDaily(): void
-    {
-    }
-
     private function dispatcher(): EventDispatcherInterface
     {
         return $this->container->get(__METHOD__);
     }
 
     private function entityManager(): EntityManagerInterface
-    {
-        return $this->container->get(__METHOD__);
-    }
-
-    private function logger(): LoggerInterface
-    {
-        return $this->container->get(__METHOD__);
-    }
-
-    private function messageBus(): MessageBusInterface
     {
         return $this->container->get(__METHOD__);
     }

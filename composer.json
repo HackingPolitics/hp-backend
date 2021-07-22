@@ -2,7 +2,7 @@
     "name": "hacking-politics/hpo-backend",
     "description": "REST API for hackingPoliticsOnline",
     "type": "project",
-    "license": "proprietary",
+    "license": "MIT",
     "require": {
         "php": "^7.4",
         "ext-amqp": "*",
@@ -39,7 +39,6 @@
         "doctrine/doctrine-fixtures-bundle": "^3.4.0",
         "friendsofphp/php-cs-fixer": "^3.0.0",
         "justinrainbow/json-schema": "^5.2.10",
-        "league/flysystem-memory": "^2.0.6",
         "phpunit/phpunit": "^8.5.18",
         "roave/security-advisories": "dev-latest",
         "symfony/debug-pack": "^1.0.9",

@@ -48,7 +48,7 @@ an dieser Stelle auch zulässig sind. Wenn also eine Übersetzung innerhalb eine
 ausgegeben wird darf sie selbst keine `<p>`-Tags enthalten da dies ungültiges HTML erzeugen würde. 
 Dies ist also vor Verwendung der Tags entsprechend zu prüfen.
 
-Generell ist mit HTML welches das Layout beeinflusst sparsam umzugehen
+Generell ist mit HTML, welches das Layout beeinflusst, sparsam umzugehen
 da eine Übersetzung in verschiedenen Szenarien zum Einsatz kommen kann
 (Breitbild vs. Mobilgerät, Browser vs. Email) und dort jeweils andere
 Platzverhältnisse und Funktionalitäten existieren.
@@ -98,15 +98,16 @@ Hier werden in der _validators.de|en.xlf_ und security.de|en.xlf_ die automatisc
 Fehlermeldungen für Javascript übersetzbar gemacht. 
 _messages.de|en.xlf_ enthält die Übersetzungen für Email-Texte, Betreffs etc.
 
-HTML muss mittels CDATA-Tag escaped werden, Parameter werden mit %-Zeichen umschlossen:
+HTML muss mittels CDATA-Tag escaped werden, Parameter werden mit geschweiften 
+Klammern umschlossen:
 ```xml
     <target><![CDATA[
     <ul>
         <li>
-            Benutzername: %username%
+            Benutzername: {username}
         </li>
         <li>
-            Email: %useremail%
+            Email: {useremail}
         </li>
     </ul>
    ]]></target>

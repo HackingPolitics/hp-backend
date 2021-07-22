@@ -1,14 +1,22 @@
 # Used dependencies
-* antishov/doctrine-extensions-bundle - automatically manage
-  slugs, creation date etc for our entities, use instead of
-  stof/doctrine-extensions-bundle for Symfony 4+ compatibility
+* catoth/html2opendocument - to generate ODT files from HTML entered by the users
+  as phpoffice/phpword cannot really handle HTML conversion (2021-07-20)
+* league/flysystem-bundle - filesystem abstraction so we can switch the storage
+  of private files (document exports) or public files (user upload like project
+  pictures) to different backends (local filesystem, AWS S3, ...)
 * lexik/jwt-authentication-bundle - JWT generation & handling for api platform
-* symfony/monolog-bundle and symfony/stopwatch are installed automatically by @todo,
-  but using composer to generate a no-dev classmap excludes the corresponding
-  classes while they are still used -> added to the required packages
+  * janakdom/jwt-refresh-token-bundle - manage Refresh Tokens for lexik/jwt
+* stof/doctrine-extensions-bundle - automatically manage
+  slugs, creation date etc for our entities
+* symfony/monolog-bundle + graylog2/gelf-php - to be able to filter logs for
+  different environments and log to different backends (file, GELF / logstash, ...)
 * tuupola/base62 - to generate tokens with [A-Za-z0-9] instead of hex chars to
-  reduce URL length
+  reduce URL length, e.g. for validation URLs
 * twig/extensions - for localizedDate in templates etc.
+* ueberdosis/html-to-prosemirror / ueberdosis/prosemirror-to-html to support
+  collaborative real-time editing
+* vich/uploader-bundle - for file uploads and downloads to/from our storage
+  backend (flysystem)
 
 
 ## Development-only dependencies

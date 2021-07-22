@@ -11,7 +11,6 @@ parameters:
     default_timezone: "%env(DEFAULT_TZ)%"
     # @todo move to configuration
     user.validation_required: "%env(bool:USER_VALIDATION_REQUIRED)%"
-    project.inactive_threshold: "%env(int:PROJECT_INACTIVE_THRESHOLD)%"
 
 services:
     # default configuration for services in *this* file

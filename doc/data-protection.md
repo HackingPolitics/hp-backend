@@ -12,8 +12,8 @@ Datum|Zweck
 Email|zur Authentifizierung, Kommunikation zum Benutzerkonto und Benachrichtigung bei relevanten Aktivitäten auf der Plattform
 Benutzername|zur Authentifizierung und Identifizierung auf der Plattform
 Passwort|zur Authentifizierung
-Vorname (wenn angegeben)|zur Übernahme in den Förderantrag
-Nachname (wenn angegeben)|zur Übernahme in den Förderantrag
+Vorname (wenn angegeben)|zur Anzeige in der Oberfläche
+Nachname (wenn angegeben)|zur Anzeige in der Oberfläche
 
 Diese Informationen werden gelöscht (wenn auch das Benutzerobjekt
 selbst ggf. erhalten bleibt) wenn:

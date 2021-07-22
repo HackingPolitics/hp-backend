@@ -191,9 +191,6 @@
             "ref": "446659fccbea4a0076de3d59268fc7d478c48296"
         }
     },
-    "league/flysystem-memory": {
-        "version": "2.0.6"
-    },
     "league/mime-type-detection": {
         "version": "1.7.0"
     },

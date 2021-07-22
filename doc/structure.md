@@ -20,7 +20,7 @@
 
 ## Validatoren
 * Nach Möglichkeit sollte in der Datenbank alles nullable sein um Platz zu sparen
-  und Felder ohne Schemaänderung via Code Pflichtfelder zu machen oder nicht
+  und Felder ohne Schemaänderung via Code als Pflichtfeld zu markieren oder nicht
 * Um bei der Weiterverarbeitung aber keine Typprüfung zu erfordern sollten die
   Getter den jeweiligen Typ zurückgeben (leeren String, leeres Array) statt NULL:
   ```$this->property ?? ''``` oder ```$this->property ?? []``` o.ä.
@@ -42,11 +42,12 @@
 ## DataPersisters
 
 * Symfony autoregisters the DataPersisters in the src-directory
-* ApiPlatform uses its ChainDataPersister to call all other
+* ApiPlatform uses its _ChainDataPersister_ to call all other
   registered persisters
 * the first persister that supports the given resource is called,
   the others are skipped (unless Resumable), so $em->flush is not called
   twice, see below
-* UserDataPersister wraps the DoctrinePersister,
-  not decorate it. This means the original DoctrinePersister is not called
-  for those two resources, so we cannot decorate it to trigger pre/post persist events
+* _UserDataPersister_, _CouncilDataPersister_ and _ProjectDataPersister_ wrap
+  the _DoctrinePersister_, not decorate it. This means the original
+  _DoctrinePersister_ is not called for those resources, so we cannot decorate
+  it to trigger pre/post persist events
