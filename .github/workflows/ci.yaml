@@ -106,7 +106,7 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USER }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
+      - name: Extract metadata (tags, labels) for PHP
         id: phpmeta
         if: github.event_name != 'pull_request'
         uses: docker/metadata-action@v3
@@ -118,7 +118,6 @@ jobs:
             type=semver,pattern={{major}}
           flavor: |
             latest=auto
-            prefix=nginx-
 
       - name: Build and push PHP image
         if: github.event_name != 'pull_request'
@@ -132,7 +131,7 @@ jobs:
           cache-from: type=registry,ref=jschumanndd/hp-backend
           cache-to: type=inline
 
-      - name: Extract metadata (tags, labels) for Docker #2
+      - name: Extract metadata (tags, labels) for Nginx
         id: nginxmeta
         if: github.event_name != 'pull_request'
         uses: docker/metadata-action@v3
