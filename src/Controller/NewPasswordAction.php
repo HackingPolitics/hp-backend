@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class NewPasswordAction
 {
@@ -20,7 +20,7 @@ class NewPasswordAction
         User $data,
         ManagerRegistry $registry,
         MessageBusInterface $bus,
-        UserPasswordEncoderInterface $passwordEncoder
+        UserPasswordHasherInterface $passwordHasher
     ): JsonResponse {
         // DTO was validated by the DataTransformer, validationUrl
         // should be there
@@ -30,7 +30,7 @@ class NewPasswordAction
         // the users current password, e.g. when there is reason to
         // believe it was hacked
         $data->setPassword(
-            $passwordEncoder->encodePassword(
+            $passwordHasher->hashPassword(
                 $data,
                 random_bytes(25)
             )

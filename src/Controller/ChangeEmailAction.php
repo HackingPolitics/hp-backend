@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class ChangeEmailAction
 {
@@ -22,14 +22,14 @@ class ChangeEmailAction
         User $data,
         ManagerRegistry $registry,
         MessageBusInterface $bus,
-        UserPasswordEncoderInterface $passwordEncoder,
+        UserPasswordHasherInterface $passwordHasher,
         ValidatorInterface $validator
     ) {
         // DTO was validated by the DataTransformer,
         // email, confirmationPassword & validationUrl should be there
-        $params = json_decode($request->getContent(), true);
+        $params = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
-        $check = $passwordEncoder->isPasswordValid($data, $params['confirmationPassword']);
+        $check = $passwordHasher->isPasswordValid($data, $params['confirmationPassword']);
         if (!$check) {
             throw new BadRequestHttpException('validate.user.passwordMismatch');
         }

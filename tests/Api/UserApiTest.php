@@ -19,7 +19,7 @@ use App\Message\UserForgotPasswordMessage;
 use App\Message\UserRegisteredMessage;
 use App\Util\DateHelper;
 use DateTimeImmutable;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Vrok\SymfonyAddons\PHPUnit\AuthenticatedClientTrait;
 use Vrok\SymfonyAddons\PHPUnit\RefreshDatabaseTrait;
 
@@ -2854,8 +2854,8 @@ class UserApiTest extends ApiTestCase
             'message' => 'Password changed',
         ]);
 
-        /** @var UserPasswordEncoderInterface $pwe */
-        $pwe = static::getContainer()->get(UserPasswordEncoderInterface::class);
+        /** @var UserPasswordHasherInterface $pwe */
+        $pwe = static::getContainer()->get(UserPasswordHasherInterface::class);
 
         $em = static::getContainer()->get('doctrine')->getManager();
         $user = $em->getRepository(User::class)

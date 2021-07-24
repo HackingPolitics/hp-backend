@@ -17,7 +17,7 @@ fi
 
 # check if private key exists and is decryptable with current passphrase
 if [ -f config/jwt/private.pem ] &&  echo "$JWT_PASSPHRASE" | openssl pkey -in config/jwt/private.pem -passin stdin -noout > /dev/null 2>&1; then
-  echo "Private key up to date with configured passphrase, exiting ..."
+  echo "Private key up to date with configured passphrase!"
   exit 0
 fi
 

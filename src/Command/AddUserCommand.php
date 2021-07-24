@@ -17,7 +17,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -33,17 +33,17 @@ class AddUserCommand extends Command
     private SymfonyStyle $io;
 
     private EntityManagerInterface $entityManager;
-    private UserPasswordEncoderInterface $passwordEncoder;
+    private UserPasswordHasherInterface $passwordHasher;
     private ValidatorInterface $validator;
 
     public function __construct(
         EntityManagerInterface $em,
-        UserPasswordEncoderInterface $encoder,
+        UserPasswordHasherInterface $passwordHasher,
         ValidatorInterface $validator
     ) {
         parent::__construct();
         $this->entityManager = $em;
-        $this->passwordEncoder = $encoder;
+        $this->passwordHasher = $passwordHasher;
         $this->validator = $validator;
     }
 
@@ -173,7 +173,7 @@ HELP;
             $this->io->comment(sprintf('Using generated password: %s', $plainPassword));
         }
 
-        $encodedPassword = $this->passwordEncoder->encodePassword($user, $plainPassword);
+        $encodedPassword = $this->passwordHasher->hashPassword($user, $plainPassword);
         $user->setPassword($encodedPassword);
 
         // make sure the user data is correct

@@ -28,14 +28,14 @@ class ValidationInputDataTransformer implements DataTransformerInterface
     /**
      * {@inheritdoc}
      *
-     * @param ValidationInput $data
+     * @param ValidationInput $object
      *
      * @return Validation
      */
-    public function transform($data, string $to, array $context = [])
+    public function transform($object, string $to, array $context = [])
     {
         // this evaluates all constraint annotations on the DTO
-        $this->validator->validate($data);
+        $this->validator->validate($object);
 
         /** @var ?Validation $validation */
         $validation = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE]

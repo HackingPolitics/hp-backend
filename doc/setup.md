@@ -24,67 +24,34 @@ a Redis container for caching.
 ## Development
 
 For development the project contains a folder `.dev-hpo`. This demonstrates how
-to setup a DEV environment including PHP + MySQL. That folder can be used in
-_PhpStorm_ to run unit-tests & debug session from within the IDE by using File >
-Settings > PHP > CLI Interpreter and then adding a new entry "from Docker" and
+to setup a DEV environment including PHP + MySQL. This expects the source code
+(and all other files) to be mounted. That folder can be used in _PhpStorm_ to
+run unit-tests & debug session from within the IDE by using File > Settings >
+PHP > CLI Interpreter and then adding a new entry "from Docker" and
 configuring the _docker-compose.yml_ from the `.dev-hpo` folder.  
 The _docker-compose.yml_ needs to be adjusted to your system, depending on
 wether your docker service runs locally or within a VM etc.
 
-## Create the Docker container
+## Production setup
 
-Create a custom Dockerfile or use the three files below
+The repository contains a _Dockerfile_ in the root directory and additional setup
+files in _/docker_. You can use this to build two containers:
 
-* Dockerfile
-```
-FROM vrokdd/php:symfony
+1. an all-in-one PHP container that runs PHP-FPM to serve web requests, runs
+   cron to trigger hourly/daily tasks and runs the messenger queue worker to
+   process background tasks.
+2. a Nginx webserver that serves static files and the application on port 80
 
-COPY ./crontab /etc/crontab
-
-COPY ./docker-entrypoint.sh /usr/local/bin/docker-entrypoint
-RUN chmod +x /usr/local/bin/docker-entrypoint
-ENTRYPOINT ["docker-entrypoint"]
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
-```
-
-* docker-entrypoint.sh
-```
-#!/bin/sh
-set -e
-
-if [ "$APP_ENV" != 'prod' ]; then
-    jwt_passphrase=$(grep '^JWT_PASSPHRASE=' .env | cut -f 2 -d '=')
-    if [ ! -f config/jwt/private.pem ] || ! echo "$jwt_passphrase" | openssl pkey -in config/jwt/private.pem -passin stdin -noout > /dev/null 2>&1; then
-        echo "Generating public / private keys for JWT"
-        mkdir -p config/jwt
-        echo "$jwt_passphrase" | openssl genpkey -out config/jwt/private.pem -pass stdin -aes256 -algorithm rsa -pkeyopt rsa_keygen_bits:4096
-        echo "$jwt_passphrase" | openssl pkey -in config/jwt/private.pem -passin stdin -out config/jwt/public.pem -pubout
-        chown -R www-data:www-data config/jwt
-    fi
-fi
-
-echo "Waiting for db to be ready..."
-until bin/console doctrine:query:sql "SELECT 1" > /dev/null 2>&1; do
-    sleep 1
-done
-
-if [ "$APP_ENV" != 'prod' ]; then
-    bin/console doctrine:schema:update --force --no-interaction
-fi
-
-exec docker-php-entrypoint "$@"
+Those containers are also available prebuilt with the latest stable version:
+```shell
+docker pull jschumanndd/hp-backend:main
+docker pull jschumanndd/hp-backend:nginx-main
 ```
 
-* crontab
-```
-1 0 * * * www-data /usr/local/bin/php /var/www/html/bin/console cron:daily
-0 * * * * www-data /usr/local/bin/php /var/www/html/bin/console cron:hourly
-```
-
-Setup in docker-compose.yaml
+### Example docker-compose.yaml
 ```
  hpoapi:
-    build: hpo-api
+    image: jschumanndd/hp-backend:main
     restart: on-failure:5
     container_name: hpoapi
     cpu_shares: 512
@@ -96,9 +63,14 @@ Setup in docker-compose.yaml
       - apparmor:docker-default
     environment:
       - APP_ENV=prod
+      - APP_SECRET=!ChangeMe!
+      - DATABASE_URL=//dbuser:dbpasswd@mysql/dbname
+      - JWT_PASSPHRASE=!ChangeMe!
+      - MAILER_DSN=smtp://username:password@server:587
+      - MAILER_SENDER="Your HP <email@domain.tld>"
     volumes:
-      - /var/www/your-vhost/application-dir:/var/www/html
-      - /var/www/your-vhost/log:/var/www/log
+      - /path/to/storage-dir:/var/www/html
+      - /path/to/log-dir:/var/www/log
     links:
       - your-db-container:mysql
   redishpoapi:
@@ -113,11 +85,9 @@ Setup in docker-compose.yaml
       - apparmor:docker-default
 ```
 
-## Install Application
-* create empty database & db-user 
-* clone the repository to /var/www/your-vhost/application-dir
-* create the .env.local
-  * configure the mailer + database connection
+### Application setup
+* create an empty database & corresponding db-user 
+* prepare the environment
 * for production: create the JWT keys (see commands.md)
   * set the passphrase used in .env.local
 * `composer install` (inside or outside of the container)

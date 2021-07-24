@@ -47,34 +47,34 @@ class ProjectInputDataTransformer implements DataTransformerInterface
     /**
      * {@inheritdoc}
      *
-     * @param ProjectInput $data
+     * @param ProjectInput $object
      *
      * @return Project
      */
-    public function transform($data, string $to, array $context = [])
+    public function transform($object, string $to, array $context = [])
     {
         // this evaluates all constraint annotations on the DTO
         $context['groups'][] = 'Default';
-        $this->validator->validate($data, $context);
+        $this->validator->validate($object, $context);
 
         /* @var $project Project */
         $project = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE]
             ?? new Project();
 
-        if ($data->council) {
-            $project->setCouncil($data->council);
+        if ($object->council) {
+            $project->setCouncil($object->council);
         }
 
-        if (null !== $data->locked) {
-            $project->setLocked($data->locked);
+        if (null !== $object->locked) {
+            $project->setLocked($object->locked);
         }
 
-        if (null !== $data->state) {
-            $project->setState($data->state);
+        if (null !== $object->state) {
+            $project->setState($object->state);
         }
 
-        if (null !== $data->categories) {
-            $project->setCategories($data->categories);
+        if (null !== $object->categories) {
+            $project->setCategories($object->categories);
         }
 
         // creator is optional, we can create projects when a user registers
@@ -95,18 +95,18 @@ class ProjectInputDataTransformer implements DataTransformerInterface
                 $membership->setUser($this->user);
             }
 
-            if (null !== $data->motivation) {
-                $membership->setMotivation($data->motivation);
+            if (null !== $object->motivation) {
+                $membership->setMotivation($object->motivation);
             }
 
-            if (null !== $data->skills) {
-                $membership->setSkills($data->skills);
+            if (null !== $object->skills) {
+                $membership->setSkills($object->skills);
             }
 
             $this->validator->validate($membership, $context);
         }
 
-        $this->setProfileData($data, $project);
+        $this->setProfileData($object, $project);
 
         return $project;
     }

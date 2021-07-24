@@ -1,4 +1,4 @@
 # Anstehend
 
+* cache konfigurieren für Redis
 * setup.md überarbeiten
-* container bauen via git workflow
