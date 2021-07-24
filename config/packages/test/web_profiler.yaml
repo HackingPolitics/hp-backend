@@ -4,5 +4,5 @@ web_profiler:
 
 framework:
     profiler:
-        enabled: false
+        enabled: true # must be enabled, at least to prevent "A client must have Mailer enabled to make email assertions."
         collect: false
