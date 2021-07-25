@@ -74,7 +74,7 @@ class PasswordResetEventSubscriber implements EventSubscriberInterface, ServiceS
         }
 
         $user->setPassword(
-            $this->passwordHasher()->encodePassword($user, $event->params['password'])
+            $this->passwordHasher()->hashPassword($user, $event->params['password'])
         );
 
         // no need to flush or remove the validation, this is done by the
