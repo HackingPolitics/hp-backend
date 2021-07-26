@@ -3,4 +3,6 @@ web_profiler:
     intercept_redirects: false
 
 framework:
-    profiler: { collect: false }
+    profiler:
+        enabled: true # must be enabled, at least to prevent "A client must have Mailer enabled to make email assertions."
+        collect: false

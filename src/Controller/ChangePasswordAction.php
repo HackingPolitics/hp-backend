@@ -23,7 +23,7 @@ class ChangePasswordAction
     ) {
         // DTO was validated by the DataTransformer,
         // confirmationPassword & password should be there
-        $params = json_decode($request->getContent(), true);
+        $params = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         // the DataTransformer already set the new password on the entity
         $savedPwd = $data->getPassword();

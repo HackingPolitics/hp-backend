@@ -24,62 +24,62 @@ class UserInputDataTransformer implements DataTransformerInterface, ServiceSubsc
     /**
      * {@inheritdoc}
      *
-     * @param UserInput $data
+     * @param UserInput $object
      *
      * @return User
      */
-    public function transform($data, string $to, array $context = [])
+    public function transform($object, string $to, array $context = []): User
     {
         // this evaluates all constraint annotations on the DTO
         $context['groups'][] = 'Default';
-        $this->validator()->validate($data, $context);
+        $this->validator()->validate($object, $context);
 
         $user = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE]
             ?? new User();
 
-        if (null !== $data->username) {
-            $user->setUsername($data->username);
+        if (null !== $object->username) {
+            $user->setUsername($object->username);
         }
 
-        if (null !== $data->email) {
-            $user->setEmail($data->email);
+        if (null !== $object->email) {
+            $user->setEmail($object->email);
         }
 
-        if (null !== $data->roles) {
-            $user->setRoles($data->roles);
+        if (null !== $object->roles) {
+            $user->setRoles($object->roles);
         }
 
-        if (null !== $data->validated) {
-            $user->setValidated($data->validated);
+        if (null !== $object->validated) {
+            $user->setValidated($object->validated);
         }
 
-        if (null !== $data->active) {
-            $user->setActive($data->active);
+        if (null !== $object->active) {
+            $user->setActive($object->active);
         }
 
-        if (null !== $data->firstName) {
-            $user->setFirstName($data->firstName);
+        if (null !== $object->firstName) {
+            $user->setFirstName($object->firstName);
         }
 
-        if (null !== $data->lastName) {
-            $user->setLastName($data->lastName);
+        if (null !== $object->lastName) {
+            $user->setLastName($object->lastName);
         }
 
-        if (!$user->getId() && !$data->password) {
+        if (!$user->getId() && !$object->password) {
             // no user is allowed to have an empty password
             // -> force-set a unknown random pw here, admin created user must
             // execute the password-reset mechanism
-            $data->password = random_bytes(15);
+            $object->password = random_bytes(15);
         }
 
         // we have a (new) password given -> encode and replace the old one
-        if (null !== $data->password) {
+        if (null !== $object->password) {
             $user->setPassword(
-                $this->passwordHasher()->hashPassword($user, $data->password)
+                $this->passwordHasher()->hashPassword($user, $object->password)
             );
         }
 
-        foreach ($data->createdProjects as $projectData) {
+        foreach ($object->createdProjects as $projectData) {
             // the normalizer already created ProjectInputs from the JSON,
             // now convert to real projects
             $project = $this->projectTransformer()
@@ -98,7 +98,7 @@ class UserInputDataTransformer implements DataTransformerInterface, ServiceSubsc
             $user->addCreatedProject($project);
         }
 
-        foreach ($data->projectMemberships as $membership) {
+        foreach ($object->projectMemberships as $membership) {
             $user->addProjectMembership($membership);
 
             // validate only after the user was set, to distinguish from

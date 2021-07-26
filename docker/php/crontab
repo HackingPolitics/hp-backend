@@ -1,0 +1,13 @@
+# command from vrok/symfony-addons, trigger at the 1st of each month at 1:15 am
+#currently not used in HPO
+#15 1 1 * * www-data /usr/local/bin/php /var/www/html/bin/console cron:monthly
+
+# command from vrok/symfony-addons, trigger each day at 0:05 am
+5 0 * * * www-data /usr/local/bin/php /var/www/html/bin/console cron:daily
+
+# command from vrok/symfony-addons, trigger each hour at xx:00
+#currently not used in HPO
+#0 * * * * www-data /usr/local/bin/php /var/www/html/bin/console cron:hourly
+
+# enable if you want to monitor your app with Icinga, see doc/monitoring.md
+#2,32 * * * * www-data /usr/local/bin/php /var/www/html/bin/console monitor:send-alive-message

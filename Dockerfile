@@ -3,20 +3,16 @@
 # https://docs.docker.com/compose/compose-file/#target
 
 # "php" stage
-FROM vrokdd/php:api AS api_platform_php
-
-RUN ln -s $PHP_INI_DIR/php.ini-production $PHP_INI_DIR/php.ini
-COPY docker/php/php.ini $PHP_INI_DIR/conf.d/custom.ini
-COPY docker/php/php-fpm.conf /usr/local/etc/php-fpm.conf
-
-ENV START_FPM=true
-ENV START_CRON=false
-ENV START_MESSENGER=false
-COPY docker/php/supervisord.conf /etc/supervisor/supervisord.conf
+FROM vrokdd/php:symfony AS hp_php
 
 # build for production
 ARG APP_ENV=prod
 ENV APP_ENV $APP_ENV
+
+# customize the config
+COPY docker/crontab /etc/crontab
+COPY docker/php.ini /usr/local/etc/php/conf.d/php.ini
+COPY docker/php/php-fpm.conf /usr/local/etc/php-fpm.conf
 
 # prevent the reinstallation of dependencies at every change in the source code
 COPY composer.json composer.lock symfony.lock ./
@@ -42,7 +38,7 @@ RUN set -eux; \
 	composer run-script --no-dev post-install-cmd; \
 	chmod +x bin/console; \
 	sync
-VOLUME /srv/api/var/storage
+VOLUME /var/www/html/var/storage
 
 COPY docker/php/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
 RUN chmod +x /usr/local/bin/docker-entrypoint
@@ -52,10 +48,10 @@ CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
 
 # "nginx" stage
 # depends on the "php" stage above
-FROM nginx:1-alpine AS api_platform_nginx
+FROM nginx:1-alpine AS hp_nginx
 
 COPY docker/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
 
-WORKDIR /srv/api
+WORKDIR /var/www/html
 
-COPY --from=api_platform_php /srv/api/public public/
+COPY --from=hp_php /var/www/html/public public/

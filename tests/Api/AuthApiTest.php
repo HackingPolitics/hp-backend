@@ -47,6 +47,7 @@ class AuthApiTest extends ApiTestCase
             'type'   => 'https://tools.ietf.org/html/rfc2616#section-10',
             'title'  => 'An error occurred',
             'detail' => 'Bad Request',
+            // with APP_DEBUG=true
             //'detail' => 'The key "password" must be provided.',
         ]);
     }
@@ -66,6 +67,7 @@ class AuthApiTest extends ApiTestCase
             'type'   => 'https://tools.ietf.org/html/rfc2616#section-10',
             'title'  => 'An error occurred',
             'detail' => 'Bad Request',
+            // with APP_DEBUG=true
             //'detail' => 'The key "username" must be provided.',
         ]);
     }
@@ -86,6 +88,7 @@ class AuthApiTest extends ApiTestCase
             'type'   => 'https://tools.ietf.org/html/rfc2616#section-10',
             'title'  => 'An error occurred',
             'detail' => 'Bad Request',
+            // with APP_DEBUG=true
             //'detail' => 'The key "username" must be a string.',
         ]);
     }
@@ -106,6 +109,7 @@ class AuthApiTest extends ApiTestCase
             'type'   => 'https://tools.ietf.org/html/rfc2616#section-10',
             'title'  => 'An error occurred',
             'detail' => 'Bad Request',
+            // with APP_DEBUG=true
             //'detail' => 'The key "password" must be a string.',
         ]);
     }
@@ -128,7 +132,7 @@ class AuthApiTest extends ApiTestCase
         self::assertArrayHasKey('refresh_token_expires', $auth);
 
         /** @var $decoder JWTEncoderInterface */
-        $decoder = static::$container->get(JWTEncoderInterface::class);
+        $decoder = static::getContainer()->get(JWTEncoderInterface::class);
         $decoded = $decoder->decode($auth['token']);
 
         self::assertArrayHasKey('exp', $decoded);
@@ -172,7 +176,7 @@ class AuthApiTest extends ApiTestCase
         self::assertArrayHasKey('refresh_token_expires', $auth);
 
         /** @var $decoder JWTEncoderInterface */
-        $decoder = static::$container->get(JWTEncoderInterface::class);
+        $decoder = static::getContainer()->get(JWTEncoderInterface::class);
         $decoded = $decoder->decode($auth['token']);
 
         self::assertArrayHasKey('exp', $decoded);
@@ -371,7 +375,7 @@ class AuthApiTest extends ApiTestCase
         self::assertArrayHasKey('refresh_token_expires', $result);
 
         /* @var $decoder JWTEncoderInterface */
-        $decoder = static::$container->get(JWTEncoderInterface::class);
+        $decoder = static::getContainer()->get(JWTEncoderInterface::class);
         $decoded = $decoder->decode($auth['token']);
 
         self::assertArrayHasKey('exp', $decoded);

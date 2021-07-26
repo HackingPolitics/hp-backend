@@ -27,7 +27,7 @@ class ChangeEmailAction
     ) {
         // DTO was validated by the DataTransformer,
         // email, confirmationPassword & validationUrl should be there
-        $params = json_decode($request->getContent(), true);
+        $params = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $check = $passwordHasher->isPasswordValid($data, $params['confirmationPassword']);
         if (!$check) {

@@ -54,15 +54,11 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
      * Attention: Requires that email addresses and also usernames are unique
      * and also no user may have a username equal to the email of another user.
      *
-     * @param string $identifier
-     *
-     * @return \Symfony\Component\Security\Core\User\UserInterface|null
-     *
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    public function loadUserByUsername(string $identifier): ?UserInterface
+    public function loadUserByUsername(string $username): ?UserInterface
     {
-        return $this->loadUserByIdentifier($identifier);
+        return $this->loadUserByIdentifier($username);
     }
 
     /**
@@ -77,7 +73,7 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
      *
      * @param string $identifier
      *
-     * @return \Symfony\Component\Security\Core\User\UserInterface|null
+     * @return UserInterface|null
      *
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
@@ -106,7 +102,7 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
      *
      * @return User[]
      */
-    public function loadProcessManagers()
+    public function loadProcessManagers(): array
     {
         $role = User::ROLE_PROCESS_MANAGER;
 
@@ -119,7 +115,7 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
                     AND u.deletedAt IS NULL
                     AND u.validated = 1'
             )
-            ->setParameter('role', "%{$role}%")
+            ->setParameter('role', "%$role%")
             ->getResult();
     }
 }
