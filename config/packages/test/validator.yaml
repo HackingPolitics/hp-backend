@@ -1,3 +1,4 @@
 framework:
     validation:
+        # we use this in tests too, to check for the correct error messages
         not_compromised_password: true

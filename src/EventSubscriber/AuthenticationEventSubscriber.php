@@ -38,7 +38,7 @@ class AuthenticationEventSubscriber implements EventSubscriberInterface
     {
         $log = new ActionLog();
         $log->ipAddress = $this->getRequest()->getClientIp();
-        $log->username = $event->getAuthenticationToken()->getUsername();
+        $log->username = $event->getAuthenticationToken()->getUserIdentifier();
         $log->action = ActionLog::FAILED_LOGIN;
 
         $this->entityManager->persist($log);
@@ -56,7 +56,7 @@ class AuthenticationEventSubscriber implements EventSubscriberInterface
 
         $log = new ActionLog();
         $log->ipAddress = $request->getClientIp();
-        $log->username = $event->getAuthenticationToken()->getUsername();
+        $log->username = $event->getAuthenticationToken()->getUserIdentifier();
         $log->action = ActionLog::SUCCESSFUL_LOGIN;
 
         $this->entityManager->persist($log);

@@ -69,7 +69,7 @@ class UserEventSubscriber implements EventSubscriberInterface, ServiceSubscriber
         $log = new ActionLog();
         $log->action = ActionLog::REGISTERED_USER;
         $log->ipAddress = $this->requestStack()->getCurrentRequest()->getClientIp();
-        $log->username = $event->user->getUsername();
+        $log->username = $event->user->getUserIdentifier();
         $this->entityManager()->persist($log);
 
         if ($event->user->isValidated()) {

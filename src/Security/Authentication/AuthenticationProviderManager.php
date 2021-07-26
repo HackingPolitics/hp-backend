@@ -37,7 +37,7 @@ class AuthenticationProviderManager implements AuthenticationManagerInterface
     public function authenticate(TokenInterface $token)
     {
         if ($token instanceof UsernamePasswordToken
-            && !$this->accessBlock->loginAllowed($token->getUsername())
+            && !$this->accessBlock->loginAllowed($token->getUserIdentifier())
         ) {
             throw new AccessDeniedHttpException('Access blocked, to many requests.');
         }

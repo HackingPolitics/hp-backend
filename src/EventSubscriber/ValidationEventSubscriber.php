@@ -86,7 +86,7 @@ class ValidationEventSubscriber implements EventSubscriberInterface, ServiceSubs
         $log->action = ActionLog::FAILED_VALIDATION;
         $log->ipAddress = $request->getClientIp();
         $log->username = $user instanceof UserInterface
-            ? $user->getUsername()
+            ? $user->getUserIdentifier()
             : null;
         $this->entityManager()->persist($log);
         $this->entityManager()->flush();
@@ -112,7 +112,7 @@ class ValidationEventSubscriber implements EventSubscriberInterface, ServiceSubs
             : ActionLog::FAILED_PW_RESET_REQUEST;
 
         $log->username = $event->user instanceof UserInterface
-            ? $event->user->getUsername()
+            ? $event->user->getUserIdentifier()
             : null;
 
         $this->entityManager()->persist($log);

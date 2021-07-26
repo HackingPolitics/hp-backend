@@ -125,7 +125,7 @@ jobs:
         with:
           context: .
           push: true
-          target: api_platform_php
+          target: hp_php
           tags: ${{ steps.phpmeta.outputs.tags }}
           labels: ${{ steps.phpmeta.outputs.labels }}
           cache-from: type=registry,ref=jschumanndd/hp-backend
@@ -151,7 +151,7 @@ jobs:
         with:
           context: .
           push: true
-          target: api_platform_nginx
+          target: hp_nginx
           tags: ${{ steps.nginxmeta.outputs.tags }}
           labels: ${{ steps.nginxmeta.outputs.labels }}
           cache-from: type=registry,ref=jschumanndd/hp-backend

@@ -4,5 +4,9 @@ web_profiler:
 
 framework:
     profiler:
-        enabled: true # must be enabled, at least to prevent "A client must have Mailer enabled to make email assertions."
+        # must be enabled, at least to prevent "A client must have Mailer
+        # enabled to make email assertions." and also to use the TraceableMessageBus
+        # which allows inspecting dispatched messages for tests
+        enabled: true
+
         collect: false

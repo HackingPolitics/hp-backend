@@ -52,13 +52,13 @@ class AccessBlockedVoter extends Voter
 
         if (self::VALIDATION_CONFIRM === $attribute) {
             return $this->accessBlock->validationConfirmAllowed(
-                $user ? $user->getUsername() : null
+                $user ? $user->getUserIdentifier() : null
             );
         }
 
         if (self::REPORT_PROJECT === $attribute) {
             return $this->accessBlock->reportProjectAllowed(
-                $user ? $user->getUsername() : null
+                $user ? $user->getUserIdentifier() : null
             );
         }
 

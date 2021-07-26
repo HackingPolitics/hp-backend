@@ -13,4 +13,7 @@ framework:
             #App\Entity\: []
 
         not_compromised_password:
+            # this essentially is only disabled for DEV to allow easier
+            # frontend testing, for unit tests and of cause for productions
+            # this is enabled
             enabled: false

@@ -127,7 +127,7 @@ class ProjectEventSubscriber implements EventSubscriberInterface, ServiceSubscri
         $log->action = ActionLog::REPORTED_PROJECT;
         $log->ipAddress = $this->requestStack()->getCurrentRequest()->getClientIp();
         $log->username = $user instanceof UserInterface
-            ? $user->getUsername()
+            ? $user->getUserIdentifier()
             : null;
 
         $this->entityManager()->persist($log);

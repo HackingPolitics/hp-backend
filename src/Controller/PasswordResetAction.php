@@ -41,7 +41,7 @@ class PasswordResetAction
 
         $entityManager = $registry->getManagerForClass(User::class);
         $user = $entityManager->getRepository(User::class)
-            ->loadUserByUsername($params['username']);
+            ->loadUserByIdentifier($params['username']);
 
         if (!$authorizationChecker->isGranted(AccessBlockedVoter::PW_RESET,
                 $user ? $user->getUsername() : null)
