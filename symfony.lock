@@ -146,6 +146,9 @@
             ".php_cs.dist"
         ]
     },
+    "friendsofphp/proxy-manager-lts": {
+        "version": "v1.0.5"
+    },
     "gedmo/doctrine-extensions": {
         "version": "v2.4.37"
     },
@@ -229,9 +232,6 @@
     },
     "ocramius/package-versions": {
         "version": "1.7.0"
-    },
-    "ocramius/proxy-manager": {
-        "version": "2.11.1"
     },
     "paragonie/constant_time_encoding": {
         "version": "v2.3.0"
@@ -616,6 +616,9 @@
     "symfony/property-info": {
         "version": "v4.3.3"
     },
+    "symfony/proxy-manager-bridge": {
+        "version": "v5.3.0"
+    },
     "symfony/redis-messenger": {
         "version": "v5.3.2"
     },
@@ -804,9 +807,6 @@
     },
     "vrok/symfony-addons": {
         "version": "v1.1.1"
-    },
-    "webimpress/safe-writer": {
-        "version": "2.1.0"
     },
     "webmozart/assert": {
         "version": "1.4.0"

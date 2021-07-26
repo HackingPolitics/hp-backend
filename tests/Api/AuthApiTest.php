@@ -46,7 +46,8 @@ class AuthApiTest extends ApiTestCase
         self::assertJsonContains([
             'type'   => 'https://tools.ietf.org/html/rfc2616#section-10',
             'title'  => 'An error occurred',
-            'detail' => 'The key "password" must be provided.',
+            'detail' => 'Bad Request',
+            //'detail' => 'The key "password" must be provided.',
         ]);
     }
 
@@ -64,7 +65,8 @@ class AuthApiTest extends ApiTestCase
         self::assertJsonContains([
             'type'   => 'https://tools.ietf.org/html/rfc2616#section-10',
             'title'  => 'An error occurred',
-            'detail' => 'The key "username" must be provided.',
+            'detail' => 'Bad Request',
+            //'detail' => 'The key "username" must be provided.',
         ]);
     }
 
@@ -83,7 +85,8 @@ class AuthApiTest extends ApiTestCase
         self::assertJsonContains([
             'type'   => 'https://tools.ietf.org/html/rfc2616#section-10',
             'title'  => 'An error occurred',
-            'detail' => 'The key "username" must be a string.',
+            'detail' => 'Bad Request',
+            //'detail' => 'The key "username" must be a string.',
         ]);
     }
 
@@ -102,7 +105,8 @@ class AuthApiTest extends ApiTestCase
         self::assertJsonContains([
             'type'   => 'https://tools.ietf.org/html/rfc2616#section-10',
             'title'  => 'An error occurred',
-            'detail' => 'The key "password" must be a string.',
+            'detail' => 'Bad Request',
+            //'detail' => 'The key "password" must be a string.',
         ]);
     }
 
