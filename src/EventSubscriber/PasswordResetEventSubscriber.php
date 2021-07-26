@@ -13,7 +13,7 @@ use App\Event\ValidationConfirmedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -28,7 +28,7 @@ class PasswordResetEventSubscriber implements EventSubscriberInterface, ServiceS
 {
     use ServiceSubscriberTrait;
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             ValidationConfirmedEvent::class => [
@@ -43,7 +43,7 @@ class PasswordResetEventSubscriber implements EventSubscriberInterface, ServiceS
         ];
     }
 
-    public function onValidationConfirmed(ValidationConfirmedEvent $event)
+    public function onValidationConfirmed(ValidationConfirmedEvent $event): void
     {
         if (Validation::TYPE_RESET_PASSWORD !== $event->validation->getType()) {
             return;
@@ -68,20 +68,20 @@ class PasswordResetEventSubscriber implements EventSubscriberInterface, ServiceS
         $this->validator()->validate($dto);
 
         // do not allow the user to set the same password again
-        $sameCheck = $this->passwordEncoder()->isPasswordValid($user, $event->params['password']);
+        $sameCheck = $this->passwordHasher()->isPasswordValid($user, $event->params['password']);
         if ($sameCheck) {
             throw new ValidationException(new ConstraintViolationList([new ConstraintViolation('validate.user.password.notChanged', null, [], null, 'password', $event->params['password'])]));
         }
 
         $user->setPassword(
-            $this->passwordEncoder()->encodePassword($user, $event->params['password'])
+            $this->passwordHasher()->hashPassword($user, $event->params['password'])
         );
 
         // no need to flush or remove the validation, this is done by the
         // event trigger.
     }
 
-    private function passwordEncoder(): UserPasswordEncoderInterface
+    private function passwordHasher(): UserPasswordHasherInterface
     {
         return $this->container->get(__METHOD__);
     }

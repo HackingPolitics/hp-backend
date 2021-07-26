@@ -36,7 +36,7 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFixtureInterface
 {
@@ -214,16 +214,16 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         'role'        => 'Wissenschaftliche Unterstützung',
     ];
 
-    private UserPasswordEncoderInterface $encoder;
+    private UserPasswordHasherInterface $passwordHasher;
 
     public function getDependencies(): array
     {
         return [InitialFixtures::class];
     }
 
-    public function __construct(UserPasswordEncoderInterface $encoder)
+    public function __construct(UserPasswordHasherInterface $passwordHasher)
     {
-        $this->encoder = $encoder;
+        $this->passwordHasher = $passwordHasher;
     }
 
     public static function getGroups(): array
@@ -483,7 +483,7 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
             $user->setPassword('');
         } else {
             $user->setPassword(
-                $this->encoder->encodePassword(
+                $this->passwordHasher->hashPassword(
                     $user,
                     $data['password'],
                 )

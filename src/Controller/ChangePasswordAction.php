@@ -10,7 +10,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class ChangePasswordAction
 {
@@ -18,7 +18,7 @@ class ChangePasswordAction
         Request $request,
         User $data,
         ManagerRegistry $registry,
-        UserPasswordEncoderInterface $passwordEncoder,
+        UserPasswordHasherInterface $passwordHasher,
         ValidatorInterface $validator
     ) {
         // DTO was validated by the DataTransformer,
@@ -34,13 +34,13 @@ class ChangePasswordAction
             ->getOriginalEntityData($data);
         $data->setPassword($oldObject['password']);
 
-        $check = $passwordEncoder->isPasswordValid($data, $params['confirmationPassword']);
+        $check = $passwordHasher->isPasswordValid($data, $params['confirmationPassword']);
         if (!$check) {
             throw new BadRequestHttpException('validate.user.passwordMismatch');
         }
 
         // do not allow the user to set the same password again
-        $sameCheck = $passwordEncoder->isPasswordValid($data, $params['password']);
+        $sameCheck = $passwordHasher->isPasswordValid($data, $params['password']);
         if ($sameCheck) {
             throw new BadRequestHttpException('validate.user.password.notChanged');
         }

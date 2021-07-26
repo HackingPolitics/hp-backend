@@ -10,7 +10,7 @@ use ApiPlatform\Core\Validator\ValidatorInterface;
 use App\Dto\UserInput;
 use App\Entity\Project;
 use App\Entity\User;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Contracts\Service\ServiceSubscriberInterface;
 use Symfony\Contracts\Service\ServiceSubscriberTrait;
 
@@ -75,7 +75,7 @@ class UserInputDataTransformer implements DataTransformerInterface, ServiceSubsc
         // we have a (new) password given -> encode and replace the old one
         if (null !== $data->password) {
             $user->setPassword(
-                $this->passwordEncoder()->encodePassword($user, $data->password)
+                $this->passwordHasher()->hashPassword($user, $data->password)
             );
         }
 
@@ -126,7 +126,7 @@ class UserInputDataTransformer implements DataTransformerInterface, ServiceSubsc
         return $this->container->get(__METHOD__);
     }
 
-    private function passwordEncoder(): UserPasswordEncoderInterface
+    private function passwordHasher(): UserPasswordHasherInterface
     {
         return $this->container->get(__METHOD__);
     }
