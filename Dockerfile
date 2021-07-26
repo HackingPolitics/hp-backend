@@ -10,8 +10,8 @@ ARG APP_ENV=prod
 ENV APP_ENV $APP_ENV
 
 # customize the config
-COPY docker/crontab /etc/crontab
-COPY docker/php.ini /usr/local/etc/php/conf.d/php.ini
+COPY docker/php/crontab /etc/crontab
+COPY docker/php/php.ini /usr/local/etc/php/conf.d/php.ini
 COPY docker/php/php-fpm.conf /usr/local/etc/php-fpm.conf
 
 # prevent the reinstallation of dependencies at every change in the source code
