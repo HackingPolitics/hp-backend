@@ -146,9 +146,6 @@
             ".php_cs.dist"
         ]
     },
-    "friendsofphp/proxy-manager-lts": {
-        "version": "v1.0.3"
-    },
     "gedmo/doctrine-extensions": {
         "version": "v2.4.37"
     },
@@ -618,9 +615,6 @@
     },
     "symfony/property-info": {
         "version": "v4.3.3"
-    },
-    "symfony/proxy-manager-bridge": {
-        "version": "v5.2.2"
     },
     "symfony/redis-messenger": {
         "version": "v5.3.2"

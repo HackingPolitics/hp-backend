@@ -16,7 +16,7 @@ services:
       - mysql-hpo
     volumes:
       # /projects muss in der Virtualbox als Shared Folder gemounted sein
-      - /projects/hpo-backend/:/srv/api
+      - /projects/hpo-backend/:/var/www/html
     extra_hosts:
       - host.vbox.internal:192.168.178.47
     environment:

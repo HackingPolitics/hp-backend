@@ -7,6 +7,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bridge\Doctrine\Security\User\UserLoaderInterface;
 use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProviderInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @method User|null find($id, $lockMode = null, $lockVersion = null)
@@ -59,15 +60,36 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
      *
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    public function loadUserByUsername($identifier)
+    public function loadUserByUsername(string $identifier): ?UserInterface
     {
-        if (AuthenticationProviderInterface::USERNAME_NONE_PROVIDED == $identifier) {
+        return $this->loadUserByIdentifier($identifier);
+    }
+
+    /**
+     * For the UserLoaderInterface: This allows us to login the user via his
+     * username or email, the method is automatically called by Symfony when the
+     * key security.providers.app_user_provider.entity.property is NOT set. This
+     * replaces the need for a custom GuardAuthenticator. All other checks for
+     * the user are done in our own Security\UserChecker.
+     *
+     * Attention: Requires that email addresses and also usernames are unique
+     * and also no user may have a username equal to the email of another user.
+     *
+     * @param string $identifier
+     *
+     * @return \Symfony\Component\Security\Core\User\UserInterface|null
+     *
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function loadUserByIdentifier(string $identifier): ?UserInterface
+    {
+        if (AuthenticationProviderInterface::USERNAME_NONE_PROVIDED === $identifier) {
             return null;
         }
 
         return $this->getEntityManager()
             ->createQuery(
-            'SELECT u
+                'SELECT u
                 FROM App\Entity\User u
                 WHERE
                     (u.username = :query OR u.email = :query)
