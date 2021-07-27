@@ -1,6 +1,9 @@
 twig:
     paths:
-        - '%kernel.project_dir%/templates_custom'
+        # add this folder to your project and uncomment the line to overwrite
+        # templates from the main project with your own and still keep the
+        # project upradable & conflictfree
+        #- '%kernel.project_dir%/templates_custom'
         - '%kernel.project_dir%/templates'
         - '%kernel.project_dir%/public/images'
     debug: '%kernel.debug%'
