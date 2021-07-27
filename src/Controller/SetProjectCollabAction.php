@@ -29,8 +29,8 @@ class SetProjectCollabAction
         // @todo restrict Nodes/Marks
         // @see https://github.com/ueberdosis/prosemirror-to-html/#custom-nodes
 
-        if (!empty($input->collabData->description)) {
-            $project->setDescription($renderer->render($input->collabData->description));
+        if (!empty($input->collabData->goal)) {
+            $project->setGoal($renderer->render($input->collabData->goal));
         }
 
         $entityManager = $registry->getManagerForClass(Project::class);
@@ -42,7 +42,7 @@ class SetProjectCollabAction
         return new JsonResponse([
             'collabData' => [
                 // the converter cannot handle empty values, give him an empty <p> to feed on...
-                'description' => $converter->render($project->getDescription() ?: '<p></p>'),
+                'goal' => $converter->render($project->getGoal() ?: '<p></p>'),
             ],
         ]);
     }

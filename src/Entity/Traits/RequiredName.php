@@ -12,7 +12,7 @@ trait RequiredName
 {
     /**
      * @Assert\NotBlank
-     * @Groups({"default:read", "default:write", "elastica"})
+     * @Groups({"default:read", "default:write"})
      * @ORM\Column(type="string", length=255, nullable=false)
      */
     private string $name = '';

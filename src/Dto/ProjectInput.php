@@ -40,7 +40,7 @@ class ProjectInput
     /**
      * @Groups({"project:write"})
      */
-    public ?string $description = null;
+    public ?string $goal = null;
 
     /**
      * @Groups({"project:write"})

@@ -7,13 +7,14 @@
     <h1>{{ "mail.processManager.salutation"|trans }}</h1>
 
     {{ "mail.reportNotification.project.content"|trans({
-            '%projectTitle%': projectTitle ?: "project.unnamed"|trans({'%projectid%': projectId}),
-            '%message%': message,
+            'projectTitle': projectTitle ?: "project.unnamed"|trans({'projectid': projectId}),
+            'topic': topic,
+            'message': message,
         })|raw
     }}
 
     {{ "mail.reportNotification.from"|trans({
-        '%reporterName%': reporterName,
-        '%reporterEmail%': reporterEmail,
+        'reporterName': reporterName,
+        'reporterEmail': reporterEmail,
     })|raw }}
 {% endblock %}

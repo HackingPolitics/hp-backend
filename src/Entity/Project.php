@@ -123,7 +123,7 @@ use Vrok\SymfonyAddons\Validator\Constraints as VrokAssert;
  *     "state": "exact"
  * })
  * @ApiFilter(SimpleSearchFilter::class, properties={
- *     "description", "impact", "topic", "title",
+ *     "topic", "title",
  * }, arguments={"searchParameterName"="pattern"})
  * @ApiFilter(OrderFilter::class, properties={"id", "title", "updatedAt", "createdAt"})
  *
@@ -415,37 +415,8 @@ class Project
         $this->deletedAt = new DateTimeImmutable();
 
         // remove private / identifying data
-        $this->setDescription(null);
+        $this->setTopic(null);
         $this->setTitle(null);
-
-        return $this;
-    }
-
-    //endregion
-
-    //region Description
-    /**
-     * HTML allowed.
-     *
-     * @Assert\Sequentially({
-     *     @Assert\Length(max=6000),
-     *     @Assert\Length(max=2000,
-     *         normalizer={NormalizerHelper::class, "stripHtml"}
-     *     ),
-     * })
-     * @Groups({"elastica", "project:read", "project:write"})
-     * @ORM\Column(type="text", length=6000, nullable=true)
-     */
-    private ?string $description = null;
-
-    public function getDescription(): string
-    {
-        return $this->description ?? '';
-    }
-
-    public function setDescription(?string $value): self
-    {
-        $this->description = NormalizerHelper::toNullableHtml($value);
 
         return $this;
     }
@@ -522,18 +493,44 @@ class Project
 
     //endregion
 
+    //region Goal
+    /**
+     * @Assert\Sequentially({
+     *     @Assert\NotBlank,
+     *     @Assert\Length(min=3, max=1000),
+     * })
+     * @Groups({
+     *     "project:member-read",
+     *     "project:pm-read",
+     *     "project:admin-read",
+     * })
+     * @ORM\Column(type="text", length=6000, nullable=true)
+     */
+    private ?string $goal = null;
+
+    public function getGoal(): string
+    {
+        return $this->goal ?? '';
+    }
+
+    public function setGoal(?string $value): self
+    {
+        $this->goal = NormalizerHelper::toNullableString($value);
+
+        return $this;
+    }
+
+    //endregion
+
     //region Impact
     /**
-     * HTML allowed.
-     *
-     * @Assert\Sequentially({
-     *     @Assert\Length(max=6000),
-     *     @Assert\Length(max=2000,
-     *         normalizer={NormalizerHelper::class, "stripHtml"}
-     *     ),
+     * @Assert\Length(max=2000)
+     * @Groups({
+     *     "project:member-read",
+     *     "project:pm-read",
+     *     "project:admin-read",
      * })
-     * @Groups({"project:read", "project:write"})
-     * @ORM\Column(type="text", length=6000, nullable=true)
+     * @ORM\Column(type="text", length=2000, nullable=true)
      */
     private ?string $impact = null;
 
@@ -544,7 +541,7 @@ class Project
 
     public function setImpact(?string $value): self
     {
-        $this->impact = NormalizerHelper::toNullableHtml($value);
+        $this->impact = NormalizerHelper::toNullableString($value);
 
         return $this;
     }
@@ -821,7 +818,7 @@ class Project
 
     //region Slug
     /**
-     * @Groups({"elastica", "project:read", "user:read"})
+     * @Groups({"project:read", "user:read"})
      * @ORM\Column(type="string", length=150, nullable=true)
      * @Gedmo\Slug(fields={"title"})
      */
@@ -875,7 +872,7 @@ class Project
      *         message="validate.general.letterRequired"
      *     ),
      * })
-     * @Groups({"elastica", "project:read", "project:write", "user:read"})
+     * @Groups({"project:read", "project:write", "user:read"})
      * @ORM\Column(type="string", length=100, nullable=false)
      */
     private ?string $title = null;
@@ -899,7 +896,6 @@ class Project
      * @Assert\Sequentially({
      *     @Assert\NotBlank,
      *     @Assert\Length(min=2, max=1000),
-     *     @VrokAssert\NoLineBreaks,
      * })
      * @Groups({"project:read", "project:write"})
      * @ORM\Column(type="text", length=1000, nullable=true)

@@ -120,7 +120,7 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
 
     public const PROJECT = [
         'id'          => 1,
-        'description' => 'description with 20 characters',
+        'goal'        => 'goal with 20 characters',
         'title'       => 'Car-free Dresden',
         'impact'      => 'impact with 10 characters',
         'topic'       => 'topic with 10 characters',
@@ -505,8 +505,8 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         if (isset($data['deletedAt'])) {
             $project->setDeletedAt(new DateTimeImmutable($data['deletedAt'], new DateTimeZone('UTC')));
         }
-        if (isset($data['description'])) {
-            $project->setDescription($data['description']);
+        if (isset($data['goal'])) {
+            $project->setGoal($data['goal']);
         }
         if (isset($data['locked'])) {
             $project->setLocked($data['locked']);

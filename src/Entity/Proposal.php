@@ -280,7 +280,6 @@ class Proposal
     /**
      * @Assert\Sequentially({
      *     @Assert\NotBlank,
-     *     @VrokAssert\NoLineBreaks,
      *     @Assert\Length(max=1000),
      * })
      * @Groups({"proposal:read", "proposal:write", "project:read"})
@@ -363,7 +362,7 @@ class Proposal
 
     public function setUrl(?string $value): self
     {
-        $this->url = NormalizerHelper::toNullableHtml($value);
+        $this->url = NormalizerHelper::toNullableString($value);
 
         return $this;
     }

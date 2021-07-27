@@ -275,7 +275,7 @@ class Fraction
 
     public function setUrl(?string $value): self
     {
-        $this->url = NormalizerHelper::toNullableHtml($value);
+        $this->url = NormalizerHelper::toNullableString($value);
 
         return $this;
     }

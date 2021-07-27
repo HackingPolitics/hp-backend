@@ -204,10 +204,7 @@ class Partner
 
     //region Role
     /**
-     * @Assert\Sequentially({
-     *     @Assert\Length(max=1000),
-     *     @VrokAssert\NoLineBreaks,
-     * })
+     * @Assert\Length(max=1000)
      * @Groups({"partner:read", "partner:write", "project:read"})
      * @ORM\Column(type="text", length=1000, nullable=true)
      */
@@ -220,7 +217,7 @@ class Partner
 
     public function setRole(?string $value): self
     {
-        $this->role = NormalizerHelper::toNullableHtml($value);
+        $this->role = NormalizerHelper::toNullableString($value);
 
         return $this;
     }
@@ -325,7 +322,7 @@ class Partner
 
     public function setUrl(?string $value): self
     {
-        $this->url = NormalizerHelper::toNullableHtml($value);
+        $this->url = NormalizerHelper::toNullableString($value);
 
         return $this;
     }

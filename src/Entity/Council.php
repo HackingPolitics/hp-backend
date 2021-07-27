@@ -213,7 +213,7 @@ class Council
 
     public function setHeadOfAdministration(?string $value): self
     {
-        $this->headOfAdministration = NormalizerHelper::toNullableHtml($value);
+        $this->headOfAdministration = NormalizerHelper::toNullableString($value);
 
         return $this;
     }
@@ -239,7 +239,7 @@ class Council
 
     public function setHeadOfAdministrationTitle(?string $value): self
     {
-        $this->headOfAdministrationTitle = NormalizerHelper::toNullableHtml($value);
+        $this->headOfAdministrationTitle = NormalizerHelper::toNullableString($value);
 
         return $this;
     }
@@ -268,7 +268,7 @@ class Council
 
     public function setLocation(?string $value): self
     {
-        $this->location = NormalizerHelper::toNullableHtml($value);
+        $this->location = NormalizerHelper::toNullableString($value);
 
         return $this;
     }
@@ -414,7 +414,7 @@ class Council
 
     public function setUrl(?string $value): self
     {
-        $this->url = NormalizerHelper::toNullableHtml($value);
+        $this->url = NormalizerHelper::toNullableString($value);
 
         return $this;
     }
@@ -471,7 +471,7 @@ class Council
 
     public function setWikipediaUrl(?string $value): self
     {
-        $this->wikipediaUrl = NormalizerHelper::toNullableHtml($value);
+        $this->wikipediaUrl = NormalizerHelper::toNullableString($value);
 
         return $this;
     }
@@ -500,7 +500,7 @@ class Council
 
     public function setZipArea(?string $value): self
     {
-        $this->zipArea = NormalizerHelper::toNullableHtml($value);
+        $this->zipArea = NormalizerHelper::toNullableString($value);
 
         return $this;
     }

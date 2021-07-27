@@ -9,6 +9,6 @@
     })}}</h1>
 
     {{ "mail.project.proposalExported.content"|trans({
-        'projectname': projectname,
+        'projectTitle': projectTitle ?: "project.unnamed"|trans({'projectid': projectId}),
     })|raw }}
 {% endblock %}

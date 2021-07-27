@@ -88,7 +88,7 @@ class CounterArgument
 
     public function setDescription(?string $value): self
     {
-        $this->description = NormalizerHelper::toNullableHtml($value);
+        $this->description = NormalizerHelper::toNullableString($value);
 
         return $this;
     }

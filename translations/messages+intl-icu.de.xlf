@@ -173,6 +173,9 @@
                     {projectTitle}
                 </p>
                 <p>
+                    {topic}
+                </p>
+                <p>
                     Angegebener Grund:
                 </p>
                 <p>
@@ -199,7 +202,7 @@
                 <source>mail.project.proposalExported.content</source>
                 <target><![CDATA[
                 <p>
-                    Die ODT-Datei für dein Projekt <em>{projectname}</em> steht zum Download bereit
+                    Die ODT-Datei für dein Projekt <em>{projectTitle}</em> steht zum Download bereit
                     und befindet sich auch im Anhang dieser Email.
                 </p>
                ]]></target>

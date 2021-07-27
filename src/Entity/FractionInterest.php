@@ -70,7 +70,7 @@ class FractionInterest
     /**
      * @Assert\Sequentially({
      *     @Assert\NotBlank,
-     *     @Assert\Length(max=250),
+     *     @Assert\Length(max=500),
      * })
      * @Groups({
      *     "fractionInterest:read",
@@ -89,7 +89,7 @@ class FractionInterest
 
     public function setDescription(?string $value): self
     {
-        $this->description = NormalizerHelper::toNullableHtml($value);
+        $this->description = NormalizerHelper::toNullableString($value);
 
         return $this;
     }

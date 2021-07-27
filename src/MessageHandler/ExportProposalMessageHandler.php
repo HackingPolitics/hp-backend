@@ -149,8 +149,8 @@ class ExportProposalMessageHandler implements MessageHandlerInterface
             // FROM is added via listener, subject is added via template
             ->htmlTemplate('project/mail.proposal-exported.html.twig')
             ->context([
-                'username'    => $user->getUsername(),
-                'projectname' => $proposal->getProject()->getTitle(),
+                'username'     => $user->getUsername(),
+                'projectTitle' => $proposal->getProject()->getTitle(),
             ])
             ->addTo($user->getEmail())
             ->attachFromPath(

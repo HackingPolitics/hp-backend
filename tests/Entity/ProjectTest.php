@@ -80,7 +80,7 @@ class ProjectTest extends KernelTestCase
 
         $project = new Project();
         $project->setTitle('Testing Project');
-        $project->setDescription('long description');
+        $project->setGoal('long goal text');
         $project->setTopic('short topic');
         $project->setImpact('short impact');
         $project->setCreatedBy($user);
@@ -98,7 +98,7 @@ class ProjectTest extends KernelTestCase
             ->findOneBy(['title' => 'Testing Project']);
 
         self::assertSame('testing-project', $found->getSlug());
-        self::assertSame('long description', $found->getDescription());
+        self::assertSame('long goal text', $found->getGoal());
         self::assertSame('short impact', $found->getImpact());
         self::assertSame('short topic', $found->getTopic());
 

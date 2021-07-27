@@ -7,7 +7,7 @@
     <h1>{{ "mail.coordinator.salutation"|trans }}</h1>
 
     {{ "mail.project.newMemberApplication.content"|trans({
-        '%username%': username,
-        '%projectTitle%': projectTitle ?: "project.unnamed"|trans({'%projectid%': projectId}),
+        'username': username,
+        'projectTitle': projectTitle ?: "project.unnamed"|trans({'projectid': projectId}),
     })|raw }}
 {% endblock %}

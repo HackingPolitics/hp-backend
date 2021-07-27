@@ -7,6 +7,6 @@
     <h1>{{ "mail.processManager.salutation"|trans }}</h1>
 
     {{ "mail.noMembers.pmNotification.content"|trans({
-        '%projectTitle%': projectTitle ?: "project.unnamed"|trans({'%projectid%': projectId}),
+        'projectTitle': projectTitle ?: "project.unnamed"|trans({'projectid': projectId}),
     })|raw }}
 {% endblock %}

@@ -808,22 +808,21 @@ class ProjectApiTest extends ApiTestCase
         self::assertMatchesResourceItemJsonSchema(Project::class);
 
         self::assertJsonContains([
-            '@id'              => $iri,
+            '@id'        => $iri,
             'categories' => [
                 0 => ['id' => 1],
                 1 => ['id' => 2],
                 2 => ['id' => 3],
             ],
-            'createdBy'        => [
+            'createdBy'  => [
                 'id' => TestFixtures::PROJECT_COORDINATOR['id'],
             ],
-            'council'        => [
+            'council'    => [
                 'id' => TestFixtures::COUNCIL['id'],
             ],
-            'description'      => TestFixtures::PROJECT['description'],
-            'id'               => TestFixtures::PROJECT['id'],
-            'state'            => Project::STATE_PUBLIC,
-            'topic'            => TestFixtures::PROJECT['topic'],
+            'id'         => TestFixtures::PROJECT['id'],
+            'state'      => Project::STATE_PUBLIC,
+            'topic'      => TestFixtures::PROJECT['topic'],
         ]);
 
         $projectData = $response->toArray();
@@ -832,7 +831,9 @@ class ProjectApiTest extends ApiTestCase
         self::assertArrayNotHasKey('arguments', $projectData);
         self::assertArrayNotHasKey('counterArguments', $projectData);
         self::assertArrayNotHasKey('deletedAt', $projectData);
+        self::assertArrayNotHasKey('goal', $projectData);
         self::assertArrayNotHasKey('fractionDetails', $projectData);
+        self::assertArrayNotHasKey('impact', $projectData);
         self::assertArrayNotHasKey('locked', $projectData);
         self::assertArrayNotHasKey('memberships', $projectData);
         self::assertArrayNotHasKey('partners', $projectData);
@@ -892,10 +893,10 @@ class ProjectApiTest extends ApiTestCase
         //self::assertMatchesResourceItemJsonSchema(Project::class);
 
         self::assertJsonContains([
-            '@id'              => $iri,
-            'createdBy'        => null,
-            'description'      => TestFixtures::PROJECT['description'],
-            'id'               => TestFixtures::PROJECT['id'],
+            '@id'       => $iri,
+            'createdBy' => null,
+            'goal'      => TestFixtures::PROJECT['goal'],
+            'id'        => TestFixtures::PROJECT['id'],
         ]);
     }
 
@@ -1492,7 +1493,7 @@ class ProjectApiTest extends ApiTestCase
         self::assertMatchesResourceItemJsonSchema(Project::class);
 
         self::assertJsonContains([
-            'description' => '',
+            'goal'        => '',
             'id'          => 4, // ID 1-3 created by fixtures
             'title'       => 'test project',
             'memberships' => [
@@ -2335,7 +2336,7 @@ class ProjectApiTest extends ApiTestCase
 
         self::assertJsonContains([
             'collabData' => [
-                'description' => [
+                'goal' => [
                     'type'    => 'doc',
                     'content' => [
                         [
@@ -2343,7 +2344,7 @@ class ProjectApiTest extends ApiTestCase
                             'content' => [
                                 [
                                     'type' => 'text',
-                                    'text' => 'description with 20 characters',
+                                    'text' => 'goal with 20 characters',
                                 ],
                             ],
                         ],
@@ -2406,7 +2407,7 @@ class ProjectApiTest extends ApiTestCase
 
         $client->request('POST', $projectIri.'/collab', ['json' => [
             'collabData' => [
-                'description' => [
+                'goal' => [
                     'type'    => 'doc',
                     'content' => [
                         [
@@ -2452,7 +2453,7 @@ class ProjectApiTest extends ApiTestCase
         $project = $em->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
 
-        self::assertSame('<h2>Überschrift</h2><p>Te<strong>s</strong>t</p>', $project->getDescription());
+        self::assertSame('<h2>Überschrift</h2><p>Te<strong>s</strong>t</p>', $project->getGoal());
     }
 
     public function testSetCollaborationFailsWithoutPrivilege(): void
@@ -2466,7 +2467,7 @@ class ProjectApiTest extends ApiTestCase
 
         $client->request('POST', $projectIri.'/collab', ['json' => [
             'collabData' => [
-                'description' => [
+                'goal' => [
                     'type'    => 'doc',
                     'content' => [
                         [
@@ -2505,7 +2506,7 @@ class ProjectApiTest extends ApiTestCase
 
         $client->request('POST', $projectIri.'/collab', ['json' => [
             'collabData' => [
-                'description' => [
+                'goal' => [
                     'type'    => 'doc',
                     'content' => [
                         [

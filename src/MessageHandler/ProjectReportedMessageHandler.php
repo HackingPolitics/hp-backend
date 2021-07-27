@@ -69,7 +69,6 @@ class ProjectReportedMessageHandler implements MessageHandlerInterface, ServiceS
                 'projectTitle'  => $project->getTitle(),
                 'projectId'     => $project->getId(), // if project is unnamed
                 'topic'         => $project->getTopic(),
-                'description'   => $project->getDescription(),
                 'message'       => $message->message,
                 'reporterName'  => $message->reporterName,
                 'reporterEmail' => $message->reporterEmail,

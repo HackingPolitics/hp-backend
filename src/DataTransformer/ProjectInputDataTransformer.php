@@ -125,8 +125,8 @@ class ProjectInputDataTransformer implements DataTransformerInterface
 
     protected function setProfileData(ProjectInput $data, Project $project)
     {
-        if (null !== $data->description) {
-            $project->setDescription($data->description);
+        if (null !== $data->goal) {
+            $project->setGoal($data->goal);
         }
 
         if (null !== $data->impact) {
