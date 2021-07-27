@@ -77,7 +77,7 @@ class ProposalApiTest extends ApiTestCase
 
         self::assertJsonContains([
             '@id'     => $iri,
-            'title'   => 'proposal title',
+            'title'   => TestFixtures::PROPOSAL_1['title'],
             'project' => [
                 'id' => 1,
             ],

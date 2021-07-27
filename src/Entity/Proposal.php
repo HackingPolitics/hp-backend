@@ -281,6 +281,7 @@ class Proposal
      * @Assert\Sequentially({
      *     @Assert\NotBlank,
      *     @Assert\Length(max=1000),
+     *     @VrokAssert\NoLineBreaks,
      * })
      * @Groups({"proposal:read", "proposal:write", "project:read"})
      * @ORM\Column(type="string", length=1000, nullable=false)

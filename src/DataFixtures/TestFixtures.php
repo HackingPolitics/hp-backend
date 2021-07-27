@@ -145,7 +145,7 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
 
     public const PROPOSAL_1 = [
         'id'            => 1,
-        'title'         => "proposal title\nmulti-line!",
+        'title'         => 'proposal title',
         'introduction'  => 'proposal <b>introduction</b>',
         'comment'       => 'proposal comment',
         'actionMandate' => '<ul><li>proposal</li><li>action-mandate</li></ul>',

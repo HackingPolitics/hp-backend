@@ -552,7 +552,7 @@ class ProjectApiTest extends ApiTestCase
                             'introduction'  => 'proposal <b>introduction</b>',
                             'reasoning'     => '<em>proposal reasoning</em>',
                             'sponsor'       => 'interfraktionell',
-                            'title'         => "proposal title\nmulti-line!",
+                            'title'         => TestFixtures::PROPOSAL_1['title'],
 
                             'usedActionMandates' => [
                                 0 => [
@@ -981,7 +981,7 @@ class ProjectApiTest extends ApiTestCase
                     'introduction'  => 'proposal <b>introduction</b>',
                     'reasoning'     => '<em>proposal reasoning</em>',
                     'sponsor'       => 'interfraktionell',
-                    'title'         => "proposal title\nmulti-line!",
+                    'title'         => TestFixtures::PROPOSAL_1['title'],
 
                     'usedActionMandates' => [
                         0 => [
@@ -1180,7 +1180,7 @@ class ProjectApiTest extends ApiTestCase
                     'introduction'  => 'proposal <b>introduction</b>',
                     'reasoning'     => '<em>proposal reasoning</em>',
                     'sponsor'       => 'interfraktionell',
-                    'title'         => "proposal title\nmulti-line!",
+                    'title'         => TestFixtures::PROPOSAL_1['title'],
 
                     'updatedBy' => [
                         'id' => TestFixtures::PROCESS_MANAGER['id'],

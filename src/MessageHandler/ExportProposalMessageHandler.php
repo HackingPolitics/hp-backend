@@ -81,9 +81,7 @@ class ExportProposalMessageHandler implements MessageHandlerInterface
         $odt = new Text(['templateFile' => __DIR__.'/../../templates/export/export-template.odt']);
 
         // replace fixed markers, content without HTML
-        $odt->addReplace('/\{\{title\}\}/siu', strtoupper(
-            str_replace("\n", '<text:line-break/>', $proposal->getTitle())
-        ));
+        $odt->addReplace('/\{\{title\}\}/siu', strtoupper($proposal->getTitle()));
         $odt->addReplace('/\{\{sponsor\}\}/siu', $proposal->getSponsor());
 
         // add the proposal content from HTML, replaces a marker "{{ANTRAGSGRUEN:TEXT}}"
