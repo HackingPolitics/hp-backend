@@ -31,6 +31,7 @@ COPY config config/
 COPY public public/
 COPY src src/
 COPY templates templates/
+COPY templates_custom templates_custom/
 COPY translations translations/
 
 RUN set -eux; \

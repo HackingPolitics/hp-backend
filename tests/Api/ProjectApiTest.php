@@ -2050,7 +2050,7 @@ class ProjectApiTest extends ApiTestCase
             'id'       => TestFixtures::PROJECT['id'],
         ]);
 
-        $project = static::$container->get('doctrine')
+        $project = static::getContainer()->get('doctrine')
             ->getRepository(Project::class)
             ->find(TestFixtures::PROJECT['id']);
         self::assertFalse($project->isLocked());

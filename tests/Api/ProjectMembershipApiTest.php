@@ -1277,7 +1277,7 @@ class ProjectMembershipApiTest extends ApiTestCase
 
         static::assertResponseStatusCodeSame(204);
 
-        $notExisting = static::$container->get('doctrine')
+        $notExisting = static::getContainer()->get('doctrine')
             ->getRepository(ProjectMembership::class)
             ->findOneBy(['user' => $member, 'project' => $project]);
         self::assertNull($notExisting);
@@ -1306,7 +1306,7 @@ class ProjectMembershipApiTest extends ApiTestCase
 
         static::assertResponseStatusCodeSame(204);
 
-        $notExisting = static::$container->get('doctrine')
+        $notExisting = static::getContainer()->get('doctrine')
             ->getRepository(ProjectMembership::class)
             ->findOneBy(['user' => $member, 'project' => $project]);
         self::assertNull($notExisting);
@@ -1336,7 +1336,7 @@ class ProjectMembershipApiTest extends ApiTestCase
 
         static::assertResponseStatusCodeSame(204);
 
-        $notExisting = static::$container->get('doctrine')
+        $notExisting = static::getContainer()->get('doctrine')
             ->getRepository(ProjectMembership::class)
             ->findOneBy(['user' => $member, 'project' => $project]);
         self::assertNull($notExisting);
@@ -1365,7 +1365,7 @@ class ProjectMembershipApiTest extends ApiTestCase
 
         static::assertResponseStatusCodeSame(204);
 
-        $notExisting = static::$container->get('doctrine')
+        $notExisting = static::getContainer()->get('doctrine')
             ->getRepository(ProjectMembership::class)
             ->findOneBy(['user' => $user, 'project' => $project]);
         self::assertNull($notExisting);
@@ -1548,7 +1548,7 @@ class ProjectMembershipApiTest extends ApiTestCase
         $client->request('DELETE', $iri);
         static::assertResponseStatusCodeSame(204);
 
-        $notExisting = static::$container->get('doctrine')
+        $notExisting = static::getContainer()->get('doctrine')
             ->getRepository(ProjectMembership::class)
             ->findOneBy([
                 'user'    => TestFixtures::PROJECT_COORDINATOR['id'],
@@ -1621,7 +1621,7 @@ class ProjectMembershipApiTest extends ApiTestCase
 
     protected function getEntityManager(): EntityManagerInterface
     {
-        return static::$container->get('doctrine')
+        return static::getContainer()->get('doctrine')
             ->getManagerForClass(ProjectMembership::class);
     }
 }

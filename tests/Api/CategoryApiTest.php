@@ -273,7 +273,7 @@ class CategoryApiTest extends ApiTestCase
 
         static::assertResponseStatusCodeSame(204);
 
-        $deleted = static::$container->get('doctrine')
+        $deleted = static::getContainer()->get('doctrine')
             ->getRepository(Category::class)
             ->find(1);
         self::assertNull($deleted);
