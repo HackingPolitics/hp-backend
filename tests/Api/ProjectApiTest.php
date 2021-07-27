@@ -16,7 +16,6 @@ use App\Entity\User;
 use App\Message\ProjectReportedMessage;
 use DateTimeImmutable;
 use DateTimeZone;
-use PHPUnit\Util\Test;
 use Vrok\SymfonyAddons\PHPUnit\AuthenticatedClientTrait;
 use Vrok\SymfonyAddons\PHPUnit\RefreshDatabaseTrait;
 
@@ -215,7 +214,7 @@ class ProjectApiTest extends ApiTestCase
     {
         $client = static::createClient();
 
-        $client->request('GET', '/projects?pattern=impact with');
+        $client->request('GET', '/projects?pattern=pic with');
         self::assertResponseIsSuccessful();
         self::assertResponseHeaderSame('content-type',
             'application/ld+json; charset=utf-8');
@@ -553,7 +552,7 @@ class ProjectApiTest extends ApiTestCase
                             'introduction'  => 'proposal <b>introduction</b>',
                             'reasoning'     => '<em>proposal reasoning</em>',
                             'sponsor'       => 'interfraktionell',
-                            'title'         => 'proposal title',
+                            'title'         => "proposal title\nmulti-line!",
 
                             'usedActionMandates' => [
                                 0 => [
@@ -872,6 +871,7 @@ class ProjectApiTest extends ApiTestCase
             ]);
         }
     */
+
     public function testGetProjectDoesNotReturnDeletedCreator(): void
     {
         $client = static::createClient();
@@ -889,13 +889,9 @@ class ProjectApiTest extends ApiTestCase
 
         $client->request('GET', $iri);
 
-        // @todo kommt damit klar dass der creator hier leer ist obwohl pflichtfeld
-        //self::assertMatchesResourceItemJsonSchema(Project::class);
-
         self::assertJsonContains([
             '@id'       => $iri,
             'createdBy' => null,
-            'goal'      => TestFixtures::PROJECT['goal'],
             'id'        => TestFixtures::PROJECT['id'],
         ]);
     }
@@ -985,7 +981,7 @@ class ProjectApiTest extends ApiTestCase
                     'introduction'  => 'proposal <b>introduction</b>',
                     'reasoning'     => '<em>proposal reasoning</em>',
                     'sponsor'       => 'interfraktionell',
-                    'title'         => 'proposal title',
+                    'title'         => "proposal title\nmulti-line!",
 
                     'usedActionMandates' => [
                         0 => [
@@ -1184,7 +1180,7 @@ class ProjectApiTest extends ApiTestCase
                     'introduction'  => 'proposal <b>introduction</b>',
                     'reasoning'     => '<em>proposal reasoning</em>',
                     'sponsor'       => 'interfraktionell',
-                    'title'         => 'proposal title',
+                    'title'         => "proposal title\nmulti-line!",
 
                     'updatedBy' => [
                         'id' => TestFixtures::PROCESS_MANAGER['id'],

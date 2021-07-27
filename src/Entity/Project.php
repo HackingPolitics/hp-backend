@@ -495,10 +495,7 @@ class Project
 
     //region Goal
     /**
-     * @Assert\Sequentially({
-     *     @Assert\NotBlank,
-     *     @Assert\Length(min=3, max=1000),
-     * })
+     * @Assert\Length(min=3, max=1000)
      * @Groups({
      *     "project:member-read",
      *     "project:pm-read",
@@ -893,10 +890,7 @@ class Project
 
     //region Topic
     /**
-     * @Assert\Sequentially({
-     *     @Assert\NotBlank,
-     *     @Assert\Length(min=2, max=1000),
-     * })
+     * @Assert\Length(min=2, max=1000)
      * @Groups({"project:read", "project:write"})
      * @ORM\Column(type="text", length=1000, nullable=true)
      */
