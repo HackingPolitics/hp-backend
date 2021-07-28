@@ -94,9 +94,12 @@ services:
             # Sender name & address for emails sent by the application
             - MAILER_SENDER="Your HP <email@domain.tld>"
         volumes:
-            - /path/to/jwt-keys:/var/www/html/config/jwt
+            - /path/to/jwt-keys:/var/www/html/config/jwt:ro
             - /path/to/storage-dir:/var/www/html/var/storage
+            # for FPM + PHP error log
             - /path/to/log-dir:/var/www/log
+            # for Symfony error log
+            - /path/to/log-dir:/var/www/html/var/log
         links:
             - hpodb:mysql
             - hporedis:redis
