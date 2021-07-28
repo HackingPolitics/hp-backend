@@ -25,8 +25,6 @@ class UserInputDataTransformer implements DataTransformerInterface, ServiceSubsc
      * {@inheritdoc}
      *
      * @param UserInput $object
-     *
-     * @return User
      */
     public function transform($object, string $to, array $context = []): User
     {

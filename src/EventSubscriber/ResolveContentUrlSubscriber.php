@@ -14,14 +14,14 @@ use Vich\UploaderBundle\Storage\StorageInterface;
 
 class ResolveContentUrlSubscriber implements EventSubscriberInterface
 {
-/* @todo we currently have no public files
-    private $storage;
+    /* @todo we currently have no public files
+        private $storage;
 
-    public function __construct(StorageInterface $storage)
-    {
-        $this->storage = $storage;
-    }
-*/
+        public function __construct(StorageInterface $storage)
+        {
+            $this->storage = $storage;
+        }
+    */
     public static function getSubscribedEvents(): array
     {
         return [

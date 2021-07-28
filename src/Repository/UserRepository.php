@@ -71,10 +71,6 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
      * Attention: Requires that email addresses and also usernames are unique
      * and also no user may have a username equal to the email of another user.
      *
-     * @param string $identifier
-     *
-     * @return UserInterface|null
-     *
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function loadUserByIdentifier(string $identifier): ?UserInterface

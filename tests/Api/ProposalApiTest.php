@@ -485,7 +485,6 @@ class ProposalApiTest extends ApiTestCase
         ]);
     }
 
-
     public function testExport(): void
     {
         $client = static::createAuthenticatedClient([
