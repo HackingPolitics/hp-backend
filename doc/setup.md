@@ -162,7 +162,6 @@ services:
    * create the symfony messenger table (see commands.md)
    * load the initial fixtures (see commands.md)
    * create an admin user and a process-manager (see commands.md)
-
 6. Restart the PHP container with `docker restart hpoapi`, the application 
    should now be running and be accessible at http://localhost:80. You can now
    use a proxy like [Traefik](https://doc.traefik.io/traefik/) to access the

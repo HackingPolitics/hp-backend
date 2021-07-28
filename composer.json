@@ -14,6 +14,7 @@
         "api-platform/api-pack": "^1.3.0",
         "catoth/html2opendocument": "^0.15.0",
         "doctrine/cache": "2.1.1",
+        "doctrine/doctrine-fixtures-bundle": "^3.4.0",
         "graylog2/gelf-php": "^1.7.0",
         "janakdom/jwt-refresh-token-bundle": "*",
         "laminas/laminas-zendframework-bridge": "^1.3.0",
@@ -38,7 +39,6 @@
         "vrok/symfony-addons": "^1.4.1"
     },
     "require-dev": {
-        "doctrine/doctrine-fixtures-bundle": "^3.4.0",
         "friendsofphp/php-cs-fixer": "^3.0.0",
         "justinrainbow/json-schema": "^5.2.11",
         "phpunit/phpunit": "^8.5.18",

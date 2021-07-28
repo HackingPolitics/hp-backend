@@ -21,8 +21,7 @@
    `echo "$JWT_PASSPHRASE" | openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem -pubout`
 
 # Fixtures
-* Load database content (works only in dev|test environments when the necessary
-  dependencies are installed)  
+* Load database content:
   Dev: `php bin/console doctrine:fixtures:load --group initial --append`  
   Test: `php bin/console -etest doctrine:fixtures:load --group test --append`
   
