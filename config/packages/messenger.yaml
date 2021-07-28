@@ -6,7 +6,7 @@ framework:
             failed: 'doctrine://default?queue_name=failed'
 
             async:
-                dsn: '%env(MESSENGER_DOCTRINE_DSN)%'
+                dsn: 'doctrine://default'
                 retry_strategy:
                     max_retries: 3
                     delay: 1000

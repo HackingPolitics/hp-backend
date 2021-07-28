@@ -16,19 +16,3 @@ api_platform:
                 name: Authorization
                 type: header
         versions: [3]
-#    elasticsearch:
-#        hosts: ['%env(ELASTICSEARCH_URL)%']
-    # Varnish integration, remove if unwanted
-#    http_cache:
-#        invalidation:
-#            enabled: true
-#            varnish_urls: ['%env(VARNISH_URL)%']
-#        max_age: 0
-#        shared_max_age: 3600
-#        vary: ['Content-Type', 'Authorization']
-#        public: true
-
-    # Mercure integration, remove if unwanted
-    mercure:
-        enabled: false
-#        hub_url: '%env(MERCURE_SUBSCRIBE_URL)%'

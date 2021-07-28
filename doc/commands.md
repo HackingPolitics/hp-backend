@@ -8,9 +8,17 @@
   `./bin/console messenger:setup-transports`
 * create new (admin) user  
   `./bin/console app:add-user [username] [email] [password] [--admin]`
-* create keys for JWT auth  
-  `openssl genpkey -out config/jwt/private.pem -aes256 -algorithm rsa -pkeyopt rsa_keygen_bits:4096` 
-  `openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem -pubout`
+
+## Create keys for JWT authentication  
+1. Create a folder that will contain the public & private key, here we use
+   _config/jwt/_.
+2. Generate a random passphrase to secure the private key, we store it here in
+   an ENV variable:  
+   ``export JWT_PASSPHRASE=`openssl rand -hex 16` ``
+3. Generate the private key:  
+   `echo "$JWT_PASSPHRASE" | openssl genpkey -out config/jwt/private.pem -aes256 -algorithm rsa -pkeyopt rsa_keygen_bits:4096`
+4. Generate the public key:  
+   `echo "$JWT_PASSPHRASE" | openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem -pubout`
 
 # Fixtures
 * Load database content (works only in dev|test environments when the necessary
