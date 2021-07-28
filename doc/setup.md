@@ -64,6 +64,9 @@ services:
             - apparmor=docker-default
         ports:
             - 80:80
+        volumes:
+            # for Nginx access & error log
+            - /path/to/log-dir:/var/log/nginx
         links:
             - hpoapi:php
 

@@ -23,9 +23,9 @@
    an ENV variable:  
    ``export JWT_PASSPHRASE=`openssl rand -hex 16` ``
 3. Generate the private key:  
-   `echo "$JWT_PASSPHRASE" | openssl genpkey -out config/jwt/private.pem -aes256 -algorithm rsa -pkeyopt rsa_keygen_bits:4096`
+   `echo "$JWT_PASSPHRASE" | openssl genpkey -out config/jwt/private.pem -pass stdin -aes256 -algorithm rsa -pkeyopt rsa_keygen_bits:4096`
 4. Generate the public key:  
-   `echo "$JWT_PASSPHRASE" | openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem -pubout`
+   `echo "$JWT_PASSPHRASE" | openssl pkey -in config/jwt/private.pem -passin stdin -out config/jwt/public.pem -pubout`
 
 # Development / Unittests
 * run test suite (uses .env.test and replaces the test-database content)  
