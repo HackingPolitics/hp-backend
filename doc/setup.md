@@ -1,8 +1,3 @@
-@todo
-* fixtures einspielen
-* cache setup, redis nicht mit network mode sondern via link
-* compose: nginx + mariadb
-
 # Installation & Setup
 
 The application is designed to run within a docker container that provides
@@ -72,7 +67,6 @@ services:
 
     hpoapi:
         image: jschumanndd/hp-backend:main
-        restart: on-failure:5
         container_name: hpoapi
         deploy:
             resources:
@@ -109,7 +103,7 @@ services:
 
     hporedis:
         container_name: hporedis
-        image: redis
+        image: redis:6-alpine
         deploy:
             resources:
                 limits:
@@ -123,6 +117,8 @@ services:
             custom:
         security_opt:
             - apparmor:docker-default
+        sysctls:
+            net.core.somaxcon: 1024
 
     # this is only an example without persistent storage, replace with a
     # suitable container definition or your data will be lost when the container
