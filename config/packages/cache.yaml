@@ -4,8 +4,8 @@ framework:
     # is used to compute stable namespaces for cache keys.
     prefix_seed: hpo/hp-backend
 
-    app: cache.adapter.redis
-    default_redis_provider: 'redis://redis'
+    # no cache adapter defined her -> use filesystem for dev + test,
+    # production uses redis
 
     pools:
       doctrine.system_cache_pool:
