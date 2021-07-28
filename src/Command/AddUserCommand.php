@@ -59,6 +59,7 @@ class AddUserCommand extends Command
             ->addArgument('email', InputArgument::OPTIONAL, 'The email of the new user')
             ->addArgument('password', InputArgument::OPTIONAL, 'The plain password of the new user')
             ->addOption('admin', null, InputOption::VALUE_NONE, 'If set, the user is created as an administrator')
+            ->addOption('process-manager', null, InputOption::VALUE_NONE, 'If set, the user is created as a process manager')
         ;
     }
 
@@ -77,6 +78,10 @@ By default the command creates regular users. To create administrator users,
 add the <comment>--admin</comment> option:
   <info>php %command.full_name%</info> username email password <comment>--admin</comment>
 
+To create a process-manager,
+add the <comment>--process-manager</comment> option:
+  <info>php %command.full_name%</info> username email password <comment>--process-manager</comment>
+  
 If you omit any of the three required arguments, the command will ask you to
 provide the missing values.
 HELP;
@@ -154,6 +159,7 @@ HELP;
         $email = $input->getArgument('email');
         $username = $input->getArgument('username');
         $isAdmin = $input->getOption('admin');
+        $isPM = $input->getOption('process-manager');
 
         // create the user and encode its password
         $user = new User();
@@ -165,6 +171,8 @@ HELP;
         $roles = [];
         if ($isAdmin) {
             $roles[] = User::ROLE_ADMIN;
+        } elseif ($isPM) {
+            $roles[] = User::ROLE_PROCESS_MANAGER;
         }
         $user->setRoles($roles);
 

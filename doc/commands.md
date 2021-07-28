@@ -5,6 +5,8 @@
   `./bin/console messenger:setup-transports`
 * create new (admin) user  
   `./bin/console app:add-user [username] [email] [password] [--admin]`
+* create new process-manager  
+  `./bin/console app:add-user [username] [email] [password] --process-manager`
 * after changing config or adding translation files (automatically called
   for composer install|update)  
   `bin/console cache:clear`
