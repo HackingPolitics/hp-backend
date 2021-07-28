@@ -1,13 +1,18 @@
 # Installation / Configuration
+* create database tables (or update them after code changes)  
+  `./bin/console doctrine:schema:update --force`
+* create messenger table  
+  `./bin/console messenger:setup-transports`
+* create new (admin) user  
+  `./bin/console app:add-user [username] [email] [password] [--admin]`
 * after changing config or adding translation files (automatically called
   for composer install|update)  
   `bin/console cache:clear`
 * after composer install for production  
   `composer dump-autoload --no-dev --classmap-authoritative`
-* create messenger table  
-  `./bin/console messenger:setup-transports`
-* create new (admin) user  
-  `./bin/console app:add-user [username] [email] [password] [--admin]`
+* Load database fixtures:  
+  Default content: `./bin/console doctrine:fixtures:load --group initial --append`  
+  Test: `./bin/console -etest doctrine:fixtures:load --group test --append`
 
 ## Create keys for JWT authentication  
 1. Create a folder that will contain the public & private key, here we use
@@ -20,11 +25,6 @@
 4. Generate the public key:  
    `echo "$JWT_PASSPHRASE" | openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem -pubout`
 
-# Fixtures
-* Load database content:
-  Dev: `php bin/console doctrine:fixtures:load --group initial --append`  
-  Test: `php bin/console -etest doctrine:fixtures:load --group test --append`
-  
 # Development / Unittests
 * run test suite (uses .env.test and replaces the test-database content)  
   `composer test`
@@ -33,8 +33,8 @@
   
 # Debugging
 * List configured services  
-  `bin/console debug:container`
+  `./bin/console debug:container`
 * Display default config of symfony packages  
-  `bin/console config:dump-reference [framework|debug|...]`
+  `./bin/console config:dump-reference [framework|debug|...]`
 * Show current (custom) config  
-  `bin/console debug:config [framework|debug|...]`
+  `./bin/console debug:config [framework|debug|...]`

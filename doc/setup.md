@@ -155,13 +155,13 @@ services:
    docker-compose --compatibility build
    docker-compose --compatibility up -d --remove-orphans
    ```
-5. Open a console inside the PHP container to finish setup:
+5. Open a console inside the PHP container to finish setup:  
    `docker exec -it hpoapi bash`
+6. Go through the following steps, see commands.md for the command syntax:
    * create the tables in the database  
-   `./bin/console doctrine:schema:update --force`
-   * create the symfony messenger table (see commands.md)
-   * load the initial fixtures (see commands.md)
-   * create an admin user and a process-manager (see commands.md)
+   * create the symfony messenger table
+   * load the initial fixtures
+   * create an admin user and a process-manager
 6. Restart the PHP container with `docker restart hpoapi`, the application 
    should now be running and be accessible at http://localhost:80. You can now
    use a proxy like [Traefik](https://doc.traefik.io/traefik/) to access the
