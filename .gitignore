@@ -1,5 +1,6 @@
 /public/uploads/
-/confg/preload.php
+/config/preload.php
+
 .idea
 
 ###> symfony/framework-bundle ###
@@ -23,7 +24,3 @@
 /phpunit.xml
 .phpunit.result.cache
 ###< phpunit/phpunit ###
-###> symfony/phpunit-bridge ###
-.phpunit.result.cache
-/phpunit.xml
-###< symfony/phpunit-bridge ###

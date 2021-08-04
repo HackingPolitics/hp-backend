@@ -92,7 +92,7 @@ class UserRegisteredMessageHandler implements MessageHandlerInterface, ServiceSu
         // constraint on the UserInput DTO, type is optional as information for
         // the client (which message to show on failed validation)
         $withToken = str_replace('{{token}}', $validation->getToken(), $url);
-        $withId = str_replace('{{id}}', $validation->getId(), $withToken);
+        $withId = str_replace('{{id}}', (string) $validation->getId(), $withToken);
         $withType = str_replace('{{type}}', $validation->getType(), $withId);
 
         $email = (new TemplatedEmail())

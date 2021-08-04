@@ -662,7 +662,7 @@ class UserApiTest extends ApiTestCase
         ]);
 
         $userData = $response->toArray();
-        self::assertRegExp('~^/users/\d+$~', $userData['@id']);
+        self::assertMatchesRegularExpression('~^/users/\d+$~', $userData['@id']);
         self::assertArrayHasKey('id', $userData);
         self::assertIsInt($userData['id']);
         self::assertArrayNotHasKey('password', $userData);
