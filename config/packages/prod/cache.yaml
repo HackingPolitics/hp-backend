@@ -2,3 +2,8 @@ framework:
   cache:
     app: cache.adapter.redis
     default_redis_provider: 'redis://redis'
+
+    pools:
+      doctrine.system_cache_pool:
+        adapter: cache.app # use redis also for doctrine query cache
+        default_lifetime: 3600

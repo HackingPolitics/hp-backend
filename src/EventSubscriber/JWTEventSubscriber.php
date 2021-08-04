@@ -46,9 +46,14 @@ class JWTEventSubscriber implements EventSubscriberInterface, ServiceSubscriberI
         // the socket.io server can cross-check this with the requested
         // project ID before allowing a socket client into a room
         $payload['editableProjects'] = [];
+        $payload['editableProposals'] = [];
         foreach ($user->getProjectMemberships() as $membership) {
             if ($membership->getProject()->userCanWrite($user)) {
                 $payload['editableProjects'][] = $membership->getProject()->getId();
+
+                foreach ($membership->getProject()->getProposals() as $proposal) {
+                    $payload['editableProposals'][] = $proposal->getId();
+                }
             }
         }
 

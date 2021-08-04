@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Entity\Project;
+use App\Entity\Proposal;
 use Doctrine\Persistence\ManagerRegistry;
 use HtmlToProseMirror\Renderer as Converter;
 use ProseMirrorToHtml\Renderer;
@@ -12,11 +12,11 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class SetProjectCollabAction
+class SetProposalCollabAction
 {
     public function __invoke(
-        Request $request,
-        Project $project,
+        Request         $request,
+        Proposal        $proposal,
         ManagerRegistry $registry
     ): JsonResponse {
         // not associative! The PM->HTML Renderer needs the objects
@@ -29,11 +29,20 @@ class SetProjectCollabAction
         // @todo restrict Nodes/Marks
         // @see https://github.com/ueberdosis/prosemirror-to-html/#custom-nodes
 
-        if (!empty($input->collabData->goal)) {
-            $project->setGoal($renderer->render($input->collabData->goal));
+        if (!empty($input->collabData->actionMandate)) {
+            $proposal->setActionMandate($renderer->render($input->collabData->actionMandate));
+        }
+        if (!empty($input->collabData->comment)) {
+            $proposal->setComment($renderer->render($input->collabData->comment));
+        }
+        if (!empty($input->collabData->introduction)) {
+            $proposal->setIntroduction($renderer->render($input->collabData->introduction));
+        }
+        if (!empty($input->collabData->reasoning)) {
+            $proposal->setReasoning($renderer->render($input->collabData->reasoning));
         }
 
-        $entityManager = $registry->getManagerForClass(Project::class);
+        $entityManager = $registry->getManagerForClass(Proposal::class);
         $entityManager->flush();
 
         $converter = new Converter();
@@ -42,7 +51,10 @@ class SetProjectCollabAction
         return new JsonResponse([
             'collabData' => [
                 // the converter cannot handle empty values, give him an empty <p> to feed on...
-                'goal' => $converter->render($project->getGoal() ?: '<p></p>'),
+                'actionMandate' => $converter->render($proposal->getActionMandate() ?: '<p></p>'),
+                'comment'       => $converter->render($proposal->getComment() ?: '<p></p>'),
+                'introduction'  => $converter->render($proposal->getIntroduction() ?: '<p></p>'),
+                'reasoning'     => $converter->render($proposal->getReasoning() ?: '<p></p>'),
             ],
         ]);
     }

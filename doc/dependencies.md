@@ -12,17 +12,16 @@
   different environments and log to different backends (file, GELF / logstash, ...)
 * tuupola/base62 - to generate tokens with [A-Za-z0-9] instead of hex chars to
   reduce URL length, e.g. for validation URLs
-* twig/extensions - for localizedDate in templates etc.
+* twig/intl-extra - for localizedDate in templates etc.
 * ueberdosis/html-to-prosemirror / ueberdosis/prosemirror-to-html to support
   collaborative real-time editing
 * vich/uploader-bundle - for file uploads and downloads to/from our storage
   backend (flysystem)
+* we do *not* use api-platform/api-pack as we do not use nelmio/cors-bundle, so
+  we add all dependencies directly
 
 
 ## Development-only dependencies
 * doctrine/doctrine-fixtures-bundle - regenerating test database
-* [test-pack][symfony/test-pack] +  [http-client][symfony/http-client] +
-  justinrainbow/json-schema - testing
-* php-unit/php-unit - to enforce a newer version as the test-pack installs 7.x,
-  api-platform classes require 8.x
+* symfony/test-pack + symfony/http-client + justinrainbow/json-schema - testing
 * zalas/phpunit-globals - to change environment variables for specific test

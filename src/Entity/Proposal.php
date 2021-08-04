@@ -6,6 +6,8 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Controller\ExportProposalAction;
+use App\Controller\GetProposalCollabAction;
+use App\Controller\SetProposalCollabAction;
 use App\Entity\Traits\AutoincrementId;
 use App\Entity\Traits\UpdatedAtFunctions;
 use App\Entity\UploadedFileTypes\ProposalDocument;
@@ -57,6 +59,20 @@ use Vrok\SymfonyAddons\Validator\Constraints as VrokAssert;
  *             "path"="/proposals/{id}/export",
  *             "security"="is_granted('EDIT', object)",
  *             "validation_groups"={"Default", "proposal:export"},
+ *         },
+ *         "getCollab"={
+ *             "controller"=GetProposalCollabAction::class,
+ *             "method"="GET",
+ *             "path"="/proposals/{id}/collab",
+ *             "security"="is_granted('EDIT', object)",
+ *             "validation_groups"={"Default", "proposal:collab"},
+ *         },
+ *         "setCollab"={
+ *             "controller"=SetProposalCollabAction::class,
+ *             "method"="POST",
+ *             "path"="/proposals/{id}/collab",
+ *             "security"="is_granted('EDIT', object)",
+ *             "validation_groups"={"Default", "proposal:collab"},
  *         },
  *     },
  *     normalizationContext={

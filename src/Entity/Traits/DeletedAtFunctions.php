@@ -8,11 +8,6 @@ use DateTimeImmutable;
 
 trait DeletedAtFunctions
 {
-    /**
-     * Sets deletedAt.
-     *
-     * @return $this
-     */
     public function setDeletedAt(?DateTimeImmutable $deletedAt): self
     {
         $this->deletedAt = $deletedAt;
@@ -20,19 +15,11 @@ trait DeletedAtFunctions
         return $this;
     }
 
-    /**
-     * Returns deletedAt.
-     *
-     * @return DateTimeImmutable
-     */
     public function getDeletedAt(): ?DateTimeImmutable
     {
         return $this->deletedAt;
     }
 
-    /**
-     * Is deleted?
-     */
     public function isDeleted(): bool
     {
         return null !== $this->deletedAt;

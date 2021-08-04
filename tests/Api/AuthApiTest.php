@@ -119,8 +119,8 @@ class AuthApiTest extends ApiTestCase
         $before = new \DateTimeImmutable();
 
         $response = static::createClient()->request('POST', '/authentication_token', ['json' => [
-            'username' => TestFixtures::ADMIN['username'],
-            'password' => TestFixtures::ADMIN['password'],
+            'username' => TestFixtures::PROJECT_COORDINATOR['username'],
+            'password' => TestFixtures::PROJECT_COORDINATOR['password'],
         ]]);
 
         self::assertResponseIsSuccessful();
@@ -136,13 +136,18 @@ class AuthApiTest extends ApiTestCase
         $decoded = $decoder->decode($auth['token']);
 
         self::assertArrayHasKey('exp', $decoded);
-        self::assertSame(TestFixtures::ADMIN['username'], $decoded['username']);
-        self::assertSame([User::ROLE_ADMIN, User::ROLE_USER], $decoded['roles']);
+        self::assertSame(TestFixtures::PROJECT_COORDINATOR['username'], $decoded['username']);
+        self::assertSame([User::ROLE_USER], $decoded['roles']);
 
         // these are non-standard, added by our JWTEventSubscriber
-        self::assertSame(TestFixtures::ADMIN['id'], $decoded['id']);
+        self::assertSame(TestFixtures::PROJECT_COORDINATOR['id'], $decoded['id']);
         self::assertArrayHasKey('editableProjects', $decoded);
         self::assertIsArray($decoded['editableProjects']);
+        self::assertContains(TestFixtures::PROJECT['id'], $decoded['editableProjects']);
+
+        self::assertArrayHasKey('editableProposals', $decoded);
+        self::assertIsArray($decoded['editableProposals']);
+        self::assertContains(1, $decoded['editableProposals']);
 
         $em = static::getContainer()->get('doctrine')->getManager();
         $rtoken = $em->getRepository(RefreshToken::class)->findOneBy([
@@ -152,7 +157,7 @@ class AuthApiTest extends ApiTestCase
         self::assertInstanceOf(RefreshToken::class, $rtoken);
 
         $logs = $em->getRepository(ActionLog::class)
-            ->findBy(['username' => TestFixtures::ADMIN['username']]);
+            ->findBy(['username' => TestFixtures::PROJECT_COORDINATOR['username']]);
         self::assertCount(1, $logs);
         self::assertSame(ActionLog::SUCCESSFUL_LOGIN, $logs[0]->action);
         self::assertGreaterThan($before, $logs[0]->timestamp);

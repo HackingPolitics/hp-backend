@@ -9,5 +9,8 @@ framework:
 
     pools:
       doctrine.system_cache_pool:
+        adapter: cache.system
+        default_lifetime: 3600
+      doctrine.result_cache_pool:
         adapter: cache.app
         default_lifetime: 3600

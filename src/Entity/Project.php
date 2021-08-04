@@ -10,10 +10,8 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\ExistsFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
-use App\Controller\GetProjectCollabAction;
 use App\Controller\ProjectStatisticsAction;
 use App\Controller\ReportProjectAction;
-use App\Controller\SetProjectCollabAction;
 use App\Entity\Traits\AutoincrementId;
 use App\Entity\Traits\CreatedAtFunctions;
 use App\Entity\Traits\DeletedAtFunctions;
@@ -59,20 +57,6 @@ use Vrok\SymfonyAddons\Validator\Constraints as VrokAssert;
  *             "validation_groups"={"Default", "project:write"}
  *         },
  *         "delete"={"security"="is_granted('DELETE', object)"},
- *         "getCollab"={
- *             "controller"=GetProjectCollabAction::class,
- *             "method"="GET",
- *             "path"="/projects/{id}/collab",
- *             "security"="is_granted('EDIT', object)",
- *             "validation_groups"={"Default", "project:collab"},
- *         },
- *         "setCollab"={
- *             "controller"=SetProjectCollabAction::class,
- *             "method"="POST",
- *             "path"="/projects/{id}/collab",
- *             "security"="is_granted('EDIT', object)",
- *             "validation_groups"={"Default", "project:collab"},
- *         },
  *         "report"={
  *             "controller"=ReportProjectAction::class,
  *             "method"="POST",
