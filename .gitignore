@@ -1,6 +1,5 @@
-/helm/api/charts
 /public/uploads/
-
+/confg/preload.php
 .idea
 
 ###> symfony/framework-bundle ###
