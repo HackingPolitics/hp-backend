@@ -38,10 +38,6 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
-    App\Security\Authentication\AuthenticationProviderManager:
-        decorates: 'security.authentication.manager'
-        arguments: [ '@App\Security\Authentication\AuthenticationProviderManager.inner' ]
-
     App\Serializer\RoleContextBuilder:
         decorates: 'api_platform.serializer.context_builder'
         arguments: [ '@App\Serializer\RoleContextBuilder.inner' ]

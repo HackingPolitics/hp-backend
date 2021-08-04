@@ -27,7 +27,7 @@ class AccessBlockedVoter extends Voter
     /**
      * {@inheritdoc}
      */
-    protected function supports($attribute, $subject)
+    protected function supports($attribute, $subject): bool
     {
         return in_array($attribute, [
                 self::PW_RESET,
@@ -42,7 +42,7 @@ class AccessBlockedVoter extends Voter
      * @param string $attribute
      * @param string $subject
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         if (self::PW_RESET === $attribute) {
             return $this->accessBlock->passwordResetAllowed($subject);

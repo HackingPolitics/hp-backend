@@ -1,4 +1,4 @@
-FROM vrokdd/php:symfony
+FROM vrokdd/php:symfony-8
 
 RUN apt-get install $PHPIZE_DEPS \
     && pecl install xdebug-3.0.4 \

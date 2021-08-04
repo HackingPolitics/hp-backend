@@ -5,71 +5,90 @@ declare(strict_types=1);
 namespace App\EventSubscriber;
 
 use App\Entity\ActionLog;
+use App\Security\AccessBlockService;
 use Doctrine\ORM\EntityManagerInterface;
+use LogicException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
-use Symfony\Component\Security\Core\AuthenticationEvents;
-use Symfony\Component\Security\Core\Event\AuthenticationFailureEvent;
-use Symfony\Component\Security\Core\Event\AuthenticationSuccessEvent;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\PreAuthenticatedUserBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\UserPassportInterface;
+use Symfony\Component\Security\Http\Event\CheckPassportEvent;
+use Symfony\Component\Security\Http\Event\LoginFailureEvent;
+use Symfony\Component\Security\Http\Event\LoginSuccessEvent;
+use Symfony\Contracts\Service\ServiceSubscriberInterface;
+use Symfony\Contracts\Service\ServiceSubscriberTrait;
 
-class AuthenticationEventSubscriber implements EventSubscriberInterface
+class AuthenticationEventSubscriber implements EventSubscriberInterface, ServiceSubscriberInterface
 {
-    private RequestStack $requestStack;
-
-    private EntityManagerInterface $entityManager;
+    use ServiceSubscriberTrait;
 
     public static function getSubscribedEvents(): array
     {
         return [
-            AuthenticationEvents::AUTHENTICATION_FAILURE => 'onAuthenticationFailure',
-            AuthenticationEvents::AUTHENTICATION_SUCCESS => 'onAuthenticationSuccess',
+            // prio = 1000 to run before the user is loaded from the database (prio = 250)
+            CheckPassportEvent::class => ['preCheckCredentials', 1000],
+
+            LoginFailureEvent::class => 'onLoginFailure',
+            LoginSuccessEvent::class => 'onLoginSuccess',
         ];
     }
 
-    public function __construct(RequestStack $requestStack, EntityManagerInterface $entityManager)
-    {
-        $this->requestStack = $requestStack;
-        $this->entityManager = $entityManager;
-    }
 
-    public function onAuthenticationFailure(AuthenticationFailureEvent $event): void
+    public function preCheckCredentials(CheckPassportEvent $event): void
     {
-        $log = new ActionLog();
-        $log->ipAddress = $this->getRequest()->getClientIp();
-        $log->username = $event->getAuthenticationToken()->getUserIdentifier();
-        $log->action = ActionLog::FAILED_LOGIN;
-
-        $this->entityManager->persist($log);
-        $this->entityManager->flush();
-    }
-
-    public function onAuthenticationSuccess(AuthenticationSuccessEvent $event): void
-    {
-        // token refresh triggers this with an AnonymousToken -> ignore
-        if (!$event->getAuthenticationToken() instanceof UsernamePasswordToken) {
+        $passport = $event->getPassport();
+        if (!$passport instanceof UserPassportInterface || $passport->hasBadge(PreAuthenticatedUserBadge::class)) {
             return;
         }
 
-        $request = $this->getRequest();
-
-        $log = new ActionLog();
-        $log->ipAddress = $request->getClientIp();
-        $log->username = $event->getAuthenticationToken()->getUserIdentifier();
-        $log->action = ActionLog::SUCCESSFUL_LOGIN;
-
-        $this->entityManager->persist($log);
-        $this->entityManager->flush();
+        $badge = $passport->getBadge(UserBadge::class);
+        if (!$badge) {
+            throw new LogicException("No UserBadge for current login attempt!");
+        }
+        $identifier = $badge->getUserIdentifier();
+        if (!$this->accessBlocker()->loginAllowed($identifier)) {
+            // TooManyLoginAttemptsAuthenticationException would cause a 401, which
+            // seems incorrect as the user had no chance to authenticate, his access was
+            // "Forbidden", he is "not authorized to authenticate".
+            throw new AccessDeniedHttpException('Access blocked, to many requests.');
+        }
     }
 
-    private function getRequest(): Request
+    public function onLoginFailure(LoginFailureEvent $event): void
     {
-        $request = $this->requestStack->getCurrentRequest();
-        if (!$request instanceof Request) {
-            throw new \RuntimeException('No request.');
+        $badge = $event->getPassport()->getBadge(UserBadge::class);
+        if (!$badge) {
+            throw new LogicException("No UserBadge for current login attempt!");
         }
 
-        return $request;
+        $log = new ActionLog();
+        $log->ipAddress = $event->getRequest()->getClientIp();
+        $log->username = $badge->getUserIdentifier();
+        $log->action = ActionLog::FAILED_LOGIN;
+
+        $this->entityManager()->persist($log);
+        $this->entityManager()->flush();
+    }
+
+    public function onLoginSuccess(LoginSuccessEvent $event): void
+    {
+        $log = new ActionLog();
+        $log->ipAddress = $event->getRequest()->getClientIp();
+        $log->username = $event->getUser()->getUserIdentifier();
+        $log->action = ActionLog::SUCCESSFUL_LOGIN;
+
+        $this->entityManager()->persist($log);
+        $this->entityManager()->flush();
+    }
+
+    private function accessBlocker(): AccessBlockService
+    {
+        return $this->container->get(__METHOD__);
+    }
+
+    private function entityManager(): EntityManagerInterface
+    {
+        return $this->container->get(__METHOD__);
     }
 }

@@ -1,3 +1,3 @@
 # Anstehend
 
-* collab überarbeiten, multiple proposals
+* update to PHP8

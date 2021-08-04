@@ -1,4 +1,6 @@
 security:
+    enable_authenticator_manager: true
+
     password_hashers:
         App\Entity\User:
             algorithm: auto
@@ -7,8 +9,6 @@ security:
         app_user_provider:
             entity:
                 class: App\Entity\User
-                # do not specify "property", we want to use loadUserByUsername()
-                # in our UserRepository
 
     firewalls:
         dev:
@@ -16,7 +16,6 @@ security:
             security: false
         main:
             stateless: true
-            anonymous: true
             provider: app_user_provider
             user_checker: App\Security\UserChecker
             json_login:
@@ -26,9 +25,7 @@ security:
                 password_path: password
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
-            guard:
-                authenticators:
-                    - lexik_jwt_authentication.jwt_token_authenticator
+            jwt: ~
 
             # https://symfony.com/doc/current/security/impersonating_user.html
             # switch_user: true
@@ -40,4 +37,6 @@ security:
         #- { path: ^/authentication_token, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         #- { path: ^/profile, roles: ROLE_USER }
 
+    # prevent symfony from wrapping our custom AccountStatusExceptions in a generic
+    # BadCredentialsException as this would prevent accurate error messages
     hide_user_not_found: false

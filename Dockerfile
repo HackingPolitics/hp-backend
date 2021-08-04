@@ -3,7 +3,7 @@
 # https://docs.docker.com/compose/compose-file/#target
 
 # "php" stage
-FROM vrokdd/php:symfony AS hp_php
+FROM vrokdd/php:symfony-8 AS hp_php
 
 # build for production
 ARG APP_ENV=prod

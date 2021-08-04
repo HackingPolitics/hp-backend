@@ -6,7 +6,6 @@ use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bridge\Doctrine\Security\User\UserLoaderInterface;
-use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProviderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -45,15 +44,6 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
     }
 
     /**
-     * For the UserLoaderInterface: This allows us to login the user via his
-     * username or email, the method is automatically called by Symfony when the
-     * key security.providers.app_user_provider.entity.property is NOT set. This
-     * replaces the need for a custom GuardAuthenticator. All other checks for
-     * the user are done in our own Security\UserChecker.
-     *
-     * Attention: Requires that email addresses and also usernames are unique
-     * and also no user may have a username equal to the email of another user.
-     *
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function loadUserByUsername(string $username): ?UserInterface
@@ -63,10 +53,8 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
 
     /**
      * For the UserLoaderInterface: This allows us to login the user via his
-     * username or email, the method is automatically called by Symfony when the
-     * key security.providers.app_user_provider.entity.property is NOT set. This
-     * replaces the need for a custom GuardAuthenticator. All other checks for
-     * the user are done in our own Security\UserChecker.
+     * username or email, the method is automatically called by Symfony.
+     * All other checks for the user are done in our own Security\UserChecker.
      *
      * Attention: Requires that email addresses and also usernames are unique
      * and also no user may have a username equal to the email of another user.
@@ -75,7 +63,7 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
      */
     public function loadUserByIdentifier(string $identifier): ?UserInterface
     {
-        if (AuthenticationProviderInterface::USERNAME_NONE_PROVIDED === $identifier) {
+        if (!$identifier) {
             return null;
         }
 

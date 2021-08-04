@@ -4,13 +4,15 @@
     "type": "project",
     "license": "MIT",
     "require": {
-        "php": "^7.4",
-        "ext-amqp": "*",
+        "php": "^8.0",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-json": "*",
         "ext-mbstring": "*",
+        "ext-redis": "*",
         "ext-sodium": "*",
+        "ext-zend-opcache": "*",
+        "ext-zip": "*",
         "api-platform/core": "^2.6.5",
         "catoth/html2opendocument": "^0.15.0",
         "doctrine/cache": "^2.1.1",
@@ -48,14 +50,14 @@
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.0.1",
         "justinrainbow/json-schema": "^5.2.11",
-        "phpunit/phpunit": "^8.5.19",
+        "phpunit/phpunit": "^9.5.8",
         "roave/security-advisories": "dev-latest",
         "symfony/debug-pack": "^1.0.9",
         "symfony/http-client": "^5.3.4",
         "symfony/maker-bundle": "^1.33.0",
         "symfony/profiler-pack": "^1.0.5",
         "symfony/test-pack": "^1.0.8",
-        "zalas/phpunit-globals": "^2.0.4"
+        "zalas/phpunit-globals": "^2.0.0"
     },
     "config": {
         "preferred-install": {

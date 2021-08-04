@@ -11,7 +11,7 @@ class UserChecker implements UserCheckerInterface
     /**
      * Which messages are shown before the password is checked?
      */
-    public function checkPreAuth(UserInterface $user)
+    public function checkPreAuth(UserInterface $user): void
     {
         if (!$user instanceof User) {
             return;

@@ -141,10 +141,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     //region Username
     /**
-     * User names must start with a letter; may contain only letters, digits,
+     * Usernames must start with a letter; may contain only letters, digits,
      * dots, hyphens and underscores; they must contain at least two letters
      * (first regex).
-     * User names may not be in the format "deleted_{0-9}" as this is reserved
+     * Usernames may not be in the format "deleted_{0-9}" as this is reserved
      * for deleted users (second regex).
      *
      * @Assert\Sequentially({
