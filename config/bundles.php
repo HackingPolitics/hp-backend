@@ -21,4 +21,5 @@ return [
     Vrok\MonitoringBundle\VrokMonitoringBundle::class => ['all' => true],
     Vrok\SymfonyAddons\VrokSymfonyAddonsBundle::class => ['all' => true],
     App\HpoBundle::class => ['all' => true],
+    Nelmio\CorsBundle\NelmioCorsBundle::class => ['all' => true],
 ];
