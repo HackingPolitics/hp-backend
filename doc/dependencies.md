@@ -17,9 +17,8 @@
   collaborative real-time editing
 * vich/uploader-bundle - for file uploads and downloads to/from our storage
   backend (flysystem)
-* we do *not* use api-platform/api-pack as we do not use nelmio/cors-bundle, so
-  we add all dependencies directly
-
+* symfony/http-client - is required for the NotCompromisedPasswordValidator in
+  production and for tests in dev/test
 
 ## Development-only dependencies
 * doctrine/doctrine-fixtures-bundle - regenerating test database
