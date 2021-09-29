@@ -18,11 +18,10 @@ services:
       # /projects muss in der Virtualbox als Shared Folder gemounted sein
       - /projects/hpo-backend/:/var/www/html
     extra_hosts:
-      - host.vbox.internal:192.168.178.47
+      - host.vbox.internal:192.168.56.1
     environment:
       APP_ENV: test
       XDEBUG_MODE: debug
-      XDEBUG_CONFIG: client_host=host.vbox.internal
       START_CRON: "false"
       START_MESSENGER: "true"
       START_FPM: "false"

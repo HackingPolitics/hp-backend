@@ -148,8 +148,8 @@ class TestFixtures extends Fixture implements FixtureGroupInterface, DependentFi
         'title'         => 'proposal title',
         'introduction'  => 'proposal <b>introduction</b>',
         'comment'       => 'proposal comment',
-        'actionMandate' => '<ul><li>proposal</li><li>action-mandate</li></ul>',
-        'reasoning'     => '<em>proposal reasoning</em>',
+        'actionMandate' => '<h3>heading</h3><p>paragraph1</p><ul><li>proposal</li><li>action-mandate</li></ul><p>paragraph2 <b>bold</b></p>',
+        'reasoning'     => '<em>proposal reasoning</em><ol><li>reason1</li><li>reason2</li></ol>',
         'sponsor'       => 'interfraktionell',
     ];
 

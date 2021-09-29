@@ -692,14 +692,114 @@ class ProposalApiTest extends ApiTestCase
                     'type'    => 'doc',
                     'content' => [
                         [
+                            'type'    => 'heading',
+                            'attrs'   => [
+                                'level' => '3'
+                            ],
+                            'content' => [
+                                [
+                                  'type' => 'text',
+                                    'text' => 'heading',
+                                ],
+                            ],
+                        ],
+                        [
+                            'type'    => 'paragraph',
+                            'content' => [
+                                [
+                                    'type' => 'text',
+                                    'text' => 'paragraph1',
+                                ],
+                            ],
+                        ],
+                        [
                             'type'    => 'bullet_list',
-                            'content' => [],
+                            'content' => [
+                                [
+                                    'type' => 'list_item',
+                                    'content' => [
+                                        [
+                                            'type'    => 'paragraph',
+                                            'content' => [
+                                                [
+                                                    'type' => 'text',
+                                                    'text' => 'proposal',
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                                [
+                                    'type' => 'list_item',
+                                    'content' => [
+                                        [
+                                            'type'    => 'paragraph',
+                                            'content' => [
+                                                [
+                                                    'type' => 'text',
+                                                    'text' => 'action-mandate',
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                        [
+                            'type'    => 'paragraph',
+                            'content' => [
+                                [
+                                    'type' => 'text',
+                                    'text' => 'paragraph2 ',
+                                ],
+                                [
+                                    'type'  => 'text',
+                                    'text'  => 'bold',
+                                    'marks' => [
+                                        [
+                                            'type' => 'bold',
+                                        ],
+                                    ],
+                                ],
+                            ],
                         ],
                     ],
                 ],
                 'introduction' => [
                 ],
                 'reasoning' => [
+                    'type'    => 'doc',
+                    'content' => [
+                        [
+                            'type'   => 'text',
+                            'text'  => 'proposal reasoning',
+                            'marks' => [
+                                [
+                                    'type' => 'italic',
+                                ],
+                            ],
+                        ],
+                        [
+                            'type'    => 'ordered_list',
+                            'attrs'   => [
+                                'order' => 1,
+                            ],
+                            'content' => [
+                                [
+                                    'type'    => 'list_item',
+                                    'content' => [
+
+                                    ]
+                                ],
+                                [
+                                    'type'    => 'list_item',
+                                    'content' => [
+
+                                    ]
+                                ],
+                            ],
+                        ],
+                    ],
                 ],
                 'comment' => [
                     'type'    => 'doc',
@@ -805,6 +905,79 @@ class ProposalApiTest extends ApiTestCase
                                 ],
                             ],
                         ],
+                        [
+                            'type'    => 'bullet_list',
+                            'content' => [
+                                [
+                                    'type' => 'list_item',
+                                    'content' => [
+                                        [
+                                            'type'    => 'paragraph',
+                                            'content' => [
+                                                [
+                                                    'type' => 'text',
+                                                    'text' => 'proposal',
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                                [
+                                    'type' => 'list_item',
+                                    'content' => [
+                                        [
+                                            'type'    => 'paragraph',
+                                            'content' => [
+                                                [
+                                                    'type' => 'text',
+                                                    'text' => 'action-mandate',
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                'reasoning' => [
+                    'type'    => 'doc',
+                    'content' => [
+                        [
+                            'type'   => 'text',
+                            'text'  => 'proposal reasoning',
+                            'marks' => [
+                                [
+                                    'type' => 'italic',
+                                ],
+                            ],
+                        ],
+                        [
+                            'type'    => 'ordered_list',
+                            'attrs'   => [
+                                'order' => 1,
+                            ],
+                            'content' => [
+                                [
+                                    'type'    => 'list_item',
+                                    'content' => [
+                                        [
+                                            'type' => 'text',
+                                            'text' => 'i1',
+                                        ]
+                                    ]
+                                ],
+                                [
+                                    'type'    => 'list_item',
+                                    'content' => [
+                                        [
+                                            'type' => 'text',
+                                            'text' => 'i2',
+                                        ]
+                                    ]
+                                ],
+                            ],
+                        ],
                     ],
                 ],
             ],
@@ -817,7 +990,8 @@ class ProposalApiTest extends ApiTestCase
         $proposal = $em->getRepository(Proposal::class)
             ->find(TestFixtures::PROPOSAL_1['id']);
 
-        self::assertSame('<h2>Überschrift</h2><p>Te<strong>s</strong>t</p>', $proposal->getComment());
+        self::assertSame('<h2>Überschrift</h2><p>Te<strong>s</strong>t</p><ul><li><p>proposal</p></li><li><p>action-mandate</p></li></ul>', $proposal->getComment());
+        self::assertSame('<em>proposal reasoning</em><ol start="1"><li>i1</li><li>i2</li></ol>', $proposal->getReasoning());
     }
 
     public function testSetCollaborationFailsWithoutPrivilege(): void

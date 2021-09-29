@@ -8,6 +8,7 @@ use App\Entity\Proposal;
 use Doctrine\Persistence\ManagerRegistry;
 use HtmlToProseMirror\Renderer as Converter;
 use ProseMirrorToHtml\Renderer;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -17,13 +18,17 @@ class SetProposalCollabAction
     public function __invoke(
         Request         $request,
         Proposal        $proposal,
-        ManagerRegistry $registry
+        ManagerRegistry $registry,
+        LoggerInterface $appLogger,
     ): JsonResponse {
         // not associative! The PM->HTML Renderer needs the objects
         $input = json_decode($request->getContent(), false, 512, JSON_THROW_ON_ERROR);
         if (!$input || empty($input->collabData)) {
             throw new BadRequestHttpException('Missing "collabData" in request!');
         }
+
+        // @todo remove debug
+       $appLogger->alert('collab', [$request->getContent()]);
 
         $renderer = new Renderer();
         // @todo restrict Nodes/Marks

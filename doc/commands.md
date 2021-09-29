@@ -41,4 +41,4 @@
 * Show current (custom) config  
   `./bin/console debug:config [framework|debug|...]`
 * Test CORS Headers  
- `curl -X OPTIONS -H "Accept: application/ld+json" -H "Origin: http://example.com" -H "Access-Control-Request-Method: GET"  https://api.test.futureprojects.de/projects --head`
+ `curl -X OPTIONS -H "Accept: application/ld+json" -H "Origin: http://example.com" -H "Access-Control-Request-Method: GET"  https://backend.hacking-politics.de --head`
