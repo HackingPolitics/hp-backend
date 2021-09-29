@@ -541,7 +541,7 @@ class ProjectApiTest extends ApiTestCase
                     'proposals' => [
                         0 => [
                             'id'            => TestFixtures::PROPOSAL_1['id'],
-                            'actionMandate' => '<ul><li>proposal</li><li>action-mandate</li></ul>',
+                            'actionMandate' => '<h3>heading</h3><p>paragraph1</p><ul><li>proposal</li><li>action-mandate</li></ul><p>paragraph2 <b>bold</b></p>',
                             'comment'       => 'proposal comment',
                             'documentFile'  => [
                                 'contentUrl'   => '/proposals/1/document-download',
@@ -550,7 +550,7 @@ class ProjectApiTest extends ApiTestCase
                                 'mimeType'     => 'application/vnd.oasis.opendocument.text',
                             ],
                             'introduction'  => 'proposal <b>introduction</b>',
-                            'reasoning'     => '<em>proposal reasoning</em>',
+                            'reasoning'     => '<em>proposal reasoning</em><ol><li>reason1</li><li>reason2</li></ol>',
                             'sponsor'       => 'interfraktionell',
                             'title'         => TestFixtures::PROPOSAL_1['title'],
 
@@ -976,10 +976,10 @@ class ProjectApiTest extends ApiTestCase
             'proposals' => [
                 0 => [
                     'id'            => TestFixtures::PROPOSAL_1['id'],
-                    'actionMandate' => '<ul><li>proposal</li><li>action-mandate</li></ul>',
+                    'actionMandate' => '<h3>heading</h3><p>paragraph1</p><ul><li>proposal</li><li>action-mandate</li></ul><p>paragraph2 <b>bold</b></p>',
                     'comment'       => 'proposal comment',
                     'introduction'  => 'proposal <b>introduction</b>',
-                    'reasoning'     => '<em>proposal reasoning</em>',
+                    'reasoning'     => '<em>proposal reasoning</em><ol><li>reason1</li><li>reason2</li></ol>',
                     'sponsor'       => 'interfraktionell',
                     'title'         => TestFixtures::PROPOSAL_1['title'],
 
@@ -1169,7 +1169,7 @@ class ProjectApiTest extends ApiTestCase
             'proposals' => [
                 0 => [
                     'id'            => TestFixtures::PROPOSAL_1['id'],
-                    'actionMandate' => '<ul><li>proposal</li><li>action-mandate</li></ul>',
+                    'actionMandate' => '<h3>heading</h3><p>paragraph1</p><ul><li>proposal</li><li>action-mandate</li></ul><p>paragraph2 <b>bold</b></p>',
                     'comment'       => 'proposal comment',
                     'documentFile'  => [
                         'contentUrl'   => '/proposals/1/document-download',
@@ -1178,7 +1178,7 @@ class ProjectApiTest extends ApiTestCase
                         'mimeType'     => 'application/vnd.oasis.opendocument.text',
                     ],
                     'introduction'  => 'proposal <b>introduction</b>',
-                    'reasoning'     => '<em>proposal reasoning</em>',
+                    'reasoning'     => '<em>proposal reasoning</em><ol><li>reason1</li><li>reason2</li></ol>',
                     'sponsor'       => 'interfraktionell',
                     'title'         => TestFixtures::PROPOSAL_1['title'],
 
